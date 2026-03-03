@@ -9,6 +9,7 @@ import 'package:uangku/core/constants/app_constants.dart';
 import 'package:uangku/data/tables/wallets_table.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/data/tables/investment_snapshots_table.dart';
+import 'package:uangku/data/tables/app_settings_table.dart';
 
 part 'database.g.dart';
 
@@ -16,7 +17,9 @@ part 'database.g.dart';
 ///
 /// Includes all tables and manages schema versioning.
 /// Use code generation: `dart run build_runner build --delete-conflicting-outputs`
-@DriftDatabase(tables: [Wallets, Transactions, InvestmentSnapshots])
+@DriftDatabase(
+  tables: [Wallets, Transactions, InvestmentSnapshots, AppSettings],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase._(super.e);
 

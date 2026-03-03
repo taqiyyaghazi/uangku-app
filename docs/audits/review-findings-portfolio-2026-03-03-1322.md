@@ -18,14 +18,14 @@ Issues that must be fixed before deployment.
 
 Issues that should be fixed in the near term.
 
-- [ ] Empty catch block without logging or observability when reading snapshot stream — `lib/features/portfolio/logic/portfolio_providers.dart`:106
-- [ ] Errors from repository on wallet histories silently swallowed by UI without logging or fallback representation — `lib/features/portfolio/screens/portfolio_screen.dart`:330
+- [x] Empty catch block without logging or observability when reading snapshot stream — `lib/features/portfolio/logic/portfolio_providers.dart`:106
+- [x] Errors from repository on wallet histories silently swallowed by UI without logging or fallback representation — `lib/features/portfolio/screens/portfolio_screen.dart`:330
 
 ## Minor Issues
 
 Style, naming, or minor improvements.
 
-- [ ] Both `bank` and `cash` WalletTypes map to the exact same `OceanFlowColors.neutral` color, making them indistinguishable on the donut chart legend — `lib/features/portfolio/logic/portfolio_providers.dart`:58-61
+- [x] Both `bank` and `cash` WalletTypes map to the exact same `OceanFlowColors.neutral` color, making them indistinguishable on the donut chart legend — `lib/features/portfolio/logic/portfolio_providers.dart`:58-61
 
 ## Verification Results
 

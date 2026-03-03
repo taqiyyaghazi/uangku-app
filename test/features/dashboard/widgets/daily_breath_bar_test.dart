@@ -32,6 +32,7 @@ void main() {
 
       await tester.pumpWidget(buildTestWidget(state));
       expect(find.text('Daily Breath'), findsOneWidget);
+      expect(find.byIcon(Icons.settings), findsOneWidget);
     });
 
     testWidgets('shows remaining days', (tester) async {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/features/dashboard/models/budget_state.dart';
+import 'package:uangku/features/dashboard/widgets/budget_setting_modal.dart';
 import 'package:uangku/shared/utils/currency_formatter.dart';
 
 /// An animated progress bar visualizing the Daily Breath budget.
@@ -48,11 +49,30 @@ class DailyBreathBar extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Daily Breath',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+              Row(
+                children: [
+                  Text(
+                    'Daily Breath',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  InkWell(
+                    onTap: () => BudgetSettingModal.show(context),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: Icon(
+                        Icons.settings,
+                        size: 16,
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

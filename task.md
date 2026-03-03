@@ -1,25 +1,26 @@
-# Task: Story 3.2 - Investment Trends & Allocations
+# Task: Story 4.1 - Budget Configuration & Storage
 
 ## Scope
 
-Visualize investment trends and allocations: a net worth growth line chart tracking historical snapshots and an asset allocation donut chart showing the distribution of funds.
+Allow user to set and update total monthly budget for "Daily Breath" widget, and save it persistently.
 
 ## Workflow Status
 
 ### Phase 1: Research
 
 - [x] Analyze user story and ACs
-- [x] Review existing data models and providers
+- [x] Review database schema and `BudgetService`
+- [x] Create Implementation Plan
 
 ### Phase 2: Implement
 
-- [x] Add `fl_chart` dependency to pubspec.yaml
-- [x] Implement `walletAllocationProvider` for the donut chart
-- [x] Implement `netWorthGrowthProvider` for the line chart
-- [x] Build `AllocationDonutChart` UI component
-- [x] Build `GrowthLineChart` UI component
-- [x] Integrate charts into `PortfolioScreen`
-- [x] Write Unit/Widget Tests for aggregators and charts
+- [x] Add `AppSettings` table to Drift database (`lib/data/tables/app_settings_table.dart`)
+- [x] Add `AppSettings` to `AppDatabase` and run build_runner
+- [x] Create `AppSettingsRepository` and `monthlyBudgetProvider` (`lib/features/dashboard/logic/settings_providers.dart`)
+- [x] Implement `BudgetSettingModal` (`lib/features/dashboard/widgets/budget_setting_modal.dart`)
+- [x] Add "Set Budget" button to `DailyBreathBar`
+- [x] Integrate `monthlyBudgetProvider` into `dailyBreathProvider` and `BudgetService`
+- [x] Write Unit/Widget Tests for new logic and UI
 
 ### Phase 4: Verify
 
@@ -29,4 +30,4 @@ Visualize investment trends and allocations: a net worth growth line chart track
 
 ### Phase 5: Ship
 
-- [ ] Git commit
+- [x] Git commit

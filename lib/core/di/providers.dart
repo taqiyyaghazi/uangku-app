@@ -9,6 +9,7 @@ import 'package:uangku/data/repositories/investment_repository.dart';
 import 'package:uangku/data/repositories/wallet_repository.dart';
 import 'package:uangku/data/repositories/transaction_repository.dart';
 import 'package:uangku/features/dashboard/logic/budget_service.dart';
+import 'package:uangku/features/dashboard/logic/settings_providers.dart';
 import 'package:uangku/features/dashboard/models/budget_state.dart';
 
 /// Provides the singleton [AppDatabase] instance across the app.
@@ -70,6 +71,13 @@ final investmentSnapshotsProvider =
 /// (the Drift `watchTransactionsByDateRange` stream emits).
 final dailyBreathProvider = StreamProvider<BudgetState>((ref) {
   final repo = ref.watch(transactionRepositoryProvider);
+  final monthlyBudgetAsync = ref.watch(monthlyBudgetProvider);
+
+  // Default to 5.0M if the user hasn't configured a monthly budget yet.
+  final configuredBudget = monthlyBudgetAsync.valueOrNull ?? 0.0;
+  final effectiveBudget = configuredBudget > 0
+      ? configuredBudget
+      : AppConstants.defaultMonthlyBudget;
 
   // Watch all transactions in the current calendar month.
   final now = DateTime.now();
@@ -78,7 +86,7 @@ final dailyBreathProvider = StreamProvider<BudgetState>((ref) {
 
   return repo.watchTransactionsByDateRange(monthStart, monthEnd).map((txns) {
     return BudgetService.calculate(
-      monthlyLimit: AppConstants.defaultMonthlyBudget,
+      monthlyLimit: effectiveBudget,
       transactions: txns,
     );
   });
