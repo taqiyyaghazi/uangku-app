@@ -138,9 +138,6 @@ void main() {
       await tester.pumpWidget(buildTestApp([t1, t2]));
       await tester.pumpAndSettle();
 
-      // Debug: print the tree
-      debugDumpApp();
-
       // Check title
       expect(find.text('All Transactions'), findsOneWidget);
 

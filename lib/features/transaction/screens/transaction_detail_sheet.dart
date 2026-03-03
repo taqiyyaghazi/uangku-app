@@ -61,11 +61,18 @@ class _TransactionDetailSheetState
   late TransactionType _type;
   late String _amountText;
   late String _selectedCategory;
+  final _noteController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _resetEditState();
+  }
+
+  @override
+  void dispose() {
+    _noteController.dispose();
+    super.dispose();
   }
 
   void _resetEditState() {
@@ -76,6 +83,7 @@ class _TransactionDetailSheetState
         ? widget.transaction.amount.toInt().toString()
         : widget.transaction.amount.toString();
     _selectedCategory = widget.transaction.category;
+    _noteController.text = widget.transaction.note;
   }
 
   double get _amount => double.tryParse(_amountText) ?? 0.0;
@@ -357,6 +365,32 @@ class _TransactionDetailSheetState
           },
         ),
       ),
+      const SizedBox(height: 12),
+
+      // ── Note Field ───────────────────────────────────────────────
+      TextField(
+        controller: _noteController,
+        maxLength: 100,
+        decoration: InputDecoration(
+          hintText: 'Add Note...',
+          counterText: '',
+          prefixIcon: const Icon(Icons.notes_outlined, size: 20),
+          filled: true,
+          fillColor: theme.colorScheme.surfaceContainerHighest.withValues(
+            alpha: 0.4,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 10,
+          ),
+        ),
+        style: theme.textTheme.bodyMedium,
+        textInputAction: TextInputAction.done,
+      ),
       const SizedBox(height: 16),
 
       // ── Numpad ─────────────────────────────────────────────────
@@ -373,7 +407,6 @@ class _TransactionDetailSheetState
           Expanded(
             child: OutlinedButton(
               onPressed: () {
-                debugPrint('CANCEL TAPPED');
                 setState(() => _isEditing = false);
               },
               style: OutlinedButton.styleFrom(
@@ -514,6 +547,7 @@ class _TransactionDetailSheetState
         amount: Value(_amount),
         type: Value(_type),
         category: Value(_selectedCategory),
+        note: Value(_noteController.text),
       );
 
       await repo.updateTransactionAtomic(

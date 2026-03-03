@@ -40,6 +40,13 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
   int? _selectedWalletId;
   String _selectedCategory = TransactionCategories.expense.first;
   bool _isSaving = false;
+  final _noteController = TextEditingController();
+
+  @override
+  void dispose() {
+    _noteController.dispose();
+    super.dispose();
+  }
 
   double get _amount => double.tryParse(_amountText) ?? 0.0;
 
@@ -101,6 +108,31 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
 
               // ── Category Selector ────────────────────────────────
               _buildCategorySelector(theme),
+              const SizedBox(height: 12),
+
+              // ── Note Field (Optional) ─────────────────────────────
+              TextField(
+                controller: _noteController,
+                maxLength: 100,
+                decoration: InputDecoration(
+                  hintText: 'Add Note...',
+                  counterText: '',
+                  prefixIcon: const Icon(Icons.notes_outlined, size: 20),
+                  filled: true,
+                  fillColor: theme.colorScheme.surfaceContainerHighest
+                      .withValues(alpha: 0.4),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                ),
+                style: theme.textTheme.bodyMedium,
+                textInputAction: TextInputAction.done,
+              ),
               const SizedBox(height: 16),
 
               // ── Custom Numpad ────────────────────────────────────
@@ -346,6 +378,7 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
         amount: Value(_amount),
         type: Value(_type),
         category: Value(_selectedCategory),
+        note: Value(_noteController.text),
         date: Value(DateTime.now()),
       );
 
