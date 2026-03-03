@@ -1,34 +1,30 @@
-# Task: Story 1.1 - Project Setup & Database Schema
+# Task: Story 1.2 - Wallet Management UI (The Unified Grid)
 
 ## Scope
 
-Initialize the Flutter project foundation: dependencies, folder structure, Drift database schema, Ocean Flow theme, and Riverpod wiring.
+Implement the Wallet Management UI: dashboard screen with a 2-column wallet grid, wallet cards with Ocean Flow styling, total balance header, add/edit wallet bottom sheet, and reactive data binding via Riverpod.
 
 ## Workflow Status
 
 ### Phase 1: Research
 
-- [x] Analyze request, understand context
-- [x] Define scope in `task.md`
-- [x] Research Drift, Riverpod, Flutter patterns
-- [x] Document findings in `docs/research_logs/epic1_foundation.md`
+- [x] Analyze request and user story
+- [x] Review existing foundation (Story 1.1)
+- [x] Review UX/tech specs for styling guidance
 
 ### Phase 2: Implement
 
-- [/] Add dependencies to `pubspec.yaml`
-- [ ] Create folder structure
-- [ ] Define Drift tables (Wallets, Transactions, InvestmentSnapshots)
-- [ ] Define Repository interface (abstract class)
-- [ ] Implement Drift database class with DAOs
-- [ ] Run code generation (`build_runner`)
-- [ ] Create Ocean Flow theme (`core/theme/`)
-- [ ] Wire Riverpod providers in `main.dart`
-- [ ] Write unit tests for table definitions and model enums
-- [ ] Write unit tests for business logic (pure functions)
-
-### Phase 3: Integrate
-
-- [ ] Integration test with real Drift database
+- [ ] Create currency formatting utility (`lib/shared/utils/currency_formatter.dart`)
+- [ ] Create icon mapping utility (`lib/shared/utils/wallet_icon_mapper.dart`)
+- [ ] Create `WalletCard` widget (`lib/features/dashboard/widgets/wallet_card.dart`)
+- [ ] Create `WalletGrid` widget (`lib/features/dashboard/widgets/wallet_grid.dart`)
+- [ ] Create `DashboardHeader` widget (`lib/features/dashboard/widgets/dashboard_header.dart`)
+- [ ] Create `WalletFormSheet` widget (`lib/features/dashboard/widgets/wallet_form_sheet.dart`)
+- [ ] Create `DashboardScreen` (`lib/features/dashboard/screens/dashboard_screen.dart`)
+- [ ] Update `main.dart` to use DashboardScreen
+- [ ] Write widget tests for WalletCard
+- [ ] Write widget tests for WalletFormSheet validation
+- [ ] Write unit tests for currency formatter
 
 ### Phase 4: Verify
 

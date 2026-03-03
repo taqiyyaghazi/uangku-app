@@ -1,28 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-import 'package:uangku/core/constants/app_constants.dart';
-import 'package:uangku/main.dart';
+import 'package:uangku/core/di/providers.dart';
+import 'package:uangku/data/database.dart';
+import 'package:uangku/data/repositories/wallet_repository.dart';
+import 'package:uangku/features/dashboard/screens/dashboard_screen.dart';
+
+/// A fake WalletRepository that returns an empty stream for testing.
+class FakeWalletRepository implements WalletRepository {
+  @override
+  Stream<List<Wallet>> watchAllWallets() => Stream.value([]);
+
+  @override
+  Future<int> createWallet(WalletsCompanion wallet) async => 1;
+
+  @override
+  Future<bool> updateWallet(WalletsCompanion wallet) async => true;
+
+  @override
+  Future<bool> deleteWallet(int id) async => true;
+
+  @override
+  Future<Wallet?> getWalletById(int id) async => null;
+}
 
 void main() {
-  setUp(() {
-    // Disable Google Fonts network fetching in tests.
-    GoogleFonts.config.allowRuntimeFetching = false;
-  });
-
-  testWidgets('App renders welcome screen with correct title', (
-    WidgetTester tester,
-  ) async {
-    // Arrange: Build the app within a ProviderScope.
-    await tester.pumpWidget(const ProviderScope(child: UangkuApp()));
+  testWidgets('Dashboard renders with empty wallet state', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          walletsProvider.overrideWith((_) => Stream.value(<Wallet>[])),
+          walletRepositoryProvider.overrideWithValue(FakeWalletRepository()),
+        ],
+        child: const MaterialApp(home: DashboardScreen()),
+      ),
+    );
     await tester.pumpAndSettle();
 
-    // Assert: Verify the app title and welcome text are displayed.
-    expect(find.text(AppConstants.appName), findsWidgets);
-    expect(find.text('Welcome to ${AppConstants.appName}'), findsOneWidget);
-    expect(find.text('Your personal finance tracker'), findsOneWidget);
-    expect(find.byIcon(Icons.account_balance_wallet_outlined), findsOneWidget);
+    // Should show "My Wallets" section title and "Add Wallet" card.
+    expect(find.text('My Wallets'), findsOneWidget);
+    expect(find.text('Add Wallet'), findsOneWidget);
+    expect(find.text('Total Balance'), findsOneWidget);
+    expect(find.text('Rp 0'), findsOneWidget);
   });
 }
