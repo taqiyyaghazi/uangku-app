@@ -34,4 +34,8 @@ abstract class TransactionRepository {
     required int walletId,
     required double balanceDelta,
   });
+
+  /// Returns a reactive stream of the most recent [limit] transactions
+  /// across all wallets, ordered by date descending.
+  Stream<List<Transaction>> watchRecentTransactions(int limit);
 }

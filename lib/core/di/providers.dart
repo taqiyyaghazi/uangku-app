@@ -91,3 +91,12 @@ final dailyBreathProvider = StreamProvider<BudgetState>((ref) {
     );
   });
 });
+
+/// Provides a reactive stream of the 10 most recent transactions
+/// across all wallets, ordered by date descending.
+///
+/// Automatically updates when transactions are added, edited, or deleted.
+final recentTransactionsProvider = StreamProvider<List<Transaction>>((ref) {
+  final repo = ref.watch(transactionRepositoryProvider);
+  return repo.watchRecentTransactions(10);
+});

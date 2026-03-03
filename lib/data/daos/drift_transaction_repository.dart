@@ -74,4 +74,12 @@ class DriftTransactionRepository implements TransactionRepository {
       return txId;
     });
   }
+
+  @override
+  Stream<List<Transaction>> watchRecentTransactions(int limit) {
+    final query = _db.select(_db.transactions)
+      ..orderBy([(t) => OrderingTerm.desc(t.date)])
+      ..limit(limit);
+    return query.watch();
+  }
 }

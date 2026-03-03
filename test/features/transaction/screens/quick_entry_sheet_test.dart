@@ -56,6 +56,10 @@ class FakeTransactionRepository implements TransactionRepository {
     insertCallCount++;
     return 1;
   }
+
+  @override
+  Stream<List<Transaction>> watchRecentTransactions(int limit) =>
+      Stream.value([]);
 }
 
 final _now = DateTime(2026, 3, 3);

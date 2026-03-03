@@ -1,25 +1,31 @@
-# Task: Quick Fix - Widget Test Pending Timer After Riverpod 3 Upgrade
+# Task: Story 4.2 — Recent Transactions Feed
 
-## Scope
+## Data Layer
 
-Fix "A Timer is still pending" error in `test/widget_test.dart` caused by
-Drift `StreamQueryStore.markAsClosed` scheduling a timer during Riverpod 3
-provider disposal.
+- [x] Add `watchRecentTransactions` to `TransactionRepository`
+- [x] Implement in `DriftTransactionRepository`
+- [x] Add `recentTransactionsProvider` to `providers.dart`
 
-## Workflow Status
+## Shared Utilities
 
-### Phase 1: Diagnose
+- [x] Create `CategoryIconMapper`
+- [x] Create `RelativeTimeFormatter`
 
-- [x] Root cause: Riverpod 3 disposes `dailyBreathProvider` → closes Drift stream → `StreamQueryStore.markAsClosed` schedules zero-duration timer → Flutter test framework asserts `!timersPending`.
-- [x] Fix: Override `dailyBreathProvider` (and any other real-Drift stream providers) in the test with fake stream values, so no Drift streams are active.
+## UI Components
 
-### Phase 2: Fix + Test
+- [x] Create `TransactionItem` widget
+- [x] Create `RecentActivitySection` widget
+- [x] Integrate into `DashboardScreen`
 
-- [ ] Override `dailyBreathProvider` with a fake `Stream.value(...)` in `widget_test.dart`
-- [ ] Verify `fvm flutter test test/widget_test.dart` passes
+## Tests
 
-### Phase 3: Verify + Ship
+- [x] `category_icon_mapper_test.dart`
+- [x] `relative_time_formatter_test.dart`
+- [x] `transaction_item_test.dart`
+- [x] `recent_activity_section_test.dart`
 
-- [ ] `fvm flutter analyze` passes
-- [ ] Full `fvm flutter test` passes
-- [ ] Commit with `fix(test): ...`
+## Verification
+
+- [x] `fvm flutter analyze` passes
+- [x] `fvm flutter test` — 127/127 passed
+- [ ] Commit with `feat(dashboard)` format

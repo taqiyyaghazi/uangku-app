@@ -50,6 +50,9 @@ void main() {
           dailyBreathProvider.overrideWith(
             (_) => Stream.value(_emptyBudgetState),
           ),
+          recentTransactionsProvider.overrideWith(
+            (_) => Stream.value(<Transaction>[]),
+          ),
         ],
         child: const MaterialApp(home: DashboardScreen()),
       ),
