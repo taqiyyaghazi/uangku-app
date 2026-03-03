@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -55,7 +57,7 @@ final walletAllocationProvider = Provider<List<WalletAllocationData>>((ref) {
             color = OceanFlowColors.primary; // Teal
 
           case WalletType.bank:
-            color = OceanFlowColors.neutral; // Replaced secondary -> neutral
+            color = OceanFlowColors.primaryLight; // Light Teal
 
           case WalletType.cash:
             color = OceanFlowColors.neutral; // Grey block
@@ -103,8 +105,13 @@ final netWorthGrowthProvider = FutureProvider<List<FlSpot>>((ref) async {
       allSnapshots[wallet.id] = list
           .where((s) => s.snapshotDate.isAfter(earliestDate))
           .toList();
-    } catch (_) {
-      // Ignore errors for individual wallets
+    } catch (e, st) {
+      developer.log(
+        'Failed to fetch snapshots for wallet ${wallet.id}',
+        name: 'netWorthGrowthProvider',
+        error: e,
+        stackTrace: st,
+      );
     }
   }
 

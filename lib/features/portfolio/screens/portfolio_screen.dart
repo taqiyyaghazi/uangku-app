@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -330,7 +332,23 @@ class _InvestmentWalletCard extends ConsumerWidget {
                 ),
               ),
             ),
-            error: (_, _) => const SizedBox.shrink(),
+            error: (err, st) {
+              developer.log(
+                'Failed to load snapshot history for wallet ${wallet.id}',
+                name: 'SnapshotHistory',
+                error: err,
+                stackTrace: st,
+              );
+              return Padding(
+                padding: const EdgeInsets.only(left: 16, bottom: 16),
+                child: Text(
+                  'Could not load history',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.error,
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),
