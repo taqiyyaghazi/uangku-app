@@ -2,8 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:uangku/core/constants/app_constants.dart';
 import 'package:uangku/data/database.dart';
+import 'package:uangku/data/daos/drift_investment_repository.dart';
 import 'package:uangku/data/daos/drift_wallet_repository.dart';
 import 'package:uangku/data/daos/drift_transaction_repository.dart';
+import 'package:uangku/data/repositories/investment_repository.dart';
 import 'package:uangku/data/repositories/wallet_repository.dart';
 import 'package:uangku/data/repositories/transaction_repository.dart';
 import 'package:uangku/features/dashboard/logic/budget_service.dart';
@@ -43,6 +45,23 @@ final transactionRepositoryProvider = Provider<TransactionRepository>((ref) {
   final db = ref.watch(databaseProvider);
   return DriftTransactionRepository(db);
 });
+
+/// Provides the [InvestmentRepository] backed by Drift.
+///
+/// Override this in tests with a mock implementation.
+final investmentRepositoryProvider = Provider<InvestmentRepository>((ref) {
+  final db = ref.watch(databaseProvider);
+  return DriftInvestmentRepository(db);
+});
+
+/// Provides a reactive stream of snapshots for a specific investment wallet.
+///
+/// Usage: `ref.watch(investmentSnapshotsProvider(walletId))`
+final investmentSnapshotsProvider =
+    StreamProvider.family<List<InvestmentSnapshot>, int>((ref, walletId) {
+      final repo = ref.watch(investmentRepositoryProvider);
+      return repo.watchSnapshotsByWallet(walletId);
+    });
 
 /// Provides a reactive [BudgetState] computed from the current month's
 /// transactions.

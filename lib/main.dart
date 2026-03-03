@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:uangku/core/constants/app_constants.dart';
 import 'package:uangku/core/theme/app_theme.dart';
-import 'package:uangku/features/dashboard/screens/dashboard_screen.dart';
+import 'package:uangku/features/main_shell.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,7 +48,7 @@ class UangkuApp extends StatelessWidget {
         titleTextStyle: darkTitleStyle,
       ),
       themeMode: ThemeMode.system,
-      home: const DashboardScreen(),
+      home: const MainShell(),
     );
   }
 }
