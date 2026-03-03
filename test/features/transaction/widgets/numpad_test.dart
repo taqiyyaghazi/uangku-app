@@ -10,6 +10,10 @@ void main() {
     required VoidCallback onBackspace,
   }) {
     return MaterialApp(
+      theme: ThemeData(
+        useMaterial3: true,
+        splashFactory: InkSplash.splashFactory,
+      ),
       home: Scaffold(
         body: Numpad(
           onDigit: onDigit,
