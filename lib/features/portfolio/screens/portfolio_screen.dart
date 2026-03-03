@@ -111,6 +111,9 @@ class PortfolioScreen extends ConsumerWidget {
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
+                              shadows: [
+                                Shadow(color: Colors.black54, blurRadius: 4),
+                              ],
                             ),
                             showTitle:
                                 item.percentage > 0.05, // Only show if > 5%
