@@ -4,8 +4,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:uangku/features/dashboard/widgets/wallet_form_sheet.dart';
 
 void main() {
+  // Use InkSplash instead of InkSparkle to avoid the shader asset error
+  // in tests. InkSparkle requires 'shaders/ink_sparkle.frag' which is not
+  // available in the unit test environment.
+  final testTheme = ThemeData(
+    useMaterial3: true,
+    splashFactory: InkSplash.splashFactory,
+  );
+
   Widget buildTestApp() {
     return MaterialApp(
+      theme: testTheme,
       home: Scaffold(
         body: Builder(
           builder: (context) {
@@ -76,23 +85,19 @@ void main() {
       expect(find.text('Investment'), findsOneWidget);
     });
 
-    testWidgets('shows "Edit Wallet" title when editing', (tester) async {
+    testWidgets('shows "New Wallet" title when wallet is null', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
+          theme: testTheme,
           home: Scaffold(
             body: Builder(
               builder: (context) {
                 return ElevatedButton(
                   onPressed: () {
-                    // Directly show the form in the widget tree for editing.
                     showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
-                      builder: (_) => const WalletFormSheet(
-                        // Mock a Wallet-like setup — the widget reads from
-                        // the Wallet object, but we can test the title branch
-                        // by wrapping the sheet in a scaffold.
-                      ),
+                      builder: (_) => const WalletFormSheet(),
                     );
                   },
                   child: const Text('Open Edit'),
@@ -105,7 +110,7 @@ void main() {
       await tester.tap(find.text('Open Edit'));
       await tester.pumpAndSettle();
 
-      // When wallet is null (no wallet passed), it should show "New Wallet".
+      // When wallet is null, it should show "New Wallet".
       expect(find.text('New Wallet'), findsOneWidget);
     });
   });
