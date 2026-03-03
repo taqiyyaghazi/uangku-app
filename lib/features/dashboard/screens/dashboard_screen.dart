@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uangku/core/constants/app_constants.dart';
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/data/database.dart';
+import 'package:uangku/features/dashboard/widgets/daily_breath_bar.dart';
 import 'package:uangku/features/dashboard/widgets/dashboard_header.dart';
 import 'package:uangku/features/dashboard/widgets/wallet_form_sheet.dart';
 import 'package:uangku/features/dashboard/widgets/wallet_grid.dart';
@@ -12,6 +13,7 @@ import 'package:uangku/features/transaction/screens/quick_entry_sheet.dart';
 /// The main dashboard screen displaying the wallet grid and total balance.
 ///
 /// Consumes [walletsProvider] for reactive wallet data.
+/// Consumes [dailyBreathProvider] for the budget progress bar.
 /// Uses [walletRepositoryProvider] for create/update operations.
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -57,16 +59,26 @@ class DashboardScreen extends ConsumerWidget {
     List<Wallet> wallets,
   ) {
     final totalBalance = wallets.fold(0.0, (sum, w) => sum + w.balance);
+    final breathAsync = ref.watch(dailyBreathProvider);
 
     return CustomScrollView(
       slivers: [
         // ── Total Balance Header ───────────────────────────────────
         SliverToBoxAdapter(child: DashboardHeader(totalBalance: totalBalance)),
 
+        // ── Daily Breath Budget Bar ────────────────────────────────
+        SliverToBoxAdapter(
+          child: breathAsync.when(
+            data: (state) => DailyBreathBar(budgetState: state),
+            loading: () => const SizedBox(height: 80),
+            error: (_, _) => const SizedBox.shrink(),
+          ),
+        ),
+
         // ── Section title ──────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 4),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
             child: Text(
               'My Wallets',
               style: Theme.of(
@@ -83,7 +95,7 @@ class DashboardScreen extends ConsumerWidget {
           onAddWallet: () => _onAddWallet(context, ref),
         ),
 
-        // ── Placeholder for future sections (Daily Breath, etc.) ──
+        // ── Footer ────────────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),

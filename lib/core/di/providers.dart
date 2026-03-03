@@ -1,10 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:uangku/core/constants/app_constants.dart';
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/daos/drift_wallet_repository.dart';
 import 'package:uangku/data/daos/drift_transaction_repository.dart';
 import 'package:uangku/data/repositories/wallet_repository.dart';
 import 'package:uangku/data/repositories/transaction_repository.dart';
+import 'package:uangku/features/dashboard/logic/budget_service.dart';
+import 'package:uangku/features/dashboard/models/budget_state.dart';
 
 /// Provides the singleton [AppDatabase] instance across the app.
 ///
@@ -39,4 +42,25 @@ final walletsProvider = StreamProvider<List<Wallet>>((ref) {
 final transactionRepositoryProvider = Provider<TransactionRepository>((ref) {
   final db = ref.watch(databaseProvider);
   return DriftTransactionRepository(db);
+});
+
+/// Provides a reactive [BudgetState] computed from the current month's
+/// transactions.
+///
+/// Automatically recalculates whenever a new transaction is recorded
+/// (the Drift `watchTransactionsByDateRange` stream emits).
+final dailyBreathProvider = StreamProvider<BudgetState>((ref) {
+  final repo = ref.watch(transactionRepositoryProvider);
+
+  // Watch all transactions in the current calendar month.
+  final now = DateTime.now();
+  final monthStart = DateTime(now.year, now.month);
+  final monthEnd = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
+
+  return repo.watchTransactionsByDateRange(monthStart, monthEnd).map((txns) {
+    return BudgetService.calculate(
+      monthlyLimit: AppConstants.defaultMonthlyBudget,
+      transactions: txns,
+    );
+  });
 });
