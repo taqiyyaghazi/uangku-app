@@ -1,0 +1,28 @@
+import 'package:drift/drift.dart';
+
+import 'wallets_table.dart';
+
+/// Represents the type of a financial transaction.
+enum TransactionType { income, expense, transfer }
+
+/// Drift table definition for Transactions.
+///
+/// Records all financial movements: income, expense, or transfer.
+/// Each transaction is linked to a wallet via [walletId].
+class Transactions extends Table {
+  IntColumn get id => integer().autoIncrement()();
+
+  IntColumn get walletId => integer().references(Wallets, #id)();
+
+  RealColumn get amount => real()();
+
+  TextColumn get type => textEnum<TransactionType>()();
+
+  TextColumn get category => text().withLength(min: 1, max: 50)();
+
+  TextColumn get note => text().withDefault(const Constant(''))();
+
+  DateTimeColumn get date => dateTime()();
+
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}

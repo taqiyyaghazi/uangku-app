@@ -1,0 +1,49 @@
+import 'package:drift/drift.dart';
+
+import 'package:uangku/data/database.dart';
+import 'package:uangku/data/repositories/transaction_repository.dart';
+
+/// Drift (SQLite) implementation of [TransactionRepository].
+///
+/// This is the production adapter — it performs real database I/O.
+class DriftTransactionRepository implements TransactionRepository {
+  final AppDatabase _db;
+
+  DriftTransactionRepository(this._db);
+
+  @override
+  Stream<List<Transaction>> watchTransactionsByWallet(int walletId) {
+    final query = _db.select(_db.transactions)
+      ..where((t) => t.walletId.equals(walletId))
+      ..orderBy([(t) => OrderingTerm.desc(t.date)]);
+    return query.watch();
+  }
+
+  @override
+  Stream<List<Transaction>> watchTransactionsByDateRange(
+    DateTime start,
+    DateTime end,
+  ) {
+    final query = _db.select(_db.transactions)
+      ..where(
+        (t) =>
+            t.date.isBiggerOrEqualValue(start) &
+            t.date.isSmallerOrEqualValue(end),
+      )
+      ..orderBy([(t) => OrderingTerm.desc(t.date)]);
+    return query.watch();
+  }
+
+  @override
+  Future<int> createTransaction(TransactionsCompanion transaction) {
+    return _db.into(_db.transactions).insert(transaction);
+  }
+
+  @override
+  Future<bool> deleteTransaction(int id) async {
+    final rowsAffected = await (_db.delete(
+      _db.transactions,
+    )..where((t) => t.id.equals(id))).go();
+    return rowsAffected > 0;
+  }
+}
