@@ -1,3 +1,37 @@
 
 # FVM Version Cache
 .fvm/
+
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+.vscode/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains native features and flutter config for the project.
+# We will NOT ignore .vscode because they have settings.json that configures fvm and other things.
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+
+# Exceptions to above rules.
+!/packages/*/pubspec.lock
