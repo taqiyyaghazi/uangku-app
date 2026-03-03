@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/data/database.dart';
+import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/repositories/transaction_repository.dart';
 import 'package:uangku/data/repositories/wallet_repository.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
@@ -42,34 +43,40 @@ class FakeWalletRepository implements WalletRepository {
 
 /// Fake Transaction Repo
 class FakeTransactionRepository implements TransactionRepository {
-  final List<Transaction> transactions;
+  final List<TransactionWithCategory> transactions;
 
   FakeTransactionRepository({required this.transactions});
 
   @override
-  Stream<List<Transaction>> watchAllTransactions() =>
+  Stream<List<TransactionWithCategory>> watchAllTransactions() =>
       Stream.value(transactions);
 
   @override
-  Stream<List<Transaction>> watchRecentTransactions(int limit) =>
+  Stream<List<TransactionWithCategory>> watchRecentTransactions(int limit) =>
       Stream.value(transactions.take(limit).toList());
 
   @override
-  Stream<List<Transaction>> watchTransactionsByDateRange(
+  Stream<List<TransactionWithCategory>> watchTransactionsByDateRange(
     DateTime start,
     DateTime end,
   ) {
     return Stream.value(
       transactions
-          .where((t) => t.date.isAfter(start) && t.date.isBefore(end))
+          .where(
+            (t) =>
+                t.transaction.date.isAfter(start) &&
+                t.transaction.date.isBefore(end),
+          )
           .toList(),
     );
   }
 
   @override
-  Stream<List<Transaction>> watchTransactionsByWallet(int walletId) {
+  Stream<List<TransactionWithCategory>> watchTransactionsByWallet(
+    int walletId,
+  ) {
     return Stream.value(
-      transactions.where((t) => t.walletId == walletId).toList(),
+      transactions.where((t) => t.transaction.walletId == walletId).toList(),
     );
   }
 
@@ -99,29 +106,47 @@ class FakeTransactionRepository implements TransactionRepository {
 }
 
 void main() {
-  final t1 = Transaction(
-    id: 1,
-    walletId: 1,
-    amount: 50000,
-    type: TransactionType.expense,
-    category: 'Food',
-    note: 'Lunch KFC',
-    date: DateTime(2026, 3, 10), // March 2026
-    createdAt: DateTime.now(),
+  final t1 = TransactionWithCategory(
+    transaction: Transaction(
+      id: 1,
+      walletId: 1,
+      categoryId: 1,
+      amount: 50000,
+      type: TransactionType.expense,
+      note: 'Lunch KFC',
+      date: DateTime(2026, 3, 10), // March 2026
+      createdAt: DateTime.now(),
+    ),
+    category: Category(
+      id: 1,
+      name: 'Food',
+      iconCode: 'fastfood',
+      type: TransactionType.expense,
+      createdAt: DateTime.now(),
+    ),
   );
 
-  final t2 = Transaction(
-    id: 2,
-    walletId: 1,
-    amount: 20000,
-    type: TransactionType.expense,
-    category: 'Transport',
-    note: 'Gojek Home',
-    date: DateTime(2026, 2, 28), // February 2026
-    createdAt: DateTime.now(),
+  final t2 = TransactionWithCategory(
+    transaction: Transaction(
+      id: 2,
+      walletId: 1,
+      categoryId: 2,
+      amount: 20000,
+      type: TransactionType.expense,
+      note: 'Gojek Home',
+      date: DateTime(2026, 2, 28), // February 2026
+      createdAt: DateTime.now(),
+    ),
+    category: Category(
+      id: 2,
+      name: 'Transport',
+      iconCode: 'directions_car',
+      type: TransactionType.expense,
+      createdAt: DateTime.now(),
+    ),
   );
 
-  Widget buildTestApp(List<Transaction> transactions) {
+  Widget buildTestApp(List<TransactionWithCategory> transactions) {
     return ProviderScope(
       overrides: [
         walletRepositoryProvider.overrideWithValue(FakeWalletRepository()),

@@ -119,7 +119,7 @@ class _TransactionsArchiveScreenState
                             ) {
                               final transaction = monthTransactions[itemIndex];
                               final walletName = getWalletName(
-                                transaction.walletId,
+                                transaction.transaction.walletId,
                               );
                               return TransactionItem(
                                 transaction: transaction,

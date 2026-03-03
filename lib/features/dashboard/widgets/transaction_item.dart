@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-
 import 'package:uangku/core/theme/app_theme.dart';
-import 'package:uangku/data/database.dart';
+import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/shared/utils/category_icon_mapper.dart';
 import 'package:uangku/shared/utils/currency_formatter.dart';
@@ -22,7 +21,7 @@ class TransactionItem extends StatelessWidget {
   });
 
   /// The transaction data to display.
-  final Transaction transaction;
+  final TransactionWithCategory transaction;
 
   /// The name of the wallet this transaction belongs to.
   final String walletName;
@@ -33,8 +32,12 @@ class TransactionItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final categoryInfo = CategoryIconMapper.get(transaction.category);
-    final isIncome = transaction.type == TransactionType.income;
+    final tx = transaction.transaction;
+    final cat = transaction.category;
+    final categoryInfo = CategoryIconMapper.get(
+      cat.iconCode.isNotEmpty ? cat.iconCode : cat.name,
+    );
+    final isIncome = tx.type == TransactionType.income;
 
     final amountColor = isIncome
         ? OceanFlowColors.primary
@@ -42,9 +45,9 @@ class TransactionItem extends StatelessWidget {
 
     final amountPrefix = isIncome ? '+' : '-';
     final formattedAmount =
-        '$amountPrefix${CurrencyFormatter.format(transaction.amount)}';
+        '$amountPrefix${CurrencyFormatter.format(tx.amount)}';
 
-    final timeLabel = RelativeTimeFormatter.format(transaction.date);
+    final timeLabel = RelativeTimeFormatter.format(tx.date);
 
     return ListTile(
       onTap: onTap,
@@ -54,7 +57,7 @@ class TransactionItem extends StatelessWidget {
         child: Icon(categoryInfo.icon, color: categoryInfo.color, size: 20),
       ),
       title: Text(
-        transaction.category,
+        cat.name,
         style: theme.textTheme.bodyMedium?.copyWith(
           fontWeight: FontWeight.w600,
         ),
@@ -69,9 +72,9 @@ class TransactionItem extends StatelessWidget {
               color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
             ),
           ),
-          if (transaction.note.isNotEmpty)
+          if (tx.note.isNotEmpty)
             Text(
-              transaction.note,
+              tx.note,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: theme.textTheme.bodySmall?.copyWith(

@@ -5,9 +5,13 @@ import 'package:uangku/data/database.dart';
 import 'package:uangku/data/daos/drift_investment_repository.dart';
 import 'package:uangku/data/daos/drift_wallet_repository.dart';
 import 'package:uangku/data/daos/drift_transaction_repository.dart';
+import 'package:uangku/data/repositories/category_repository.dart';
 import 'package:uangku/data/repositories/investment_repository.dart';
 import 'package:uangku/data/repositories/wallet_repository.dart';
 import 'package:uangku/data/repositories/transaction_repository.dart';
+import 'package:uangku/data/repositories/category_repository_impl.dart';
+import 'package:uangku/data/models/transaction_with_category.dart';
+import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/features/dashboard/logic/budget_service.dart';
 import 'package:uangku/features/dashboard/logic/settings_providers.dart';
 import 'package:uangku/features/dashboard/models/budget_state.dart';
@@ -46,6 +50,19 @@ final transactionRepositoryProvider = Provider<TransactionRepository>((ref) {
   final db = ref.watch(databaseProvider);
   return DriftTransactionRepository(db);
 });
+
+/// Provides the [CategoryRepository] backed by Drift.
+final categoryRepositoryProvider = Provider<CategoryRepository>((ref) {
+  final db = ref.watch(databaseProvider);
+  return CategoryRepositoryImpl(db);
+});
+
+/// Provides a reactive stream of categories filtered by type.
+final categoriesByTypeProvider =
+    StreamProvider.family<List<Category>, TransactionType>((ref, type) {
+      final repo = ref.watch(categoryRepositoryProvider);
+      return repo.watchCategoriesByType(type);
+    });
 
 /// Provides the [InvestmentRepository] backed by Drift.
 ///
@@ -87,7 +104,7 @@ final dailyBreathProvider = StreamProvider<BudgetState>((ref) {
   return repo.watchTransactionsByDateRange(monthStart, monthEnd).map((txns) {
     return BudgetService.calculate(
       monthlyLimit: effectiveBudget,
-      transactions: txns,
+      transactions: txns.map((t) => t.transaction).toList(),
     );
   });
 });
@@ -96,14 +113,17 @@ final dailyBreathProvider = StreamProvider<BudgetState>((ref) {
 /// across all wallets, ordered by date descending.
 ///
 /// Automatically updates when transactions are added, edited, or deleted.
-final recentTransactionsProvider = StreamProvider<List<Transaction>>((ref) {
-  final repo = ref.watch(transactionRepositoryProvider);
-  return repo.watchRecentTransactions(10);
-});
+final recentTransactionsProvider =
+    StreamProvider<List<TransactionWithCategory>>((ref) {
+      final repo = ref.watch(transactionRepositoryProvider);
+      return repo.watchRecentTransactions(10);
+    });
 
 /// Provides a reactive stream of all transactions
 /// across all wallets, ordered by date descending.
-final allTransactionsProvider = StreamProvider<List<Transaction>>((ref) {
+final allTransactionsProvider = StreamProvider<List<TransactionWithCategory>>((
+  ref,
+) {
   final repo = ref.watch(transactionRepositoryProvider);
   return repo.watchAllTransactions();
 });

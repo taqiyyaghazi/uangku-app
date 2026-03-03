@@ -16,7 +16,7 @@ void main() {
       walletId: 1,
       amount: amount,
       type: type,
-      category: 'Food',
+      categoryId: 1,
       note: '',
       date: now,
       createdAt: now,

@@ -2,34 +2,47 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:uangku/data/database.dart';
+import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/features/dashboard/widgets/transaction_item.dart';
 
 void main() {
   final now = DateTime(2026, 3, 3, 14, 30);
 
-  Transaction makeTransaction({
+  TransactionWithCategory makeTransaction({
     int id = 1,
     int walletId = 1,
     double amount = 50000,
     TransactionType type = TransactionType.expense,
-    String category = 'Food',
+    String categoryName = 'Food',
     String note = '',
     DateTime? date,
   }) {
-    return Transaction(
-      id: id,
-      walletId: walletId,
-      amount: amount,
-      type: type,
-      category: category,
-      note: note,
-      date: date ?? now,
-      createdAt: now,
+    return TransactionWithCategory(
+      transaction: Transaction(
+        id: id,
+        walletId: walletId,
+        categoryId: 1,
+        amount: amount,
+        type: type,
+        date: date ?? now,
+        note: note,
+        createdAt: now,
+      ),
+      category: Category(
+        id: 1,
+        name: categoryName,
+        iconCode: 'fastfood',
+        type: type,
+        createdAt: now,
+      ),
     );
   }
 
-  Widget buildTestWidget(Transaction tx, {String walletName = 'Bank BCA'}) {
+  Widget buildTestWidget(
+    TransactionWithCategory tx, {
+    String walletName = 'Bank BCA',
+  }) {
     return MaterialApp(
       home: Scaffold(
         body: TransactionItem(transaction: tx, walletName: walletName),
@@ -71,7 +84,7 @@ void main() {
           makeTransaction(
             amount: 1000000,
             type: TransactionType.income,
-            category: 'Salary',
+            categoryName: 'Salary',
           ),
         ),
       );

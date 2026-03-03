@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/data/database.dart';
+import 'package:uangku/data/models/transaction_with_category.dart';
+import 'package:uangku/data/repositories/category_repository.dart';
 import 'package:uangku/data/repositories/transaction_repository.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/features/transaction/screens/transaction_detail_sheet.dart';
@@ -14,11 +16,12 @@ class FakeTransactionRepository implements TransactionRepository {
   int updateAtomicCallCount = 0;
 
   @override
-  Stream<List<Transaction>> watchTransactionsByWallet(int walletId) =>
-      Stream.value([]);
+  Stream<List<TransactionWithCategory>> watchTransactionsByWallet(
+    int walletId,
+  ) => Stream.value([]);
 
   @override
-  Stream<List<Transaction>> watchTransactionsByDateRange(
+  Stream<List<TransactionWithCategory>> watchTransactionsByDateRange(
     DateTime start,
     DateTime end,
   ) => Stream.value([]);
@@ -37,11 +40,12 @@ class FakeTransactionRepository implements TransactionRepository {
   }) async => 1;
 
   @override
-  Stream<List<Transaction>> watchRecentTransactions(int limit) =>
+  Stream<List<TransactionWithCategory>> watchRecentTransactions(int limit) =>
       Stream.value([]);
 
   @override
-  Stream<List<Transaction>> watchAllTransactions() => Stream.value([]);
+  Stream<List<TransactionWithCategory>> watchAllTransactions() =>
+      Stream.value([]);
 
   @override
   Future<void> deleteTransactionAtomic(Transaction transaction) async {
@@ -59,18 +63,70 @@ class FakeTransactionRepository implements TransactionRepository {
   }
 }
 
+class FakeCategoryRepository implements CategoryRepository {
+  @override
+  Stream<List<Category>> watchAllCategories() => Stream.value([]);
+
+  @override
+  Stream<List<Category>> watchCategoriesByType(TransactionType type) {
+    if (type == TransactionType.expense) {
+      return Stream.value([
+        Category(
+          id: 1,
+          name: 'Food',
+          iconCode: 'fastfood',
+          type: TransactionType.expense,
+          createdAt: DateTime.now(),
+        ),
+      ]);
+    } else if (type == TransactionType.income) {
+      return Stream.value([
+        Category(
+          id: 2,
+          name: 'Salary',
+          iconCode: 'attach_money',
+          type: TransactionType.income,
+          createdAt: DateTime.now(),
+        ),
+      ]);
+    }
+    return Stream.value([]);
+  }
+
+  @override
+  Future<int> createCategory(CategoriesCompanion category) async => 1;
+
+  @override
+  Future<bool> updateCategory(Category category) async => true;
+
+  @override
+  Future<void> deleteCategory(int id) async {}
+
+  @override
+  Future<bool> canDeleteCategory(int id) async => true;
+}
+
 void main() {
   final now = DateTime(2026, 3, 3, 14, 30);
 
-  final testTransaction = Transaction(
-    id: 1,
-    walletId: 1,
-    amount: 50000,
-    type: TransactionType.expense,
-    category: 'Food',
-    note: 'Lunch',
-    date: now,
-    createdAt: now,
+  final testTransaction = TransactionWithCategory(
+    transaction: Transaction(
+      id: 1,
+      walletId: 1,
+      categoryId: 1,
+      amount: 50000,
+      type: TransactionType.expense,
+      note: 'Lunch',
+      date: now,
+      createdAt: now,
+    ),
+    category: Category(
+      id: 1,
+      name: 'Food',
+      iconCode: 'fastfood',
+      type: TransactionType.expense,
+      createdAt: now,
+    ),
   );
 
   // Use InkSplash to avoid shader asset error in test environment.
@@ -80,14 +136,19 @@ void main() {
   );
 
   late FakeTransactionRepository fakeRepo;
+  late FakeCategoryRepository fakeCategoryRepo;
 
   setUp(() {
     fakeRepo = FakeTransactionRepository();
+    fakeCategoryRepo = FakeCategoryRepository();
   });
 
   Widget buildTestWidget() {
     return ProviderScope(
-      overrides: [transactionRepositoryProvider.overrideWithValue(fakeRepo)],
+      overrides: [
+        transactionRepositoryProvider.overrideWithValue(fakeRepo),
+        categoryRepositoryProvider.overrideWithValue(fakeCategoryRepo),
+      ],
       child: MaterialApp(
         theme: testTheme,
         home: Scaffold(

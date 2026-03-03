@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import 'package:uangku/data/database.dart';
+import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/repositories/transaction_repository.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
 
@@ -13,26 +14,55 @@ class DriftTransactionRepository implements TransactionRepository {
   DriftTransactionRepository(this._db);
 
   @override
-  Stream<List<Transaction>> watchTransactionsByWallet(int walletId) {
-    final query = _db.select(_db.transactions)
-      ..where((t) => t.walletId.equals(walletId))
-      ..orderBy([(t) => OrderingTerm.desc(t.date)]);
-    return query.watch();
+  Stream<List<TransactionWithCategory>> watchTransactionsByWallet(
+    int walletId,
+  ) {
+    final query =
+        _db.select(_db.transactions).join([
+            innerJoin(
+              _db.categories,
+              _db.categories.id.equalsExp(_db.transactions.categoryId),
+            ),
+          ])
+          ..where(_db.transactions.walletId.equals(walletId))
+          ..orderBy([OrderingTerm.desc(_db.transactions.date)]);
+
+    return query.watch().map((rows) {
+      return rows.map((row) {
+        return TransactionWithCategory(
+          transaction: row.readTable(_db.transactions),
+          category: row.readTable(_db.categories),
+        );
+      }).toList();
+    });
   }
 
   @override
-  Stream<List<Transaction>> watchTransactionsByDateRange(
+  Stream<List<TransactionWithCategory>> watchTransactionsByDateRange(
     DateTime start,
     DateTime end,
   ) {
-    final query = _db.select(_db.transactions)
-      ..where(
-        (t) =>
-            t.date.isBiggerOrEqualValue(start) &
-            t.date.isSmallerOrEqualValue(end),
-      )
-      ..orderBy([(t) => OrderingTerm.desc(t.date)]);
-    return query.watch();
+    final query =
+        _db.select(_db.transactions).join([
+            innerJoin(
+              _db.categories,
+              _db.categories.id.equalsExp(_db.transactions.categoryId),
+            ),
+          ])
+          ..where(
+            _db.transactions.date.isBiggerOrEqualValue(start) &
+                _db.transactions.date.isSmallerOrEqualValue(end),
+          )
+          ..orderBy([OrderingTerm.desc(_db.transactions.date)]);
+
+    return query.watch().map((rows) {
+      return rows.map((row) {
+        return TransactionWithCategory(
+          transaction: row.readTable(_db.transactions),
+          category: row.readTable(_db.categories),
+        );
+      }).toList();
+    });
   }
 
   @override
@@ -77,18 +107,44 @@ class DriftTransactionRepository implements TransactionRepository {
   }
 
   @override
-  Stream<List<Transaction>> watchRecentTransactions(int limit) {
-    final query = _db.select(_db.transactions)
-      ..orderBy([(t) => OrderingTerm.desc(t.date)])
-      ..limit(limit);
-    return query.watch();
+  Stream<List<TransactionWithCategory>> watchRecentTransactions(int limit) {
+    final query =
+        _db.select(_db.transactions).join([
+            innerJoin(
+              _db.categories,
+              _db.categories.id.equalsExp(_db.transactions.categoryId),
+            ),
+          ])
+          ..orderBy([OrderingTerm.desc(_db.transactions.date)])
+          ..limit(limit);
+
+    return query.watch().map((rows) {
+      return rows.map((row) {
+        return TransactionWithCategory(
+          transaction: row.readTable(_db.transactions),
+          category: row.readTable(_db.categories),
+        );
+      }).toList();
+    });
   }
 
   @override
-  Stream<List<Transaction>> watchAllTransactions() {
-    final query = _db.select(_db.transactions)
-      ..orderBy([(t) => OrderingTerm.desc(t.date)]);
-    return query.watch();
+  Stream<List<TransactionWithCategory>> watchAllTransactions() {
+    final query = _db.select(_db.transactions).join([
+      innerJoin(
+        _db.categories,
+        _db.categories.id.equalsExp(_db.transactions.categoryId),
+      ),
+    ])..orderBy([OrderingTerm.desc(_db.transactions.date)]);
+
+    return query.watch().map((rows) {
+      return rows.map((row) {
+        return TransactionWithCategory(
+          transaction: row.readTable(_db.transactions),
+          category: row.readTable(_db.categories),
+        );
+      }).toList();
+    });
   }
 
   @override

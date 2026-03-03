@@ -1,4 +1,5 @@
 import 'package:uangku/data/database.dart';
+import 'package:uangku/data/models/transaction_with_category.dart';
 
 /// Repository interface (contract) for Transaction data access.
 ///
@@ -6,11 +7,11 @@ import 'package:uangku/data/database.dart';
 abstract class TransactionRepository {
   /// Returns a reactive stream of all transactions for a given [walletId],
   /// ordered by date descending.
-  Stream<List<Transaction>> watchTransactionsByWallet(int walletId);
+  Stream<List<TransactionWithCategory>> watchTransactionsByWallet(int walletId);
 
   /// Returns a reactive stream of all transactions across all wallets
   /// within a date range.
-  Stream<List<Transaction>> watchTransactionsByDateRange(
+  Stream<List<TransactionWithCategory>> watchTransactionsByDateRange(
     DateTime start,
     DateTime end,
   );
@@ -37,11 +38,11 @@ abstract class TransactionRepository {
 
   /// Returns a reactive stream of the most recent [limit] transactions
   /// across all wallets, ordered by date descending.
-  Stream<List<Transaction>> watchRecentTransactions(int limit);
+  Stream<List<TransactionWithCategory>> watchRecentTransactions(int limit);
 
   /// Returns a reactive stream of all transactions across all wallets,
   /// ordered by date descending.
-  Stream<List<Transaction>> watchAllTransactions();
+  Stream<List<TransactionWithCategory>> watchAllTransactions();
 
   /// Atomically deletes a [transaction] and reverses its balance effect
   /// on the associated wallet.

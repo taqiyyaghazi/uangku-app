@@ -2,10 +2,10 @@ import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:uangku/core/constants/transaction_categories.dart';
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/data/database.dart';
+import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/features/transaction/logic/transaction_balance_logic.dart';
 import 'package:uangku/features/transaction/widgets/numpad.dart';
@@ -24,13 +24,13 @@ class TransactionDetailSheet extends ConsumerStatefulWidget {
     required this.walletName,
   });
 
-  final Transaction transaction;
+  final TransactionWithCategory transaction;
   final String walletName;
 
   /// Shows the detail sheet as a modal bottom sheet.
   static Future<void> show(
     BuildContext context, {
-    required Transaction transaction,
+    required TransactionWithCategory transaction,
     required String walletName,
   }) {
     return showModalBottomSheet<void>(
@@ -60,7 +60,7 @@ class _TransactionDetailSheetState
   // Edit mode state.
   late TransactionType _type;
   late String _amountText;
-  late String _selectedCategory;
+  late int _selectedCategoryId;
   final _noteController = TextEditingController();
 
   @override
@@ -76,25 +76,16 @@ class _TransactionDetailSheetState
   }
 
   void _resetEditState() {
-    _type = widget.transaction.type;
-    _amountText =
-        widget.transaction.amount.truncateToDouble() ==
-            widget.transaction.amount
-        ? widget.transaction.amount.toInt().toString()
-        : widget.transaction.amount.toString();
-    _selectedCategory = widget.transaction.category;
-    _noteController.text = widget.transaction.note;
+    final tx = widget.transaction.transaction;
+    _type = tx.type;
+    _amountText = tx.amount.truncateToDouble() == tx.amount
+        ? tx.amount.toInt().toString()
+        : tx.amount.toString();
+    _selectedCategoryId = tx.categoryId;
+    _noteController.text = tx.note;
   }
 
   double get _amount => double.tryParse(_amountText) ?? 0.0;
-
-  List<String> get _categoriesForType {
-    return switch (_type) {
-      TransactionType.income => TransactionCategories.income,
-      TransactionType.expense => TransactionCategories.expense,
-      TransactionType.transfer => TransactionCategories.transfer,
-    };
-  }
 
   Color get _colorForType {
     return switch (_type) {
@@ -144,8 +135,11 @@ class _TransactionDetailSheetState
 
   List<Widget> _buildViewMode() {
     final theme = Theme.of(context);
-    final tx = widget.transaction;
-    final categoryInfo = CategoryIconMapper.get(tx.category);
+    final tx = widget.transaction.transaction;
+    final cat = widget.transaction.category;
+    final categoryInfo = CategoryIconMapper.get(
+      cat.iconCode.isNotEmpty ? cat.iconCode : cat.name,
+    );
     final isIncome = tx.type == TransactionType.income;
     final amountColor = isIncome
         ? OceanFlowColors.primary
@@ -167,7 +161,7 @@ class _TransactionDetailSheetState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  tx.category,
+                  cat.name,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
@@ -306,9 +300,6 @@ class _TransactionDetailSheetState
         onSelectionChanged: (selection) {
           setState(() {
             _type = selection.first;
-            if (!_categoriesForType.contains(_selectedCategory)) {
-              _selectedCategory = _categoriesForType.first;
-            }
           });
         },
         style: SegmentedButton.styleFrom(
@@ -341,29 +332,57 @@ class _TransactionDetailSheetState
       const SizedBox(height: 12),
 
       // ── Category Selector ──────────────────────────────────────
-      SizedBox(
-        height: 36,
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          itemCount: _categoriesForType.length,
-          separatorBuilder: (_, _) => const SizedBox(width: 6),
-          itemBuilder: (context, index) {
-            final category = _categoriesForType[index];
-            final isSelected = category == _selectedCategory;
-            return ChoiceChip(
-              label: Text(category),
-              selected: isSelected,
-              onSelected: (_) => setState(() => _selectedCategory = category),
-              selectedColor: _colorForType.withValues(alpha: 0.15),
-              labelStyle: TextStyle(
-                fontSize: 12,
-                color: isSelected ? _colorForType : theme.colorScheme.onSurface,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-              ),
-              visualDensity: VisualDensity.compact,
-            );
-          },
-        ),
+      Consumer(
+        builder: (context, ref, _) {
+          final categoriesAsync = ref
+              .watch(categoryRepositoryProvider)
+              .watchCategoriesByType(_type);
+          return SizedBox(
+            height: 36,
+            child: StreamBuilder(
+              stream: categoriesAsync,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return const SizedBox.shrink();
+                final categories = snapshot.data!;
+
+                if (!categories.any((c) => c.id == _selectedCategoryId)) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) {
+                      setState(() => _selectedCategoryId = categories.first.id);
+                    }
+                  });
+                }
+
+                return ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: categories.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: 6),
+                  itemBuilder: (context, index) {
+                    final category = categories[index];
+                    final isSelected = category.id == _selectedCategoryId;
+                    return ChoiceChip(
+                      label: Text(category.name),
+                      selected: isSelected,
+                      onSelected: (_) =>
+                          setState(() => _selectedCategoryId = category.id),
+                      selectedColor: _colorForType.withValues(alpha: 0.15),
+                      labelStyle: TextStyle(
+                        fontSize: 12,
+                        color: isSelected
+                            ? _colorForType
+                            : theme.colorScheme.onSurface,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.normal,
+                      ),
+                      visualDensity: VisualDensity.compact,
+                    );
+                  },
+                );
+              },
+            ),
+          );
+        },
       ),
       const SizedBox(height: 12),
 
@@ -512,7 +531,7 @@ class _TransactionDetailSheetState
 
     try {
       final repo = ref.read(transactionRepositoryProvider);
-      await repo.deleteTransactionAtomic(widget.transaction);
+      await repo.deleteTransactionAtomic(widget.transaction.transaction);
 
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
@@ -538,7 +557,7 @@ class _TransactionDetailSheetState
       final repo = ref.read(transactionRepositoryProvider);
 
       final balanceDelta = TransactionBalanceLogic.updateDelta(
-        old: widget.transaction,
+        old: widget.transaction.transaction,
         newAmount: _amount,
         newType: _type,
       );
@@ -546,14 +565,14 @@ class _TransactionDetailSheetState
       final companion = TransactionsCompanion(
         amount: Value(_amount),
         type: Value(_type),
-        category: Value(_selectedCategory),
+        categoryId: Value(_selectedCategoryId),
         note: Value(_noteController.text),
       );
 
       await repo.updateTransactionAtomic(
-        transactionId: widget.transaction.id,
+        transactionId: widget.transaction.transaction.id,
         updated: companion,
-        walletId: widget.transaction.walletId,
+        walletId: widget.transaction.transaction.walletId,
         balanceDelta: balanceDelta,
       );
 

@@ -15,7 +15,7 @@ Transaction _tx({
     walletId: 1,
     amount: amount,
     type: type,
-    category: 'Test',
+    categoryId: 1,
     note: '',
     date: date,
     createdAt: date,

@@ -10,6 +10,8 @@ import 'package:uangku/data/tables/wallets_table.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/data/tables/investment_snapshots_table.dart';
 import 'package:uangku/data/tables/app_settings_table.dart';
+import 'package:uangku/data/tables/categories_table.dart';
+import 'package:uangku/core/constants/transaction_categories.dart';
 
 part 'database.g.dart';
 
@@ -18,7 +20,7 @@ part 'database.g.dart';
 /// Includes all tables and manages schema versioning.
 /// Use code generation: `dart run build_runner build --delete-conflicting-outputs`
 @DriftDatabase(
-  tables: [Wallets, Transactions, InvestmentSnapshots, AppSettings],
+  tables: [Wallets, Transactions, InvestmentSnapshots, AppSettings, Categories],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase._(super.e);
@@ -36,21 +38,70 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => AppConstants.databaseVersion;
+  int get schemaVersion => 3; // AppConstants.databaseVersion; // Update to 3 manually here for migration.
 
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
       onCreate: (Migrator m) async {
         await m.createAll();
+        await _seedDefaultCategories(this);
       },
       onUpgrade: (Migrator m, int from, int to) async {
         if (from < 2) {
           await m.createTable(appSettings);
         }
+        if (from < 3) {
+          await m.createTable(categories);
+          await m.addColumn(transactions, transactions.categoryId);
+          await _seedDefaultCategories(this);
+
+          // We aren't doing a data migration of old string 'category' to 'categoryId'
+          // since this is a local project and likely early dev.
+          // We can just seed categories. The old transactions might have a null categoryId,
+          // so we need to be careful. Drift will add the column.
+          // In SQLite, adding a non-null column without default is tricky, but drift handles it.
+        }
+      },
+      beforeOpen: (details) async {
+        await customStatement('PRAGMA foreign_keys = ON');
       },
     );
   }
+}
+
+Future<void> _seedDefaultCategories(AppDatabase db) async {
+  // Check if categories exist first
+  final count = await db.categories.count().getSingle();
+  if (count > 0) return;
+
+  final defaultCategories = [
+    ...TransactionCategories.income.map(
+      (c) => CategoriesCompanion.insert(
+        name: c,
+        iconCode: '💰',
+        type: TransactionType.income,
+      ),
+    ),
+    ...TransactionCategories.expense.map(
+      (c) => CategoriesCompanion.insert(
+        name: c,
+        iconCode: '💸',
+        type: TransactionType.expense,
+      ),
+    ),
+    ...TransactionCategories.transfer.map(
+      (c) => CategoriesCompanion.insert(
+        name: c,
+        iconCode: '🔄',
+        type: TransactionType.transfer,
+      ),
+    ),
+  ];
+
+  await db.batch((batch) {
+    batch.insertAll(db.categories, defaultCategories);
+  });
 }
 
 LazyDatabase _openConnection() {

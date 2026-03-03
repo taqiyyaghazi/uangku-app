@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import 'categories_table.dart';
 import 'wallets_table.dart';
 
 /// Represents the type of a financial transaction.
@@ -18,7 +19,7 @@ class Transactions extends Table {
 
   TextColumn get type => textEnum<TransactionType>()();
 
-  TextColumn get category => text().withLength(min: 1, max: 50)();
+  IntColumn get categoryId => integer().references(Categories, #id)();
 
   TextColumn get note => text().withDefault(const Constant(''))();
 

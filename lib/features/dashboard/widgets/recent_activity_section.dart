@@ -98,7 +98,8 @@ class RecentActivitySection extends ConsumerWidget {
                 // ── Transaction List ────────────────────────────────
                 if (transactions.isNotEmpty)
                   ...transactions.map((tx) {
-                    final name = walletMap[tx.walletId] ?? 'Unknown';
+                    final name =
+                        walletMap[tx.transaction.walletId] ?? 'Unknown';
                     return TransactionItem(
                       transaction: tx,
                       walletName: name,

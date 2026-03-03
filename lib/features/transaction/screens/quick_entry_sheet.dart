@@ -2,7 +2,6 @@ import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:uangku/core/constants/transaction_categories.dart';
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/data/database.dart';
@@ -38,7 +37,7 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
   TransactionType _type = TransactionType.expense;
   String _amountText = '0';
   int? _selectedWalletId;
-  String _selectedCategory = TransactionCategories.expense.first;
+  int? _selectedCategoryId;
   bool _isSaving = false;
   final _noteController = TextEditingController();
 
@@ -49,14 +48,6 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
   }
 
   double get _amount => double.tryParse(_amountText) ?? 0.0;
-
-  List<String> get _categoriesForType {
-    return switch (_type) {
-      TransactionType.income => TransactionCategories.income,
-      TransactionType.expense => TransactionCategories.expense,
-      TransactionType.transfer => TransactionCategories.transfer,
-    };
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -199,7 +190,8 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
       onSelectionChanged: (selection) {
         setState(() {
           _type = selection.first;
-          _selectedCategory = _categoriesForType.first;
+          _selectedCategoryId =
+              null; // Reset selection so it auto-selects the first category of the new type
         });
       },
       style: SegmentedButton.styleFrom(
@@ -288,34 +280,64 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
   // ── Category selector ─────────────────────────────────────────────
 
   Widget _buildCategorySelector(ThemeData theme) {
-    final categories = _categoriesForType;
+    final categoriesAsync = ref.watch(categoriesByTypeProvider(_type));
 
-    return SizedBox(
-      height: 36,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: categories.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 6),
-        itemBuilder: (context, index) {
-          final category = categories[index];
-          final isSelected = category == _selectedCategory;
-
-          return ChoiceChip(
-            label: Text(category),
-            selected: isSelected,
-            onSelected: (_) {
-              setState(() => _selectedCategory = category);
-            },
-            selectedColor: _colorForType.withValues(alpha: 0.15),
-            labelStyle: TextStyle(
-              fontSize: 12,
-              color: isSelected ? _colorForType : theme.colorScheme.onSurface,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+    return categoriesAsync.when(
+      data: (categories) {
+        if (categories.isEmpty) {
+          return Text(
+            'No categories available. Please create one.',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.error,
             ),
-            visualDensity: VisualDensity.compact,
           );
-        },
+        }
+
+        // Auto-select first category if none selected or if selected is not in the list.
+        if (_selectedCategoryId == null ||
+            !categories.any((c) => c.id == _selectedCategoryId)) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              setState(() => _selectedCategoryId = categories.first.id);
+            }
+          });
+        }
+
+        return SizedBox(
+          height: 36,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: categories.length,
+            separatorBuilder: (_, _) => const SizedBox(width: 6),
+            itemBuilder: (context, index) {
+              final category = categories[index];
+              final isSelected = category.id == _selectedCategoryId;
+
+              return ChoiceChip(
+                label: Text(category.name),
+                selected: isSelected,
+                onSelected: (_) {
+                  setState(() => _selectedCategoryId = category.id);
+                },
+                selectedColor: _colorForType.withValues(alpha: 0.15),
+                labelStyle: TextStyle(
+                  fontSize: 12,
+                  color: isSelected
+                      ? _colorForType
+                      : theme.colorScheme.onSurface,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                ),
+                visualDensity: VisualDensity.compact,
+              );
+            },
+          ),
+        );
+      },
+      loading: () => const SizedBox(
+        height: 36,
+        child: Center(child: CircularProgressIndicator()),
       ),
+      error: (_, _) => const Text('Failed to load categories'),
     );
   }
 
@@ -359,7 +381,11 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
   // ── Save transaction ──────────────────────────────────────────────
 
   Future<void> _onSave() async {
-    if (_selectedWalletId == null || _amount <= 0) return;
+    if (_selectedWalletId == null ||
+        _selectedCategoryId == null ||
+        _amount <= 0) {
+      return;
+    }
 
     setState(() => _isSaving = true);
 
@@ -377,7 +403,7 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
         walletId: Value(_selectedWalletId!),
         amount: Value(_amount),
         type: Value(_type),
-        category: Value(_selectedCategory),
+        categoryId: Value(_selectedCategoryId!),
         note: Value(_noteController.text),
         date: Value(DateTime.now()),
       );

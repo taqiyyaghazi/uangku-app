@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/data/database.dart';
+import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/repositories/wallet_repository.dart';
 import 'package:uangku/features/dashboard/models/budget_state.dart';
 import 'package:uangku/features/dashboard/screens/dashboard_screen.dart';
@@ -51,7 +52,7 @@ void main() {
             (_) => Stream.value(_emptyBudgetState),
           ),
           recentTransactionsProvider.overrideWith(
-            (_) => Stream.value(<Transaction>[]),
+            (_) => Stream.value(<TransactionWithCategory>[]),
           ),
         ],
         child: const MaterialApp(home: DashboardScreen()),

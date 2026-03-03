@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/data/database.dart';
+import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/data/tables/wallets_table.dart';
 import 'package:uangku/features/dashboard/widgets/recent_activity_section.dart';
@@ -25,30 +26,48 @@ void main() {
   ];
 
   final fakeTransactions = [
-    Transaction(
-      id: 1,
-      walletId: 1,
-      amount: 50000,
-      type: TransactionType.expense,
-      category: 'Food',
-      note: 'Lunch',
-      date: now,
-      createdAt: now,
+    TransactionWithCategory(
+      transaction: Transaction(
+        id: 1,
+        walletId: 1,
+        categoryId: 1,
+        amount: 50000,
+        type: TransactionType.expense,
+        date: now,
+        note: 'Lunch',
+        createdAt: now,
+      ),
+      category: Category(
+        id: 1,
+        name: 'Food',
+        iconCode: 'fastfood',
+        type: TransactionType.expense,
+        createdAt: now,
+      ),
     ),
-    Transaction(
-      id: 2,
-      walletId: 1,
-      amount: 5000000,
-      type: TransactionType.income,
-      category: 'Salary',
-      note: 'Monthly',
-      date: DateTime(2026, 3, 2, 9, 0),
-      createdAt: now,
+    TransactionWithCategory(
+      transaction: Transaction(
+        id: 2,
+        walletId: 1,
+        categoryId: 3,
+        amount: 5000000,
+        type: TransactionType.income,
+        date: DateTime(2026, 3, 2, 9, 0),
+        note: 'Monthly',
+        createdAt: now,
+      ),
+      category: Category(
+        id: 3,
+        name: 'Salary',
+        iconCode: 'attach_money',
+        type: TransactionType.income,
+        createdAt: now,
+      ),
     ),
   ];
 
   Widget buildTestWidget({
-    List<Transaction> transactions = const [],
+    List<TransactionWithCategory> transactions = const [],
     List<Wallet> wallets = const [],
   }) {
     return ProviderScope(
