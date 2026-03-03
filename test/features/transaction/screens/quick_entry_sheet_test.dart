@@ -1,0 +1,218 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import 'package:uangku/core/di/providers.dart';
+import 'package:uangku/data/database.dart';
+import 'package:uangku/data/repositories/transaction_repository.dart';
+import 'package:uangku/data/repositories/wallet_repository.dart';
+import 'package:uangku/data/tables/wallets_table.dart';
+import 'package:uangku/features/transaction/screens/quick_entry_sheet.dart';
+
+/// Fake wallet repository for testing.
+class FakeWalletRepository implements WalletRepository {
+  @override
+  Stream<List<Wallet>> watchAllWallets() => Stream.value(_fakeWallets);
+
+  @override
+  Future<int> createWallet(WalletsCompanion wallet) async => 1;
+
+  @override
+  Future<bool> updateWallet(WalletsCompanion wallet) async => true;
+
+  @override
+  Future<bool> deleteWallet(int id) async => true;
+
+  @override
+  Future<Wallet?> getWalletById(int id) async => null;
+}
+
+/// Fake transaction repository for testing.
+class FakeTransactionRepository implements TransactionRepository {
+  int insertCallCount = 0;
+
+  @override
+  Stream<List<Transaction>> watchTransactionsByWallet(int walletId) =>
+      Stream.value([]);
+
+  @override
+  Stream<List<Transaction>> watchTransactionsByDateRange(
+    DateTime start,
+    DateTime end,
+  ) => Stream.value([]);
+
+  @override
+  Future<int> createTransaction(TransactionsCompanion transaction) async => 1;
+
+  @override
+  Future<bool> deleteTransaction(int id) async => true;
+
+  @override
+  Future<int> insertTransactionAndUpdateBalance({
+    required TransactionsCompanion transaction,
+    required int walletId,
+    required double balanceDelta,
+  }) async {
+    insertCallCount++;
+    return 1;
+  }
+}
+
+final _now = DateTime(2026, 3, 3);
+
+final _fakeWallets = [
+  Wallet(
+    id: 1,
+    name: 'Bank BCA',
+    balance: 1000000,
+    type: WalletType.bank,
+    colorHex: '#008080',
+    icon: 'bank',
+    createdAt: _now,
+    updatedAt: _now,
+  ),
+  Wallet(
+    id: 2,
+    name: 'Cash',
+    balance: 500000,
+    type: WalletType.cash,
+    colorHex: '#008080',
+    icon: 'cash',
+    createdAt: _now,
+    updatedAt: _now,
+  ),
+];
+
+void main() {
+  // Use InkSplash to avoid shader asset error in test environment.
+  final testTheme = ThemeData(
+    useMaterial3: true,
+    splashFactory: InkSplash.splashFactory,
+  );
+
+  late FakeTransactionRepository fakeTransactionRepo;
+
+  setUp(() {
+    fakeTransactionRepo = FakeTransactionRepository();
+  });
+
+  /// Build the QuickEntrySheet directly as a widget (not inside a bottom sheet)
+  /// to avoid viewport/off-screen issues in the 600px test environment.
+  Widget buildDirectSheet() {
+    return ProviderScope(
+      overrides: [
+        walletsProvider.overrideWith((_) => Stream.value(_fakeWallets)),
+        walletRepositoryProvider.overrideWithValue(FakeWalletRepository()),
+        transactionRepositoryProvider.overrideWithValue(fakeTransactionRepo),
+      ],
+      child: MaterialApp(
+        theme: testTheme,
+        home: const Scaffold(
+          body: SingleChildScrollView(child: QuickEntrySheet()),
+        ),
+      ),
+    );
+  }
+
+  /// Build the bottom-sheet test app for structural tests.
+  Widget buildBottomSheetApp() {
+    return ProviderScope(
+      overrides: [
+        walletsProvider.overrideWith((_) => Stream.value(_fakeWallets)),
+        walletRepositoryProvider.overrideWithValue(FakeWalletRepository()),
+        transactionRepositoryProvider.overrideWithValue(fakeTransactionRepo),
+      ],
+      child: MaterialApp(
+        theme: testTheme,
+        home: Scaffold(
+          body: Builder(
+            builder: (context) {
+              return ElevatedButton(
+                onPressed: () => QuickEntrySheet.show(context),
+                child: const Text('Open Entry'),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  group('QuickEntrySheet', () {
+    testWidgets('renders transaction type toggle', (tester) async {
+      await tester.pumpWidget(buildDirectSheet());
+      await tester.pumpAndSettle();
+
+      expect(find.text('Expense'), findsOneWidget);
+      expect(find.text('Income'), findsOneWidget);
+      expect(find.text('Transfer'), findsOneWidget);
+    });
+
+    testWidgets('renders wallet chips', (tester) async {
+      await tester.pumpWidget(buildDirectSheet());
+      await tester.pumpAndSettle();
+
+      expect(find.text('Bank BCA'), findsOneWidget);
+      expect(find.text('Cash'), findsOneWidget);
+    });
+
+    testWidgets('renders numpad digits', (tester) async {
+      await tester.pumpWidget(buildDirectSheet());
+      await tester.pumpAndSettle();
+
+      // Check a few digits are present in the numpad.
+      expect(find.text('1'), findsOneWidget);
+      expect(find.text('5'), findsOneWidget);
+      expect(find.text('9'), findsOneWidget);
+    });
+
+    testWidgets('displays initial amount as Rp 0', (tester) async {
+      await tester.pumpWidget(buildDirectSheet());
+      await tester.pumpAndSettle();
+
+      expect(find.text('Rp 0'), findsOneWidget);
+    });
+
+    testWidgets('tapping digit 5 updates amount display', (tester) async {
+      await tester.pumpWidget(buildDirectSheet());
+      await tester.pumpAndSettle();
+
+      // Tap digit 5.
+      await tester.tap(find.text('5'));
+      await tester.pump();
+
+      expect(find.text('Rp 5'), findsOneWidget);
+    });
+
+    testWidgets('switching to Income shows income categories', (tester) async {
+      await tester.pumpWidget(buildDirectSheet());
+      await tester.pumpAndSettle();
+
+      // Default is Expense — should show expense categories.
+      expect(find.text('Food'), findsOneWidget);
+
+      // Switch to Income.
+      await tester.tap(find.text('Income'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Salary'), findsOneWidget);
+    });
+
+    testWidgets('save button exists', (tester) async {
+      await tester.pumpWidget(buildDirectSheet());
+      await tester.pumpAndSettle();
+
+      // FilledButton.icon renders "Save" text.
+      expect(find.text('Save'), findsOneWidget);
+    });
+
+    testWidgets('opens via bottom sheet', (tester) async {
+      await tester.pumpWidget(buildBottomSheetApp());
+      await tester.tap(find.text('Open Entry'));
+      await tester.pumpAndSettle();
+
+      // Verify the sheet opened with the type selector visible.
+      expect(find.text('Expense'), findsOneWidget);
+    });
+  });
+}

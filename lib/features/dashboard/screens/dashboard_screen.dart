@@ -7,6 +7,7 @@ import 'package:uangku/data/database.dart';
 import 'package:uangku/features/dashboard/widgets/dashboard_header.dart';
 import 'package:uangku/features/dashboard/widgets/wallet_form_sheet.dart';
 import 'package:uangku/features/dashboard/widgets/wallet_grid.dart';
+import 'package:uangku/features/transaction/screens/quick_entry_sheet.dart';
 
 /// The main dashboard screen displaying the wallet grid and total balance.
 ///
@@ -43,7 +44,7 @@ class DashboardScreen extends ConsumerWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _onAddWallet(context, ref),
+        onPressed: () => QuickEntrySheet.show(context),
         tooltip: 'Add Transaction',
         child: const Icon(Icons.add),
       ),

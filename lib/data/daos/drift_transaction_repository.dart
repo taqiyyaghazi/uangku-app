@@ -46,4 +46,32 @@ class DriftTransactionRepository implements TransactionRepository {
     )..where((t) => t.id.equals(id))).go();
     return rowsAffected > 0;
   }
+
+  @override
+  Future<int> insertTransactionAndUpdateBalance({
+    required TransactionsCompanion transaction,
+    required int walletId,
+    required double balanceDelta,
+  }) {
+    return _db.transaction(() async {
+      // 1. Insert the transaction record.
+      final txId = await _db.into(_db.transactions).insert(transaction);
+
+      // 2. Update the wallet balance atomically.
+      final wallet = await (_db.select(
+        _db.wallets,
+      )..where((w) => w.id.equals(walletId))).getSingle();
+
+      await (_db.update(
+        _db.wallets,
+      )..where((w) => w.id.equals(walletId))).write(
+        WalletsCompanion(
+          balance: Value(wallet.balance + balanceDelta),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+
+      return txId;
+    });
+  }
 }

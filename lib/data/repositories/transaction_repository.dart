@@ -20,4 +20,18 @@ abstract class TransactionRepository {
 
   /// Deletes a transaction by its [id]. Returns true if any row was affected.
   Future<bool> deleteTransaction(int id);
+
+  /// Atomically inserts a transaction and updates the wallet balance.
+  ///
+  /// For **income**, the [balanceDelta] should be positive.
+  /// For **expense**, the [balanceDelta] should be negative.
+  /// For **transfer**, this must be called twice (debit source, credit target).
+  ///
+  /// Uses a database transaction to ensure both operations succeed or
+  /// both are rolled back.
+  Future<int> insertTransactionAndUpdateBalance({
+    required TransactionsCompanion transaction,
+    required int walletId,
+    required double balanceDelta,
+  });
 }
