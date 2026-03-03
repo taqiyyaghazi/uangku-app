@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:drift/drift.dart';
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/repositories/category_repository.dart';
@@ -24,24 +26,94 @@ class CategoryRepositoryImpl implements CategoryRepository {
   }
 
   @override
-  Future<int> createCategory(CategoriesCompanion category) {
-    return db.into(db.categories).insert(category);
+  Future<int> createCategory(CategoriesCompanion category) async {
+    final name = category.name.value;
+    developer.log(
+      'Creating category: $name',
+      name: 'CategoryRepositoryImpl.createCategory',
+    );
+    final startTime = DateTime.now();
+    try {
+      final id = await db.into(db.categories).insert(category);
+      final duration = DateTime.now().difference(startTime).inMilliseconds;
+      developer.log(
+        'Successfully created category: $name (ID: $id)',
+        name: 'CategoryRepositoryImpl.createCategory',
+        error: {'duration': duration},
+      );
+      return id;
+    } catch (e, st) {
+      final duration = DateTime.now().difference(startTime).inMilliseconds;
+      developer.log(
+        'Failed to create category: $name',
+        name: 'CategoryRepositoryImpl.createCategory',
+        error: {'error': e.toString(), 'duration': duration},
+        stackTrace: st,
+      );
+      rethrow;
+    }
   }
 
   @override
-  Future<bool> updateCategory(Category category) {
-    return db.update(db.categories).replace(category);
+  Future<bool> updateCategory(Category category) async {
+    developer.log(
+      'Updating category: ${category.name} (ID: ${category.id})',
+      name: 'CategoryRepositoryImpl.updateCategory',
+    );
+    final startTime = DateTime.now();
+    try {
+      final success = await db.update(db.categories).replace(category);
+      final duration = DateTime.now().difference(startTime).inMilliseconds;
+      developer.log(
+        'Successfully updated category: ${category.name}',
+        name: 'CategoryRepositoryImpl.updateCategory',
+        error: {'duration': duration, 'success': success},
+      );
+      return success;
+    } catch (e, st) {
+      final duration = DateTime.now().difference(startTime).inMilliseconds;
+      developer.log(
+        'Failed to update category: ${category.name}',
+        name: 'CategoryRepositoryImpl.updateCategory',
+        error: {'error': e.toString(), 'duration': duration},
+        stackTrace: st,
+      );
+      rethrow;
+    }
   }
 
   @override
   Future<void> deleteCategory(int id) async {
-    final canDelete = await canDeleteCategory(id);
-    if (!canDelete) {
-      throw Exception(
-        'Category is currently in use by transactions and cannot be deleted.',
+    developer.log(
+      'Attempting to delete category (ID: $id)',
+      name: 'CategoryRepositoryImpl.deleteCategory',
+    );
+    final startTime = DateTime.now();
+    try {
+      final canDelete = await canDeleteCategory(id);
+      if (!canDelete) {
+        throw Exception(
+          'Category is currently in use by transactions and cannot be deleted.',
+        );
+      }
+      await (db.delete(db.categories)..where((c) => c.id.equals(id))).go();
+
+      final duration = DateTime.now().difference(startTime).inMilliseconds;
+      developer.log(
+        'Successfully deleted category (ID: $id)',
+        name: 'CategoryRepositoryImpl.deleteCategory',
+        error: {'duration': duration},
       );
+    } catch (e, st) {
+      final duration = DateTime.now().difference(startTime).inMilliseconds;
+      developer.log(
+        'Failed to delete category (ID: $id)',
+        name: 'CategoryRepositoryImpl.deleteCategory',
+        error: {'error': e.toString(), 'duration': duration},
+        stackTrace: st,
+      );
+      rethrow;
     }
-    await (db.delete(db.categories)..where((c) => c.id.equals(id))).go();
   }
 
   @override
