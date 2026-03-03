@@ -85,6 +85,13 @@ class DriftTransactionRepository implements TransactionRepository {
   }
 
   @override
+  Stream<List<Transaction>> watchAllTransactions() {
+    final query = _db.select(_db.transactions)
+      ..orderBy([(t) => OrderingTerm.desc(t.date)]);
+    return query.watch();
+  }
+
+  @override
   Future<void> deleteTransactionAtomic(Transaction transaction) {
     return _db.transaction(() async {
       // 1. Delete the transaction record.

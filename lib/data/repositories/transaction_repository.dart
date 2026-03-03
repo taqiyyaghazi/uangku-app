@@ -39,6 +39,10 @@ abstract class TransactionRepository {
   /// across all wallets, ordered by date descending.
   Stream<List<Transaction>> watchRecentTransactions(int limit);
 
+  /// Returns a reactive stream of all transactions across all wallets,
+  /// ordered by date descending.
+  Stream<List<Transaction>> watchAllTransactions();
+
   /// Atomically deletes a [transaction] and reverses its balance effect
   /// on the associated wallet.
   ///

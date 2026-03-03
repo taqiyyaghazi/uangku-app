@@ -100,3 +100,10 @@ final recentTransactionsProvider = StreamProvider<List<Transaction>>((ref) {
   final repo = ref.watch(transactionRepositoryProvider);
   return repo.watchRecentTransactions(10);
 });
+
+/// Provides a reactive stream of all transactions
+/// across all wallets, ordered by date descending.
+final allTransactionsProvider = StreamProvider<List<Transaction>>((ref) {
+  final repo = ref.watch(transactionRepositoryProvider);
+  return repo.watchAllTransactions();
+});

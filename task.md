@@ -1,27 +1,28 @@
-# Task: Story 4.3 — Transaction Management (Edit & Delete)
+# Task: Story 4.4 — Full History & Archive Access
 
 ## Data Layer
 
-- [x] Add `deleteTransactionAtomic` and `updateTransactionAtomic` to `TransactionRepository`
-- [x] Implement in `DriftTransactionRepository`
-- [x] Update fake in `quick_entry_sheet_test.dart`
+- [ ] Add `watchAllTransactions()` to `TransactionRepository`
+- [ ] Implement in `DriftTransactionRepository`
+- [ ] Update fake in `quick_entry_sheet_test.dart` and `transaction_detail_sheet_test.dart`
+- [ ] Add `allTransactionsProvider` to `providers.dart`
 
 ## Business Logic
 
-- [x] Create `TransactionBalanceLogic` (pure functions for balance deltas)
+- [ ] Create `TransactionGroupingLogic` (pure function for grouping descending transactions by month/year string)
+- [ ] Create `transaction_grouping_logic_test.dart`
 
 ## UI Components
 
-- [x] Create `TransactionDetailSheet` (view/edit/delete)
-- [x] Wire `onTap` in `RecentActivitySection`
+- [ ] Create `TransactionsArchiveScreen` (search bar, sliver sticky headers, empty state)
+- [ ] Create `transactions_archive_screen_test.dart`
+- [ ] Wire "See All" button in `RecentActivitySection` to navigate to archive screen
 
-## Tests
+### Verification
 
-- [x] `transaction_balance_logic_test.dart`
-- [x] `transaction_detail_sheet_test.dart`
-
-## Verification
-
-- [x] `fvm flutter analyze` passes
-- [x] `fvm flutter test` — all tests pass
-- [x] Commit with `feat(transaction)` format
+- [x] Run unit tests for grouping logic (`fvm flutter test`).
+- [x] Create widget tests for `TransactionsArchiveScreen` (`transactions_archive_screen_test.dart`).
+- [x] Run widget tests.
+- [x] Run full project analysis and tests (`fvm flutter analyze` & `fvm flutter test`).
+- [x] Update documentation (Walkthrough).
+- [x] Commit changes.

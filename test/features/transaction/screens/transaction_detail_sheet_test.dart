@@ -41,6 +41,9 @@ class FakeTransactionRepository implements TransactionRepository {
       Stream.value([]);
 
   @override
+  Stream<List<Transaction>> watchAllTransactions() => Stream.value([]);
+
+  @override
   Future<void> deleteTransactionAtomic(Transaction transaction) async {
     deleteAtomicCallCount++;
   }
