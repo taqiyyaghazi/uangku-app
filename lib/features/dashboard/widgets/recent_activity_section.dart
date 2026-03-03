@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/features/dashboard/widgets/transaction_item.dart';
-import 'package:uangku/features/transaction/screens/transaction_detail_sheet.dart';
+import 'package:uangku/features/transaction/widgets/transaction_detail_sheet.dart';
 import 'package:uangku/features/transaction/screens/transactions_archive_screen.dart';
 
 /// Displays the "Recent Activity" section on the Dashboard.

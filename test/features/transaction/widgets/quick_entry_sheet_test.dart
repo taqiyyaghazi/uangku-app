@@ -10,7 +10,7 @@ import 'package:uangku/data/repositories/transaction_repository.dart';
 import 'package:uangku/data/repositories/wallet_repository.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/data/tables/wallets_table.dart';
-import 'package:uangku/features/transaction/screens/quick_entry_sheet.dart';
+import 'package:uangku/features/transaction/widgets/quick_entry_sheet.dart';
 
 /// Fake wallet repository for testing.
 class FakeWalletRepository implements WalletRepository {

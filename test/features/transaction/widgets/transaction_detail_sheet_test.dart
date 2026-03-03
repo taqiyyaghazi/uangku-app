@@ -8,7 +8,7 @@ import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/repositories/category_repository.dart';
 import 'package:uangku/data/repositories/transaction_repository.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
-import 'package:uangku/features/transaction/screens/transaction_detail_sheet.dart';
+import 'package:uangku/features/transaction/widgets/transaction_detail_sheet.dart';
 
 /// Fake transaction repository that tracks method calls.
 class FakeTransactionRepository implements TransactionRepository {

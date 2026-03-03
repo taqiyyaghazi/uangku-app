@@ -8,6 +8,7 @@ import 'package:uangku/data/database.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/features/transaction/widgets/numpad.dart';
 import 'package:uangku/shared/utils/currency_formatter.dart';
+import 'dart:developer' as developer;
 
 /// Bottom sheet for quick transaction entry.
 ///
@@ -417,7 +418,13 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
       if (mounted) {
         Navigator.of(context).pop();
       }
-    } catch (e) {
+    } catch (e, st) {
+      developer.log(
+        'Error saving quick transaction',
+        name: 'QuickEntrySheet',
+        error: e,
+        stackTrace: st,
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

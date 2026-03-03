@@ -118,9 +118,11 @@ class CategoryRepositoryImpl implements CategoryRepository {
 
   @override
   Future<bool> canDeleteCategory(int id) async {
-    final usages = await (db.select(
-      db.transactions,
-    )..where((t) => t.categoryId.equals(id))).get();
+    final usages =
+        await (db.select(db.transactions)
+              ..where((t) => t.categoryId.equals(id))
+              ..limit(1))
+            .get();
     return usages.isEmpty;
   }
 }

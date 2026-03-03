@@ -12,6 +12,7 @@ import 'package:uangku/features/transaction/widgets/numpad.dart';
 import 'package:uangku/shared/utils/category_icon_mapper.dart';
 import 'package:uangku/shared/utils/currency_formatter.dart';
 import 'package:uangku/shared/utils/relative_time_formatter.dart';
+import 'dart:developer' as developer;
 
 /// Bottom sheet for viewing, editing, and deleting a transaction.
 ///
@@ -534,7 +535,13 @@ class _TransactionDetailSheetState
       await repo.deleteTransactionAtomic(widget.transaction.transaction);
 
       if (mounted) Navigator.of(context).pop();
-    } catch (e) {
+    } catch (e, st) {
+      developer.log(
+        'Error deleting transaction',
+        name: 'TransactionDetailSheet',
+        error: e,
+        stackTrace: st,
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -577,7 +584,13 @@ class _TransactionDetailSheetState
       );
 
       if (mounted) Navigator.of(context).pop();
-    } catch (e) {
+    } catch (e, st) {
+      developer.log(
+        'Error saving transaction edit',
+        name: 'TransactionDetailSheet',
+        error: e,
+        stackTrace: st,
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
