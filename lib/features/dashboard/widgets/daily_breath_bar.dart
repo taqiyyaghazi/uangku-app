@@ -141,7 +141,9 @@ class DailyBreathBar extends StatelessWidget {
                       child: Text(
                         budgetState.correctionMessage!,
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: OceanFlowColors.onAccent,
+                          color: isDark
+                              ? Colors.white
+                              : OceanFlowColors.onAccent,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
