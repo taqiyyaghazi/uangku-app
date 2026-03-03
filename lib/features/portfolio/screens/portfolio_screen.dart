@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -6,13 +7,14 @@ import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/tables/wallets_table.dart';
+import 'package:uangku/features/portfolio/logic/portfolio_providers.dart';
+import 'package:uangku/features/portfolio/widgets/allocation_donut_chart.dart';
 import 'package:uangku/features/portfolio/widgets/asset_update_sheet.dart';
+import 'package:uangku/features/portfolio/widgets/growth_line_chart.dart';
 import 'package:uangku/shared/utils/currency_formatter.dart';
 
-/// The portfolio screen showing all investment wallets with their
-/// current values and snapshot history logs.
-///
-/// Allows updating asset values via [AssetUpdateSheet].
+/// The portfolio screen showing asset allocation, net worth growth,
+/// and all investment wallets with their snapshot history logs.
 class PortfolioScreen extends ConsumerWidget {
   const PortfolioScreen({super.key});
 
@@ -29,41 +31,159 @@ class PortfolioScreen extends ConsumerWidget {
               .where((w) => w.type == WalletType.investment)
               .toList();
 
-          if (investmentWallets.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.trending_up,
-                    size: 64,
-                    color: theme.colorScheme.outline.withValues(alpha: 0.3),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No investment wallets yet',
+          return CustomScrollView(
+            slivers: [
+              // ── Growth Line Chart ────────────────────────────────
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+                  child: Text(
+                    'Net Worth Growth (6M)',
                     style: theme.textTheme.titleMedium?.copyWith(
-                      color: theme.colorScheme.outline,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Create an Investment wallet to start tracking',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.outline.withValues(alpha: 0.7),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            );
-          }
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 24, 24),
+                  child: Consumer(
+                    builder: (context, ref, _) {
+                      final growthAsync = ref.watch(netWorthGrowthProvider);
+                      return growthAsync.when(
+                        data: (spots) {
+                          return GrowthLineChart(
+                            spots: spots,
+                            minDate: DateTime.now().subtract(
+                              const Duration(days: 180),
+                            ),
+                            maxDate: DateTime.now(),
+                          );
+                        },
+                        loading: () => const SizedBox(
+                          height: 250,
+                          child: Center(child: CircularProgressIndicator()),
+                        ),
+                        error: (err, _) => SizedBox(
+                          height: 250,
+                          child: Center(
+                            child: Text('Failed to load growth data: $err'),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
 
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            itemCount: investmentWallets.length,
-            itemBuilder: (context, index) {
-              return _InvestmentWalletCard(wallet: investmentWallets[index]);
-            },
+              // ── Allocation Donut Chart ───────────────────────────
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: Text(
+                    'Asset Allocation',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+                  child: Consumer(
+                    builder: (context, ref, _) {
+                      final allocations = ref.watch(walletAllocationProvider);
+                      final totalNetWorth = allocations.fold(
+                        0.0,
+                        (sum, item) => sum + item.amount,
+                      );
+
+                      return AllocationDonutChart(
+                        sections: allocations.map((item) {
+                          return PieChartSectionData(
+                            color: item.color,
+                            value: item.amount,
+                            title: item.type.name.toUpperCase(),
+                            radius: 40,
+                            titleStyle: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            showTitle:
+                                item.percentage > 0.05, // Only show if > 5%
+                          );
+                        }).toList(),
+                        totalNetWorth: totalNetWorth,
+                      );
+                    },
+                  ),
+                ),
+              ),
+
+              // ── Investment Wallets Details ───────────────────────
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                  child: Text(
+                    'Investment Details',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+
+              if (investmentWallets.isEmpty)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.trending_up,
+                          size: 64,
+                          color: theme.colorScheme.outline.withValues(
+                            alpha: 0.3,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No investment wallets yet',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: theme.colorScheme.outline,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Create an Investment wallet to start tracking',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.outline.withValues(
+                              alpha: 0.7,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else
+                SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _InvestmentWalletCard(
+                        wallet: investmentWallets[index],
+                      ),
+                    );
+                  }, childCount: investmentWallets.length),
+                ),
+
+              const SliverToBoxAdapter(child: SizedBox(height: 32)),
+            ],
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),

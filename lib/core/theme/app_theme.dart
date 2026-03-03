@@ -20,9 +20,10 @@ class OceanFlowColors {
   static const Color background = Colors.white;
   static const Color backgroundDark = Color(0xFF121212);
 
-  // ── Accent / Warning ────────────────────────────────────────────
+  // ── Accent / Warning / Neutral ──────────────────────────────────
   static const Color accent = Color(0xFFFFBF00);
   static const Color onAccent = Color(0xFF1C1C1C);
+  static const Color neutral = Color(0xFF9E9E9E);
 
   // ── Semantic ────────────────────────────────────────────────────
   static const Color income = Color(0xFF2E7D32); // Green

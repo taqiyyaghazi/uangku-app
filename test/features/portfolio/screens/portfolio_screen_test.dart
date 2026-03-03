@@ -7,6 +7,7 @@ import 'package:uangku/data/database.dart';
 import 'package:uangku/data/repositories/investment_repository.dart';
 import 'package:uangku/data/repositories/wallet_repository.dart';
 import 'package:uangku/data/tables/wallets_table.dart';
+import 'package:uangku/features/portfolio/logic/portfolio_providers.dart';
 import 'package:uangku/features/portfolio/screens/portfolio_screen.dart';
 
 class FakeWalletRepository implements WalletRepository {
@@ -56,10 +57,15 @@ void main() {
             investmentRepositoryProvider.overrideWithValue(
               FakeInvestmentRepository(),
             ),
+            netWorthGrowthProvider.overrideWith((_) => Future.value([])),
+            walletAllocationProvider.overrideWith((_) => []),
           ],
           child: MaterialApp(theme: testTheme, home: const PortfolioScreen()),
         ),
       );
+      await tester.pumpAndSettle();
+
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
       await tester.pumpAndSettle();
 
       expect(find.text('No investment wallets yet'), findsOneWidget);
@@ -89,10 +95,15 @@ void main() {
             investmentRepositoryProvider.overrideWithValue(
               FakeInvestmentRepository(),
             ),
+            netWorthGrowthProvider.overrideWith((_) => Future.value([])),
+            walletAllocationProvider.overrideWith((_) => []),
           ],
           child: MaterialApp(theme: testTheme, home: const PortfolioScreen()),
         ),
       );
+      await tester.pumpAndSettle();
+
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
       await tester.pumpAndSettle();
 
       expect(find.text('Stocks'), findsOneWidget);
@@ -133,10 +144,15 @@ void main() {
             investmentRepositoryProvider.overrideWithValue(
               FakeInvestmentRepository(),
             ),
+            netWorthGrowthProvider.overrideWith((_) => Future.value([])),
+            walletAllocationProvider.overrideWith((_) => []),
           ],
           child: MaterialApp(theme: testTheme, home: const PortfolioScreen()),
         ),
       );
+      await tester.pumpAndSettle();
+
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
       await tester.pumpAndSettle();
 
       expect(find.text('Gold Fund'), findsOneWidget);
@@ -154,6 +170,8 @@ void main() {
             investmentRepositoryProvider.overrideWithValue(
               FakeInvestmentRepository(),
             ),
+            netWorthGrowthProvider.overrideWith((_) => Future.value([])),
+            walletAllocationProvider.overrideWith((_) => []),
           ],
           child: MaterialApp(theme: testTheme, home: const PortfolioScreen()),
         ),
