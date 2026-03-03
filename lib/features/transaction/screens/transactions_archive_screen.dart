@@ -5,6 +5,7 @@ import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/features/transaction/logic/transaction_grouping_logic.dart';
 import 'package:uangku/features/dashboard/widgets/transaction_item.dart';
 import 'package:uangku/features/transaction/screens/multi_sliver_widget.dart';
+import 'package:uangku/features/transaction/screens/transaction_detail_sheet.dart';
 
 /// Screen showcasing the full transaction history, grouped by month/year.
 class TransactionsArchiveScreen extends ConsumerStatefulWidget {
@@ -123,6 +124,17 @@ class _TransactionsArchiveScreenState
                               return TransactionItem(
                                 transaction: transaction,
                                 walletName: walletName,
+                                onTap: () {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    isScrollControlled: true,
+                                    builder: (context) =>
+                                        TransactionDetailSheet(
+                                          transaction: transaction,
+                                          walletName: walletName,
+                                        ),
+                                  );
+                                },
                               );
                             }, childCount: monthTransactions.length),
                           ),
