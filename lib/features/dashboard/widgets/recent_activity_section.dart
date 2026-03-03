@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/features/dashboard/widgets/transaction_item.dart';
+import 'package:uangku/features/transaction/screens/transaction_detail_sheet.dart';
 
 /// Displays the "Recent Activity" section on the Dashboard.
 ///
@@ -80,12 +81,18 @@ class RecentActivitySection extends ConsumerWidget {
 
                 // ── Transaction List ────────────────────────────────
                 if (transactions.isNotEmpty)
-                  ...transactions.map(
-                    (tx) => TransactionItem(
+                  ...transactions.map((tx) {
+                    final name = walletMap[tx.walletId] ?? 'Unknown';
+                    return TransactionItem(
                       transaction: tx,
-                      walletName: walletMap[tx.walletId] ?? 'Unknown',
-                    ),
-                  ),
+                      walletName: name,
+                      onTap: () => TransactionDetailSheet.show(
+                        context,
+                        transaction: tx,
+                        walletName: name,
+                      ),
+                    );
+                  }),
               ],
             ),
           );

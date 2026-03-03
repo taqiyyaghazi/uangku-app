@@ -1,31 +1,27 @@
-# Task: Story 4.2 — Recent Transactions Feed
+# Task: Story 4.3 — Transaction Management (Edit & Delete)
 
 ## Data Layer
 
-- [x] Add `watchRecentTransactions` to `TransactionRepository`
+- [x] Add `deleteTransactionAtomic` and `updateTransactionAtomic` to `TransactionRepository`
 - [x] Implement in `DriftTransactionRepository`
-- [x] Add `recentTransactionsProvider` to `providers.dart`
+- [x] Update fake in `quick_entry_sheet_test.dart`
 
-## Shared Utilities
+## Business Logic
 
-- [x] Create `CategoryIconMapper`
-- [x] Create `RelativeTimeFormatter`
+- [x] Create `TransactionBalanceLogic` (pure functions for balance deltas)
 
 ## UI Components
 
-- [x] Create `TransactionItem` widget
-- [x] Create `RecentActivitySection` widget
-- [x] Integrate into `DashboardScreen`
+- [x] Create `TransactionDetailSheet` (view/edit/delete)
+- [x] Wire `onTap` in `RecentActivitySection`
 
 ## Tests
 
-- [x] `category_icon_mapper_test.dart`
-- [x] `relative_time_formatter_test.dart`
-- [x] `transaction_item_test.dart`
-- [x] `recent_activity_section_test.dart`
+- [x] `transaction_balance_logic_test.dart`
+- [x] `transaction_detail_sheet_test.dart`
 
 ## Verification
 
 - [x] `fvm flutter analyze` passes
-- [x] `fvm flutter test` — 127/127 passed
-- [ ] Commit with `feat(dashboard)` format
+- [x] `fvm flutter test` — all tests pass
+- [x] Commit with `feat(transaction)` format

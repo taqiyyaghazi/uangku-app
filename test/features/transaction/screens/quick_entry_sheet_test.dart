@@ -60,6 +60,17 @@ class FakeTransactionRepository implements TransactionRepository {
   @override
   Stream<List<Transaction>> watchRecentTransactions(int limit) =>
       Stream.value([]);
+
+  @override
+  Future<void> deleteTransactionAtomic(Transaction transaction) async {}
+
+  @override
+  Future<void> updateTransactionAtomic({
+    required int transactionId,
+    required TransactionsCompanion updated,
+    required int walletId,
+    required double balanceDelta,
+  }) async {}
 }
 
 final _now = DateTime(2026, 3, 3);

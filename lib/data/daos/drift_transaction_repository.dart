@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/repositories/transaction_repository.dart';
+import 'package:uangku/data/tables/transactions_table.dart';
 
 /// Drift (SQLite) implementation of [TransactionRepository].
 ///
@@ -81,5 +82,64 @@ class DriftTransactionRepository implements TransactionRepository {
       ..orderBy([(t) => OrderingTerm.desc(t.date)])
       ..limit(limit);
     return query.watch();
+  }
+
+  @override
+  Future<void> deleteTransactionAtomic(Transaction transaction) {
+    return _db.transaction(() async {
+      // 1. Delete the transaction record.
+      await (_db.delete(
+        _db.transactions,
+      )..where((t) => t.id.equals(transaction.id))).go();
+
+      // 2. Reverse the balance effect on the wallet.
+      final wallet = await (_db.select(
+        _db.wallets,
+      )..where((w) => w.id.equals(transaction.walletId))).getSingle();
+
+      final reversalDelta = switch (transaction.type) {
+        TransactionType.expense => transaction.amount,
+        TransactionType.income => -transaction.amount,
+        TransactionType.transfer => transaction.amount,
+      };
+
+      await (_db.update(
+        _db.wallets,
+      )..where((w) => w.id.equals(transaction.walletId))).write(
+        WalletsCompanion(
+          balance: Value(wallet.balance + reversalDelta),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+    });
+  }
+
+  @override
+  Future<void> updateTransactionAtomic({
+    required int transactionId,
+    required TransactionsCompanion updated,
+    required int walletId,
+    required double balanceDelta,
+  }) {
+    return _db.transaction(() async {
+      // 1. Update the transaction record.
+      await (_db.update(
+        _db.transactions,
+      )..where((t) => t.id.equals(transactionId))).write(updated);
+
+      // 2. Adjust the wallet balance by the computed delta.
+      final wallet = await (_db.select(
+        _db.wallets,
+      )..where((w) => w.id.equals(walletId))).getSingle();
+
+      await (_db.update(
+        _db.wallets,
+      )..where((w) => w.id.equals(walletId))).write(
+        WalletsCompanion(
+          balance: Value(wallet.balance + balanceDelta),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+    });
   }
 }

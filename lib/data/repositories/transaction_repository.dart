@@ -38,4 +38,23 @@ abstract class TransactionRepository {
   /// Returns a reactive stream of the most recent [limit] transactions
   /// across all wallets, ordered by date descending.
   Stream<List<Transaction>> watchRecentTransactions(int limit);
+
+  /// Atomically deletes a [transaction] and reverses its balance effect
+  /// on the associated wallet.
+  ///
+  /// Uses a database transaction to ensure both operations succeed or
+  /// both are rolled back.
+  Future<void> deleteTransactionAtomic(Transaction transaction);
+
+  /// Atomically updates a transaction and adjusts the wallet balance
+  /// by [balanceDelta] (the difference between new and old effects).
+  ///
+  /// Uses a database transaction to ensure both operations succeed or
+  /// both are rolled back.
+  Future<void> updateTransactionAtomic({
+    required int transactionId,
+    required TransactionsCompanion updated,
+    required int walletId,
+    required double balanceDelta,
+  });
 }
