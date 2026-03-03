@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/repositories/wallet_repository.dart';
+import 'package:uangku/features/dashboard/models/budget_state.dart';
 import 'package:uangku/features/dashboard/screens/dashboard_screen.dart';
 
 /// A fake WalletRepository that returns an empty stream for testing.
@@ -25,6 +26,18 @@ class FakeWalletRepository implements WalletRepository {
   Future<Wallet?> getWalletById(int id) async => null;
 }
 
+/// A default [BudgetState] with zero values for tests.
+const _emptyBudgetState = BudgetState(
+  monthlyLimit: 0,
+  totalSpentThisMonth: 0,
+  spentToday: 0,
+  dailyAllowance: 0,
+  remainingDays: 1,
+  remainingBudget: 0,
+  progressRatio: 0,
+  isOverspent: false,
+);
+
 void main() {
   testWidgets('Dashboard renders with empty wallet state', (tester) async {
     await tester.pumpWidget(
@@ -32,6 +45,11 @@ void main() {
         overrides: [
           walletsProvider.overrideWith((_) => Stream.value(<Wallet>[])),
           walletRepositoryProvider.overrideWithValue(FakeWalletRepository()),
+          // Override to avoid real Drift streams, which schedule timers on
+          // disposal and cause "A Timer is still pending" failures.
+          dailyBreathProvider.overrideWith(
+            (_) => Stream.value(_emptyBudgetState),
+          ),
         ],
         child: const MaterialApp(home: DashboardScreen()),
       ),

@@ -74,7 +74,7 @@ final dailyBreathProvider = StreamProvider<BudgetState>((ref) {
   final monthlyBudgetAsync = ref.watch(monthlyBudgetProvider);
 
   // Default to 5.0M if the user hasn't configured a monthly budget yet.
-  final configuredBudget = monthlyBudgetAsync.valueOrNull ?? 0.0;
+  final configuredBudget = monthlyBudgetAsync.value ?? 0.0;
   final effectiveBudget = configuredBudget > 0
       ? configuredBudget
       : AppConstants.defaultMonthlyBudget;

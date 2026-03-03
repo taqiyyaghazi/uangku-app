@@ -35,7 +35,7 @@ class _BudgetSettingModalState extends ConsumerState<BudgetSettingModal> {
     // Initialize with existing value if any.
     // If it hasn't loaded yet, it will just show empty.
     final asyncVal = ref.read(monthlyBudgetProvider);
-    final val = asyncVal.valueOrNull;
+    final val = asyncVal.value;
     if (val != null && val > 0) {
       _controller.text = val.toInt().toString(); // remove decimals for input
     }

@@ -13,14 +13,14 @@ dependencies:
 
   # UI
   cupertino_icons: ^1.0.8
-  google_fonts: ^6.2.1
+  google_fonts: ^8.0.2
 
   # State Management
-  flutter_riverpod: ^2.6.1
+  flutter_riverpod: ^3.2.1
 
   # Database (Drift / SQLite)
   drift: ^2.25.0
-  sqlite3_flutter_libs: ^0.5.28
+  sqlite3_flutter_libs: ^0.6.0+eol
   path_provider: ^2.1.5
   path: ^1.9.1
 

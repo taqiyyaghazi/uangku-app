@@ -58,6 +58,9 @@ void main() {
     test(
       'monthlyBudgetProvider reactively updates when repository is modified',
       () async {
+        // Listen to ensure the provider is active before we make changes.
+        final sub = container.listen(monthlyBudgetProvider, (_, _) {});
+
         // Act
         await repository.setDouble('monthly_budget', 7500000.0);
 
@@ -66,6 +69,8 @@ void main() {
 
         // Assert
         expect(value, 7500000.0);
+
+        sub.close();
       },
     );
   });
