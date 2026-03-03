@@ -45,11 +45,9 @@ class AppDatabase extends _$AppDatabase {
         await m.createAll();
       },
       onUpgrade: (Migrator m, int from, int to) async {
-        // Future migration steps go here.
-        // Example:
-        // if (from < 2) {
-        //   await m.addColumn(wallets, wallets.someNewColumn);
-        // }
+        if (from < 2) {
+          await m.createTable(appSettings);
+        }
       },
     );
   }

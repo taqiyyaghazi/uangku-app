@@ -34,7 +34,7 @@ void main() {
       'monthlyBudgetProvider emits 0.0 by default if key does not exist',
       () async {
         // Act & Assert
-        final sub = container.listen(monthlyBudgetProvider, (_, __) {});
+        final sub = container.listen(monthlyBudgetProvider, (_, _) {});
 
         // Wait for stream to emit default 0.0 mapped value
         await expectLater(

@@ -4,7 +4,7 @@ class AppConstants {
 
   static const String appName = 'Uangku';
   static const String databaseName = 'uangku.db';
-  static const int databaseVersion = 1;
+  static const int databaseVersion = 2;
 
   /// Default monthly spending budget (in IDR).
   ///

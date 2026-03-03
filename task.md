@@ -1,33 +1,23 @@
-# Task: Story 4.1 - Budget Configuration & Storage
+# Task: Quick Fix - AppSettings Table Missing
 
 ## Scope
 
-Allow user to set and update total monthly budget for "Daily Breath" widget, and save it persistently.
+Fix "no such table: app_settings" error when saving budget on an existing database by adding migration logic.
 
 ## Workflow Status
 
-### Phase 1: Research
+### Phase 1: Diagnose
 
-- [x] Analyze user story and ACs
-- [x] Review database schema and `BudgetService`
-- [x] Create Implementation Plan
+- [x] Identify bug: `databaseVersion` is 1, `onUpgrade` doesn't create `appSettings` table.
+- [x] Define fix: Bump `databaseVersion` to 2, add `m.createTable(appSettings)` inside `onUpgrade`.
 
-### Phase 2: Implement
+### Phase 2: Fix + Test
 
-- [x] Add `AppSettings` table to Drift database (`lib/data/tables/app_settings_table.dart`)
-- [x] Add `AppSettings` to `AppDatabase` and run build_runner
-- [x] Create `AppSettingsRepository` and `monthlyBudgetProvider` (`lib/features/dashboard/logic/settings_providers.dart`)
-- [x] Implement `BudgetSettingModal` (`lib/features/dashboard/widgets/budget_setting_modal.dart`)
-- [x] Add "Set Budget" button to `DailyBreathBar`
-- [x] Integrate `monthlyBudgetProvider` into `dailyBreathProvider` and `BudgetService`
-- [x] Write Unit/Widget Tests for new logic and UI
+- [x] Update `AppConstants.databaseVersion` to 2.
+- [x] Update `AppDatabase.migration.onUpgrade` to create `appSettings`.
+- [x] Run `flutter test` to ensure existing tests pass.
 
-### Phase 4: Verify
+### Phase 3: Verify + Ship
 
 - [x] `flutter analyze` passes
-- [x] All tests pass
-- [x] No lint errors
-
-### Phase 5: Ship
-
-- [x] Git commit
+- [x] Git commit with `fix(database): add migration for app_settings table`
