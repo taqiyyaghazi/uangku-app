@@ -91,7 +91,7 @@ class InsightsScreen extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    padding: const EdgeInsets.all(16),
                     child: SpendingPieChart(
                       spendingData: data,
                       totalSpending: totalSpending,
@@ -125,10 +125,7 @@ class InsightsScreen extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 24,
-                      horizontal: 8,
-                    ),
+                    padding: const EdgeInsets.all(16),
                     child: DailySpendingLineChart(spendingData: data),
                   );
                 },
