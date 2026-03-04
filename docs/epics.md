@@ -1,14 +1,14 @@
 # Uangku - Epic Breakdown
 
-**Date:** 2026-03-02
+**Date:** 2026-03-04
 **Project Level:** 1 (Focused Feature Set)
-**Status:** Planning Complete
+**Status:** Feature Complete (MVP) / Expanding Phase
 
 ---
 
 ## Overview
 
-This document decomposes the requirements for **Uangku** into three logical phases of development. Each epic delivers a functional part of the application, moving from the core data foundation to the "Daily Breath" logic, and finally to long-term portfolio visualization.
+This document decomposes the requirements for **Uangku** into logical phases of development. Each epic delivers a functional part of the application, moving from the core data foundation to the "Daily Breath" logic, and finally to long-term portfolio visualization and post-launch refinements.
 
 ---
 
@@ -19,14 +19,8 @@ This document decomposes the requirements for **Uangku** into three logical phas
 
 ### Stories in Epic 1:
 
-* **Story 1.1: Project Setup & Database Schema** (3 pts)
-* Initialize Flutter, Riverpod, and define Drift tables for Wallets and Transactions.
-
-
-* **Story 1.2: Wallet Management UI (The Unified Grid)** (3 pts)
-* Build the dashboard top-section showing all wallets in a grid with Teal "Ocean Flow" styling.
-
-
+- **Story 1.1: Project Setup & Database Schema** (3 pts)
+- **Story 1.2: Wallet Management UI (The Unified Grid)** (3 pts)
 
 ---
 
@@ -37,14 +31,8 @@ This document decomposes the requirements for **Uangku** into three logical phas
 
 ### Stories in Epic 2:
 
-* **Story 2.1: Unified Transaction Entry (Quick-Log)** (2 pts)
-* Create the Floating Action Button and the high-speed entry form (Numpad auto-focus).
-
-
-* **Story 2.2: Dynamic Budget Engine** (5 pts)
-* Implement the logic: `(Sisa Budget / Sisa Hari)`. Handle the overspend calculation and state updates across the app.
-
-
+- **Story 2.1: Unified Transaction Entry (Quick-Log)** (2 pts)
+- **Story 2.2: Dynamic Budget Engine** (5 pts)
 
 ---
 
@@ -55,25 +43,63 @@ This document decomposes the requirements for **Uangku** into three logical phas
 
 ### Stories in Epic 3:
 
-* **Story 3.1: Manual Asset Value Entry** (2 pts)
-* Build a simple form to update the current value of "Investment" type wallets.
+- **Story 3.1: Manual Asset Value Entry** (2 pts)
+- **Story 3.2: Investment Trends & Alocations (Charts)** (3 pts)
 
+---
 
-* **Story 3.2: Investment Trends & Alocations (Charts)** (3 pts)
-* Integrate `fl_chart` to display the Line Chart (Growth) and Donut Chart (Allocation).
+## Epic 4: Post-Launch Refinements
 
+**Goal:** Enhance the usability, flexibility, and historical tracking of the system.
+**Success Criteria:** User can manage a full history of transactions, customize categories, and perform internal transfers.
 
+### Stories in Epic 4:
+
+- **Story 4.1: Budget Configuration & Storage** (2 pts)
+- **Story 4.2: Recent Transactions Feed** (2 pts)
+- **Story 4.3: Transaction Management** (3 pts)
+- **Story 4.4: Full History and Archive Access** (2 pts)
+- **Story 4.5: Transaction Memo and Contextual Notes** (1 pt)
+- **Story 4.6: Custom Category Management** (3 pts)
+- **Story 4.7: Transaction Backdating and Date Selection** (2 pts)
+- **Story 4.8: Internal Wallet Transfer Logic** (3 pts)
+
+---
+
+## Epic 5: Insights & Analytics
+
+**Goal:** Provide visual tools to better understand spending behavior and financial health.
+**Success Criteria:** User can see their spending distribution by category and daily trends in a dedicated "Insights" section.
+
+### Stories in Epic 5:
+
+- **Story 5.1: The Spending Pie (Category Distribution)** (3 pts)
+- **Story 5.2: Daily Spending Trend (Line Chart)** (3 pts)
+- **Story 5.3: Monthly Comparison (Performance Review)** (2 pts)
+
+---
+
+## Epic 6: Deployment & Versioning
+
+**Goal:** Finalize the application identity and prepare for stable distribution.
+**Success Criteria:** The app is branded as "Uangku" with its own assets, and a versioning strategy is in place.
+
+### Stories in Epic 6:
+
+- **Story 6.1: Branding & Identity (Identity Pack)** (2 pts)
+- **Story 6.2: Versioning & Update Strategy** (1 pt)
 
 ---
 
 ## Implementation Sequence
 
-1. **Story 1.1** (Foundation)
-2. **Story 1.2** (UI Shell)
-3. **Story 2.1** (Data Input)
-4. **Story 2.2** (The "Coach" Logic)
-5. **Story 3.1** (Investment Input)
-6. **Story 3.2** (Visual Analytics)
+1.  **Epic 1** (Foundation & UI Shell)
+2.  **Epic 2** (The Core Budget Logic)
+3.  **Epic 3** (Investment Visualization)
+4.  **Epic 4** (Advanced Transaction Features)
+5.  **Epic 5** (Financial Insights)
+6.  **Epic 6** (Identity & Polish)
 
-**Total Story Points:** 18 Points
-**Estimated Timeline:** 2-3 Sprints (approx. 2-3 weeks)
+**Total Story Points:** 47 Points
+**Total Stories:** 19 Stories
+**Estimated Timeline:** 4-6 Sprints (approx. 1-1.5 months)
