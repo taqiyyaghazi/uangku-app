@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/data/database.dart';
+import 'package:uangku/data/models/category_spending.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/repositories/category_repository.dart';
 import 'package:uangku/data/repositories/transaction_repository.dart';
@@ -45,6 +46,10 @@ class FakeTransactionRepository implements TransactionRepository {
     DateTime start,
     DateTime end,
   ) => Stream.value([]);
+
+  @override
+  Stream<List<CategorySpending>> watchCategorySpending(DateTime month) =>
+      Stream.value([]);
 
   @override
   Future<int> createTransaction(TransactionsCompanion transaction) async => 1;

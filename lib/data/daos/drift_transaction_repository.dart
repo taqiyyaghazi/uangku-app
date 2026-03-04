@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import 'package:uangku/data/database.dart';
+import 'package:uangku/data/models/category_spending.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/repositories/transaction_repository.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
@@ -61,6 +62,46 @@ class DriftTransactionRepository implements TransactionRepository {
         return TransactionWithCategory(
           transaction: row.readTable(_db.transactions),
           category: row.readTable(_db.categories),
+        );
+      }).toList();
+    });
+  }
+
+  @override
+  Stream<List<CategorySpending>> watchCategorySpending(DateTime month) {
+    // 1. Calculate the start and end of the month
+    final startOfMonth = DateTime(month.year, month.month, 1);
+    final endOfMonth = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
+
+    // 2. Define aggregating expression
+    final amountSum = _db.transactions.amount.sum();
+
+    // 3. Build the grouped query
+    final query = _db.selectOnly(_db.transactions)
+      ..addColumns([_db.categories.name, amountSum])
+      ..join([
+        innerJoin(
+          _db.categories,
+          _db.categories.id.equalsExp(_db.transactions.categoryId),
+        ),
+      ])
+      ..where(
+        _db.transactions.date.isBiggerOrEqualValue(startOfMonth) &
+            _db.transactions.date.isSmallerOrEqualValue(endOfMonth) &
+            _db.transactions.type.equals(TransactionType.expense.name),
+      )
+      ..groupBy([_db.categories.id]);
+
+    // 4. Map rows to CategorySpending objects
+    return query.watch().map((rows) {
+      return rows.map((row) {
+        final categoryName = row.read(_db.categories.name)!;
+        final hash = categoryName.hashCode;
+        final colorHex = (hash & 0xFFFFFF).toRadixString(16).padLeft(6, '0');
+        return CategorySpending(
+          categoryName: categoryName,
+          colorCode: '#$colorHex',
+          totalAmount: row.read(amountSum) ?? 0.0,
         );
       }).toList();
     });

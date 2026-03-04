@@ -1,4 +1,5 @@
 import 'package:uangku/data/database.dart';
+import 'package:uangku/data/models/category_spending.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
 
 /// Repository interface (contract) for Transaction data access.
@@ -15,6 +16,9 @@ abstract class TransactionRepository {
     DateTime start,
     DateTime end,
   );
+
+  /// Returns a reactive stream of aggregated category spending for a specific month.
+  Stream<List<CategorySpending>> watchCategorySpending(DateTime month);
 
   /// Inserts a new transaction and returns the generated ID.
   Future<int> createTransaction(TransactionsCompanion transaction);
