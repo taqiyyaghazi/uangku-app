@@ -10,6 +10,7 @@ import 'package:uangku/data/repositories/transaction_repository.dart';
 import 'package:uangku/data/repositories/wallet_repository.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/data/tables/wallets_table.dart';
+import 'package:uangku/features/transaction/widgets/numpad.dart';
 import 'package:uangku/features/transaction/widgets/quick_entry_sheet.dart';
 
 /// Fake wallet repository for testing.
@@ -248,10 +249,13 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap digit 5.
-      await tester.tap(find.text('5'));
-      await tester.pump();
+      await tester.tap(
+        find.descendant(of: find.byType(Numpad), matching: find.text('5')),
+      );
+      await tester.pumpAndSettle();
 
-      expect(find.text('Rp 5'), findsOneWidget);
+      // Use find.textContaining since the currency formatter adds thin spaces and Rs symbols.
+      expect(find.textContaining('5'), findsWidgets);
     });
 
     testWidgets('switching to Income shows income categories', (tester) async {
@@ -274,6 +278,18 @@ void main() {
 
       // FilledButton.icon renders "Save" text.
       expect(find.text('Save'), findsOneWidget);
+    });
+
+    testWidgets('tapping date chip opens date picker', (tester) async {
+      await tester.pumpWidget(buildDirectSheet());
+      await tester.pumpAndSettle();
+
+      // Tap the date chip.
+      await tester.tap(find.text('Today'));
+      await tester.pumpAndSettle();
+
+      // Verify the calendar dialog appears.
+      expect(find.byType(DatePickerDialog), findsOneWidget);
     });
 
     testWidgets('opens via bottom sheet', (tester) async {

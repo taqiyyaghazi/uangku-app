@@ -8,6 +8,7 @@ import 'package:uangku/data/database.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/features/transaction/widgets/numpad.dart';
 import 'package:uangku/shared/utils/currency_formatter.dart';
+import 'package:intl/intl.dart';
 import 'dart:developer' as developer;
 
 /// Bottom sheet for quick transaction entry.
@@ -41,6 +42,7 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
   int? _selectedCategoryId;
   bool _isSaving = false;
   final _noteController = TextEditingController();
+  DateTime _selectedDate = DateTime.now();
 
   @override
   void dispose() {
@@ -213,25 +215,99 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
   // ── Amount display ────────────────────────────────────────────────
 
   Widget _buildAmountDisplay(ThemeData theme) {
+    // Determine if today is selected
+    final now = DateTime.now();
+    final isToday =
+        _selectedDate.year == now.year &&
+        _selectedDate.month == now.month &&
+        _selectedDate.day == now.day;
+
+    final dateText = isToday
+        ? 'Today'
+        : DateFormat('EEE, d MMM').format(_selectedDate);
+
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Center(
-        child: Text(
-          CurrencyFormatter.format(_amount),
-          style: theme.textTheme.headlineLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: _colorForType,
-            letterSpacing: -0.5,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            CurrencyFormatter.format(_amount),
+            style: theme.textTheme.headlineLarge?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: _colorForType,
+              letterSpacing: -0.5,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
+          const SizedBox(height: 8),
+          ActionChip(
+            avatar: Icon(
+              Icons.calendar_today,
+              size: 16,
+              color: isToday
+                  ? theme.colorScheme.onSurfaceVariant
+                  : OceanFlowColors.primary,
+            ),
+            label: Text(dateText),
+            labelStyle: TextStyle(
+              fontSize: 12,
+              fontWeight: isToday ? FontWeight.w500 : FontWeight.w600,
+              color: isToday
+                  ? theme.colorScheme.onSurfaceVariant
+                  : OceanFlowColors.primary,
+            ),
+            backgroundColor: isToday
+                ? theme.colorScheme.surfaceContainerHighest.withValues(
+                    alpha: 0.5,
+                  )
+                : OceanFlowColors.primary.withValues(alpha: 0.1),
+            side: BorderSide.none,
+            visualDensity: VisualDensity.compact,
+            onPressed: () => _selectDate(context),
+          ),
+        ],
       ),
     );
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: now,
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(
+              context,
+            ).colorScheme.copyWith(primary: OceanFlowColors.primary),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        // Keep the current time for chronological sorting
+        _selectedDate = DateTime(
+          picked.year,
+          picked.month,
+          picked.day,
+          now.hour,
+          now.minute,
+          now.second,
+        );
+      });
+    }
   }
 
   // ── Wallet selector ───────────────────────────────────────────────
@@ -406,7 +482,7 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
         type: Value(_type),
         categoryId: Value(_selectedCategoryId!),
         note: Value(_noteController.text),
-        date: Value(DateTime.now()),
+        date: Value(_selectedDate),
       );
 
       await repo.insertTransactionAndUpdateBalance(
