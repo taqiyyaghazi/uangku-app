@@ -16,13 +16,7 @@ class InsightsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Insights',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-            letterSpacing: -0.5,
-          ),
-        ),
+        title: Text('Insights'),
         elevation: 0,
         centerTitle: false,
         actions: [
