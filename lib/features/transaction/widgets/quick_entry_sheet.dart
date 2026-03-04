@@ -519,12 +519,14 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
 
   Future<void> _onSave() async {
     if (_selectedWalletId == null || _amount <= 0) return;
-    if (_type != TransactionType.transfer && _selectedCategoryId == null)
+    if (_type != TransactionType.transfer && _selectedCategoryId == null) {
       return;
+    }
     if (_type == TransactionType.transfer &&
         (_selectedToWalletId == null ||
-            _selectedWalletId == _selectedToWalletId))
+            _selectedWalletId == _selectedToWalletId)) {
       return;
+    }
 
     setState(() => _isSaving = true);
 
