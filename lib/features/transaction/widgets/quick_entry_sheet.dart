@@ -534,14 +534,13 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
       final repo = ref.read(transactionRepositoryProvider);
 
       if (_type == TransactionType.transfer) {
-        // Find or use a default category ID for transfer if needed, but the schema allows any category or we can query it.
-        // For now, let's use the first transfer category available or 0 if we must, wait, `TransactionRepository.performInternalTransfer` requires `categoryId`.
-        // Let's get the transfer categories. We can read them via `ref.read(categoriesByTypeProvider(TransactionType.transfer)).value.first.id`.
-        final transferCategories = ref
-            .read(categoriesByTypeProvider(TransactionType.transfer))
-            .value;
+        // We must await the provider's future to get the first emitted list of categories
+        // instead of synchronously reading an uninitialized AsyncValue.
+        final transferCategories = await ref.read(
+          categoriesByTypeProvider(TransactionType.transfer).future,
+        );
         final defaultTransferCategoryId =
-            transferCategories?.firstOrNull?.id ?? 0;
+            transferCategories.firstOrNull?.id ?? 0;
 
         await repo.performInternalTransfer(
           fromWalletId: _selectedWalletId!,
@@ -586,6 +585,7 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
         stackTrace: st,
       );
       if (mounted) {
+        debugPrint('Failed to save: $e');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to save: $e'),
