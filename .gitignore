@@ -37,3 +37,4 @@
 !/packages/*/pubspec.lock
 
 coverage/
+brain/
