@@ -54,8 +54,8 @@ void main() {
       // Labels: 0, 0.6M, 1.2M, 1.8M, 2.4M.
       // My formatter: 600000 -> 600k (actually it should be 600k)
       // 1200000 -> 1.2M
-      expect(find.text('1.2M'), findsOneWidget);
-      expect(find.text('1.8M'), findsOneWidget);
+      expect(find.text('Rp 1,2M'), findsOneWidget);
+      expect(find.text('Rp 1,8M'), findsOneWidget);
     });
   });
 }

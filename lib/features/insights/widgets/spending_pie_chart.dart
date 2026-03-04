@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import 'package:uangku/data/models/category_spending.dart';
+import 'package:uangku/shared/utils/currency_formatter.dart';
 
 /// Interactive Pie Chart to display category spending distribution.
 class SpendingPieChart extends StatefulWidget {
@@ -128,7 +129,7 @@ class _SpendingPieChartState extends State<SpendingPieChart> {
                         ),
                       ),
                       Text(
-                        'Rp ${item.totalAmount.toStringAsFixed(0)}',
+                        CurrencyFormatter.format(item.totalAmount),
                         style:
                             (isSelected
                                     ? Theme.of(context).textTheme.titleSmall

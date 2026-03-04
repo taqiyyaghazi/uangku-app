@@ -31,10 +31,35 @@ class CurrencyFormatter {
   /// Formats [amount] showing a sign prefix for positive values.
   ///
   /// Useful for displaying income (+) or expense (−) amounts.
+  /// Formats [amount] showing a sign prefix for positive values.
+  ///
+  /// Useful for displaying income (+) or expense (−) amounts.
   static String formatSigned(double amount) {
     final formatted = format(amount.abs());
     if (amount > 0) return '+$formatted';
     if (amount < 0) return '-$formatted';
     return formatted;
+  }
+
+  /// Formats [amount] as an abbreviated Indonesian Rupiah (e.g. "Rp 1,2M", "Rp 500k").
+  ///
+  /// Useful for chart labels where space is limited.
+  static String formatCompact(double amount) {
+    if (amount.abs() >= 1000000) {
+      final value = amount / 1000000;
+      final s = value.toStringAsFixed(1);
+      final formattedValue = s.endsWith('.0')
+          ? s.substring(0, s.length - 2)
+          : s;
+      return 'Rp ${formattedValue.replaceAll('.', ',')}M';
+    } else if (amount.abs() >= 1000) {
+      final value = amount / 1000;
+      final s = value.toStringAsFixed(1);
+      final formattedValue = s.endsWith('.0')
+          ? s.substring(0, s.length - 2)
+          : s;
+      return 'Rp ${formattedValue.replaceAll('.', ',')}k';
+    }
+    return format(amount);
   }
 }

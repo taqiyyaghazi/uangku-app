@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:uangku/data/models/daily_spending.dart';
+import 'package:uangku/shared/utils/currency_formatter.dart';
 
 class DailySpendingLineChart extends StatelessWidget {
   final List<DailySpending> spendingData;
@@ -103,7 +104,7 @@ class DailySpendingLineChart extends StatelessWidget {
                           meta: meta,
                           space: 8,
                           child: Text(
-                            _formatAmount(value),
+                            CurrencyFormatter.formatCompact(value),
                             style: theme.textTheme.labelSmall?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                             ),
@@ -162,7 +163,7 @@ class DailySpendingLineChart extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                         labelResolver: (line) =>
-                            'Avg: ${_formatAmount(avgAmount)}',
+                            'Avg: ${CurrencyFormatter.formatCompact(avgAmount)}',
                       ),
                     ),
                   ],
@@ -184,10 +185,7 @@ class DailySpendingLineChart extends StatelessWidget {
                           ),
                           children: [
                             TextSpan(
-                              text: NumberFormat.simpleCurrency(
-                                locale: 'id_ID',
-                                decimalDigits: 0,
-                              ).format(amount),
+                              text: CurrencyFormatter.format(amount),
                               style: theme.textTheme.labelSmall!.copyWith(
                                 color: colorScheme.primary,
                                 fontWeight: FontWeight.bold,
@@ -205,15 +203,5 @@ class DailySpendingLineChart extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  String _formatAmount(double value) {
-    if (value >= 1000000) {
-      return '${(value / 1000000).toStringAsFixed(1)}M';
-    } else if (value >= 1000) {
-      return '${(value / 1000).toStringAsFixed(0)}k';
-    } else {
-      return value.toStringAsFixed(0);
-    }
   }
 }

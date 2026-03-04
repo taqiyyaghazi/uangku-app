@@ -38,4 +38,30 @@ void main() {
       expect(CurrencyFormatter.formatSigned(0), 'Rp 0');
     });
   });
+  group('CurrencyFormatter.formatCompact', () {
+    test('formats millions to M', () {
+      expect(CurrencyFormatter.formatCompact(1200000), 'Rp 1,2M');
+      expect(CurrencyFormatter.formatCompact(1000000), 'Rp 1M');
+    });
+
+    test('formats thousands to k', () {
+      expect(CurrencyFormatter.formatCompact(150000), 'Rp 150k');
+      expect(CurrencyFormatter.formatCompact(1000), 'Rp 1k');
+    });
+
+    test('formats small amounts normally', () {
+      expect(CurrencyFormatter.formatCompact(500), 'Rp 500');
+    });
+
+    test('handles decimals when necessary', () {
+      expect(
+        CurrencyFormatter.formatCompact(1250000),
+        'Rp 1,3M',
+      ); // toStringAsFixed(1)
+      expect(
+        CurrencyFormatter.formatCompact(1000.5),
+        'Rp 1k',
+      ); // 1000.5 / 1000 = 1.0005 -> 1.0
+    });
+  });
 }

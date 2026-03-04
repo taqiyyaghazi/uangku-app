@@ -52,8 +52,8 @@ void main() {
       expect(find.text('Transport'), findsOneWidget);
 
       // Verify amounts (formatted)
-      expect(find.text('Rp 150000'), findsOneWidget);
-      expect(find.text('Rp 50000'), findsOneWidget);
+      expect(find.text('Rp 150.000'), findsOneWidget);
+      expect(find.text('Rp 50.000'), findsOneWidget);
 
       // Verify percentages
       expect(find.text('75.0%'), findsOneWidget);

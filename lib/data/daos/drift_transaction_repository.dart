@@ -6,6 +6,7 @@ import 'package:uangku/data/models/daily_spending.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/repositories/transaction_repository.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
+import 'package:uangku/features/insights/logic/daily_spending_helper.dart';
 import 'dart:developer' as developer;
 
 /// Drift (SQLite) implementation of [TransactionRepository].
@@ -110,6 +111,14 @@ class DriftTransactionRepository implements TransactionRepository {
 
   @override
   Stream<List<DailySpending>> watchDailySpending(DateTime month) {
+    const operation = 'watchDailySpending';
+    final startTime = DateTime.now();
+    developer.log(
+      'START: $operation',
+      name: 'DriftTransactionRepository',
+      error: {'month': month.toIso8601String()},
+    );
+
     final startOfMonth = DateTime(month.year, month.month, 1);
     final endOfMonth = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
 
@@ -127,23 +136,37 @@ class DriftTransactionRepository implements TransactionRepository {
       )
       ..groupBy([dayExpr]);
 
-    return query.watch().map((rows) {
-      final resultMap = {
-        for (final row in rows) row.read(dayExpr)!: row.read(amountSum) ?? 0.0,
-      };
+    return query
+        .watch()
+        .map((rows) {
+          final successTime = DateTime.now();
+          final durationMs = successTime.difference(startTime).inMilliseconds;
+          developer.log(
+            'SUCCESS: $operation',
+            name: 'DriftTransactionRepository',
+            error: {'rows': rows.length, 'durationMs': durationMs},
+          );
 
-      final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
-      return List.generate(daysInMonth, (index) {
-        final day = index + 1;
-        final date = DateTime(month.year, month.month, day);
-        // drift's .date property returns YYYY-MM-DD
-        final dateString =
-            '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+          final records = rows.map((row) {
+            final dayStr = row.read(dayExpr)!;
+            final date = DateTime.parse(dayStr);
+            return DailySpending(
+              date: date,
+              totalAmount: row.read(amountSum) ?? 0.0,
+            );
+          }).toList();
 
-        final amount = resultMap[dateString] ?? 0.0;
-        return DailySpending(date: date, totalAmount: amount);
-      });
-    });
+          return DailySpendingHelper.fillDailySpendingGaps(records, month);
+        })
+        .handleError((err, stack) {
+          developer.log(
+            'FAILURE: $operation',
+            name: 'DriftTransactionRepository',
+            error: err,
+            stackTrace: stack,
+          );
+          throw err;
+        });
   }
 
   @override

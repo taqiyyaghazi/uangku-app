@@ -129,7 +129,7 @@ void main() {
 
       expect(find.text('Pengeluaran Berdasarkan Kategori'), findsOneWidget);
       expect(find.text('Food'), findsOneWidget);
-      expect(find.text('Rp 100000'), findsOneWidget);
+      expect(find.text('Rp 100.000'), findsOneWidget);
     });
 
     testWidgets('shows empty state when no data returned', (tester) async {
