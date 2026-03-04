@@ -38,3 +38,7 @@
 
 coverage/
 brain/
+
+# Android Signing
+*.jks
+key.properties
