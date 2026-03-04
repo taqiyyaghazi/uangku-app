@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/features/insights/providers/insights_provider.dart';
 import 'package:uangku/features/insights/widgets/daily_spending_line_chart.dart';
+import 'package:uangku/features/insights/widgets/monthly_comparison_card.dart';
 import 'package:uangku/features/insights/widgets/spending_pie_chart.dart';
 
 class InsightsScreen extends ConsumerWidget {
@@ -93,8 +94,9 @@ class InsightsScreen extends ConsumerWidget {
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (err, stack) =>
-                    Center(child: Text('Gagal memuat data:\n$err')),
+                error: (err, stack) => const Center(
+                  child: Text('Gagal memuat data. Silakan coba lagi.'),
+                ),
               ),
             ),
           ),
@@ -120,18 +122,48 @@ class InsightsScreen extends ConsumerWidget {
                       ],
                     ),
                     padding: const EdgeInsets.all(16),
-                    child: DailySpendingLineChart(spendingData: data),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Tren Pengeluaran Harian',
+                          style: Theme.of(context).textTheme.titleSmall
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 16),
+                        DailySpendingLineChart(spendingData: data),
+                      ],
+                    ),
                   );
                 },
                 loading: () => const SizedBox(
                   height: 200,
                   child: Center(child: CircularProgressIndicator()),
                 ),
-                error: (err, stack) =>
-                    Center(child: Text('Gagal memuat tren:\n$err')),
+                error: (err, stack) => const Center(
+                  child: Text('Gagal memuat tren. Silakan coba lagi.'),
+                ),
               ),
             ),
           ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+              child: ref
+                  .watch(watchMonthlyComparisonProvider)
+                  .when(
+                    data: (comparison) =>
+                        MonthlyComparisonCard(comparison: comparison),
+                    loading: () => const SizedBox(
+                      height: 150,
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                    error: (err, stack) =>
+                        const Center(child: Text('Gagal memuat perbandingan.')),
+                  ),
+            ),
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 32)),
         ],
       ),
     );

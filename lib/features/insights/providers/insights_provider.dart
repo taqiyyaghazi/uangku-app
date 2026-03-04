@@ -1,7 +1,11 @@
+import 'dart:async';
+import 'dart:developer' as developer;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/data/models/category_spending.dart';
 import 'package:uangku/data/models/daily_spending.dart';
+import 'package:uangku/data/models/monthly_comparison.dart';
+import 'package:uangku/data/models/monthly_summary.dart';
 
 /// Notifier to manage the currently selected month.
 class SelectedMonth extends Notifier<DateTime> {
@@ -36,4 +40,62 @@ final watchDailySpendingProvider =
       final repo = ref.watch(transactionRepositoryProvider);
 
       return repo.watchDailySpending(selectedMonth);
+    });
+
+/// Provider for monthly summary for a specific month.
+final watchMonthlySummaryProvider = StreamProvider.autoDispose
+    .family<MonthlySummary, DateTime>((ref, month) {
+      final repo = ref.watch(transactionRepositoryProvider);
+      return repo.watchMonthlySummary(month);
+    });
+
+/// Combined provider for monthly comparison.
+final watchMonthlyComparisonProvider =
+    StreamProvider.autoDispose<MonthlyComparison>((ref) {
+      final selectedMonth = ref.watch(selectedMonthProvider);
+      final previousMonth = DateTime(
+        selectedMonth.year,
+        selectedMonth.month - 1,
+      );
+      final repo = ref.watch(transactionRepositoryProvider);
+
+      final controller = StreamController<MonthlyComparison>();
+      MonthlySummary? current;
+      MonthlySummary? previous;
+
+      void update() {
+        if (current != null && previous != null) {
+          controller.add(
+            MonthlyComparison(current: current!, previous: previous!),
+          );
+        }
+      }
+
+      void handleError(Object error, StackTrace stackTrace) {
+        developer.log(
+          'Failed to fetch monthly summary for comparison',
+          name: 'InsightsProvider',
+          error: error,
+          stackTrace: stackTrace,
+        );
+        controller.addError(error, stackTrace);
+      }
+
+      final sub1 = repo.watchMonthlySummary(selectedMonth).listen((s) {
+        current = s;
+        update();
+      }, onError: handleError);
+
+      final sub2 = repo.watchMonthlySummary(previousMonth).listen((s) {
+        previous = s;
+        update();
+      }, onError: handleError);
+
+      ref.onDispose(() {
+        sub1.cancel();
+        sub2.cancel();
+        controller.close();
+      });
+
+      return controller.stream;
     });
