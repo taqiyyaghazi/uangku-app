@@ -7,6 +7,7 @@ import 'package:uangku/data/models/category_spending.dart';
 import 'package:uangku/data/models/daily_spending.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/repositories/transaction_repository.dart';
+import 'package:uangku/data/models/monthly_summary.dart';
 import 'package:uangku/features/insights/screens/insights_screen.dart';
 
 class FakeTransactionRepository implements TransactionRepository {
@@ -21,6 +22,10 @@ class FakeTransactionRepository implements TransactionRepository {
   @override
   Stream<List<DailySpending>> watchDailySpending(DateTime month) =>
       Stream.value([]);
+
+  @override
+  Stream<MonthlySummary> watchMonthlySummary(DateTime month) =>
+      Stream.value(MonthlySummary.empty());
 
   @override
   Stream<List<TransactionWithCategory>> watchAllTransactions() =>
@@ -90,7 +95,8 @@ void main() {
   group('InsightsScreen Widget Tests', () {
     testWidgets('renders Insights title and current month', (tester) async {
       await tester.pumpWidget(buildTestApp([]));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
       expect(find.text('Insights'), findsOneWidget);
 
@@ -125,7 +131,8 @@ void main() {
       ];
 
       await tester.pumpWidget(buildTestApp(mockSpending));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
       expect(find.text('Pengeluaran Berdasarkan Kategori'), findsOneWidget);
       expect(find.text('Food'), findsOneWidget);
@@ -134,7 +141,11 @@ void main() {
 
     testWidgets('shows empty state when no data returned', (tester) async {
       await tester.pumpWidget(buildTestApp([]));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      // Wait for multiple stream emissions and provider updates
+      for (int i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
 
       expect(find.text('Belum ada data untuk periode ini.'), findsOneWidget);
     });

@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/models/category_spending.dart';
 import 'package:uangku/data/models/daily_spending.dart';
+import 'package:uangku/data/models/monthly_summary.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/repositories/transaction_repository.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
@@ -157,6 +158,68 @@ class DriftTransactionRepository implements TransactionRepository {
           }).toList();
 
           return DailySpendingHelper.fillDailySpendingGaps(records, month);
+        })
+        .handleError((err, stack) {
+          developer.log(
+            'FAILURE: $operation',
+            name: 'DriftTransactionRepository',
+            error: err,
+            stackTrace: stack,
+          );
+          throw err;
+        });
+  }
+
+  @override
+  Stream<MonthlySummary> watchMonthlySummary(DateTime month) {
+    const operation = 'watchMonthlySummary';
+    final startTime = DateTime.now();
+    developer.log(
+      'START: $operation',
+      name: 'DriftTransactionRepository',
+      error: {'month': month.toIso8601String()},
+    );
+
+    final startOfMonth = DateTime(month.year, month.month, 1);
+    final endOfMonth = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
+
+    final amountSum = _db.transactions.amount.sum();
+    final typeColumn = _db.transactions.type;
+
+    final query = _db.selectOnly(_db.transactions)
+      ..addColumns([typeColumn, amountSum])
+      ..where(
+        _db.transactions.date.isBiggerOrEqualValue(startOfMonth) &
+            _db.transactions.date.isSmallerOrEqualValue(endOfMonth),
+      )
+      ..groupBy([typeColumn]);
+
+    return query
+        .watch()
+        .map((rows) {
+          final successTime = DateTime.now();
+          final durationMs = successTime.difference(startTime).inMilliseconds;
+          developer.log(
+            'SUCCESS: $operation',
+            name: 'DriftTransactionRepository',
+            error: {'rows': rows.length, 'durationMs': durationMs},
+          );
+
+          double income = 0;
+          double expense = 0;
+
+          for (final row in rows) {
+            final type = row.read(typeColumn);
+            final amount = row.read(amountSum) ?? 0.0;
+
+            if (type == TransactionType.income.name) {
+              income = amount;
+            } else if (type == TransactionType.expense.name) {
+              expense = amount;
+            }
+          }
+
+          return MonthlySummary(totalIncome: income, totalExpenses: expense);
         })
         .handleError((err, stack) {
           developer.log(

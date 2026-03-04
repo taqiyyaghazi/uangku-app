@@ -6,6 +6,7 @@ import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/models/category_spending.dart';
 import 'package:uangku/data/models/daily_spending.dart';
+import 'package:uangku/data/models/monthly_summary.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/repositories/category_repository.dart';
 import 'package:uangku/data/repositories/transaction_repository.dart';
@@ -35,6 +36,10 @@ class FakeTransactionRepository implements TransactionRepository {
   @override
   Stream<List<DailySpending>> watchDailySpending(DateTime month) =>
       Stream.value([]);
+
+  @override
+  Stream<MonthlySummary> watchMonthlySummary(DateTime month) =>
+      Stream.value(MonthlySummary.empty());
 
   @override
   Future<int> createTransaction(TransactionsCompanion transaction) async => 1;

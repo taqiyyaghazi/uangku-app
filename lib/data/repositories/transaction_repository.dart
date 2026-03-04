@@ -1,3 +1,4 @@
+import 'package:uangku/data/models/monthly_summary.dart';
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/models/category_spending.dart';
 import 'package:uangku/data/models/daily_spending.dart';
@@ -24,6 +25,9 @@ abstract class TransactionRepository {
   /// Returns a reactive stream of aggregated daily spending for a specific month.
   /// Should return data for all days in the month (filling gaps with 0.0).
   Stream<List<DailySpending>> watchDailySpending(DateTime month);
+
+  /// Returns total income and expenses for a specific month.
+  Stream<MonthlySummary> watchMonthlySummary(DateTime month);
 
   /// Inserts a new transaction and returns the generated ID.
   Future<int> createTransaction(TransactionsCompanion transaction);
