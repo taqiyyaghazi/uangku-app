@@ -62,4 +62,16 @@ abstract class TransactionRepository {
     required int walletId,
     required double balanceDelta,
   });
+
+  /// Atomically transfers an amount from one wallet to another.
+  /// Deducts from the source wallet and adds to the destination wallet.
+  /// Creates a single transaction with type [TransactionType.transfer].
+  Future<int> performInternalTransfer({
+    required int fromWalletId,
+    required int toWalletId,
+    required double amount,
+    required DateTime date,
+    required int categoryId,
+    String note = '',
+  });
 }

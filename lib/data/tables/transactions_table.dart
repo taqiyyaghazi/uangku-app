@@ -21,6 +21,8 @@ class Transactions extends Table {
 
   IntColumn get categoryId => integer().references(Categories, #id)();
 
+  IntColumn get toWalletId => integer().nullable().references(Wallets, #id)();
+
   TextColumn get note => text().withDefault(const Constant(''))();
 
   DateTimeColumn get date => dateTime()();

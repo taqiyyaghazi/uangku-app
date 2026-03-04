@@ -167,6 +167,83 @@ class DriftTransactionRepository implements TransactionRepository {
   }
 
   @override
+  Future<int> performInternalTransfer({
+    required int fromWalletId,
+    required int toWalletId,
+    required double amount,
+    required DateTime date,
+    required int categoryId,
+    String note = '',
+  }) async {
+    final startTime = DateTime.now();
+    try {
+      developer.log(
+        'Performing internal transfer $fromWalletId -> $toWalletId...',
+        name: 'DriftTransactionRepository',
+      );
+      final id = await _db.transaction(() async {
+        // 1. Insert the transfer transaction record.
+        final txId = await _db
+            .into(_db.transactions)
+            .insert(
+              TransactionsCompanion(
+                walletId: Value(fromWalletId),
+                toWalletId: Value(toWalletId),
+                amount: Value(amount),
+                type: const Value(TransactionType.transfer),
+                categoryId: Value(categoryId),
+                note: Value(note),
+                date: Value(date),
+              ),
+            );
+
+        // 2. Deduct from source wallet.
+        final fromWallet = await (_db.select(
+          _db.wallets,
+        )..where((w) => w.id.equals(fromWalletId))).getSingle();
+
+        await (_db.update(
+          _db.wallets,
+        )..where((w) => w.id.equals(fromWalletId))).write(
+          WalletsCompanion(
+            balance: Value(fromWallet.balance - amount),
+            updatedAt: Value(DateTime.now()),
+          ),
+        );
+
+        // 3. Add to destination wallet.
+        final toWallet = await (_db.select(
+          _db.wallets,
+        )..where((w) => w.id.equals(toWalletId))).getSingle();
+
+        await (_db.update(
+          _db.wallets,
+        )..where((w) => w.id.equals(toWalletId))).write(
+          WalletsCompanion(
+            balance: Value(toWallet.balance + amount),
+            updatedAt: Value(DateTime.now()),
+          ),
+        );
+
+        return txId;
+      });
+      developer.log(
+        'Successfully performed internal transfer id: $id in ${DateTime.now().difference(startTime).inMilliseconds}ms',
+        name: 'DriftTransactionRepository',
+      );
+      return id;
+    } catch (e, st) {
+      developer.log(
+        'Failed to perform internal transfer',
+        name: 'DriftTransactionRepository',
+        error: e,
+        stackTrace: st,
+      );
+      rethrow;
+    }
+  }
+
+  @override
   Stream<List<TransactionWithCategory>> watchRecentTransactions(int limit) {
     final query =
         _db.select(_db.transactions).join([

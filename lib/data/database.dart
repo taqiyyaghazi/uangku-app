@@ -38,7 +38,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 3; // AppConstants.databaseVersion; // Update to 3 manually here for migration.
+  int get schemaVersion => 4; // Update to 4 manually here for migration.
 
   @override
   MigrationStrategy get migration {
@@ -61,6 +61,9 @@ class AppDatabase extends _$AppDatabase {
           // We can just seed categories. The old transactions might have a null categoryId,
           // so we need to be careful. Drift will add the column.
           // In SQLite, adding a non-null column without default is tricky, but drift handles it.
+        }
+        if (from < 4) {
+          await m.addColumn(transactions, transactions.toWalletId);
         }
       },
       beforeOpen: (details) async {

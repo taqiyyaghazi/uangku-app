@@ -63,6 +63,18 @@ class FakeTransactionRepository implements TransactionRepository {
   }
 
   @override
+  Future<int> performInternalTransfer({
+    required int fromWalletId,
+    required int toWalletId,
+    required double amount,
+    required DateTime date,
+    required int categoryId,
+    String note = '',
+  }) async {
+    return 1;
+  }
+
+  @override
   Stream<List<TransactionWithCategory>> watchRecentTransactions(int limit) =>
       Stream.value([]);
 
@@ -235,6 +247,24 @@ void main() {
       expect(find.text('1'), findsOneWidget);
       expect(find.text('5'), findsOneWidget);
       expect(find.text('9'), findsOneWidget);
+    });
+
+    testWidgets('selecting Transfer shows From and To wallet selectors', (
+      tester,
+    ) async {
+      await tester.pumpWidget(buildDirectSheet());
+      await tester.pumpAndSettle();
+
+      // Tap Transfer tab
+      await tester.tap(find.text('Transfer'));
+      await tester.pumpAndSettle();
+
+      // Should show 'From Wallet' and 'To Wallet' text
+      expect(find.text('From Wallet'), findsOneWidget);
+      expect(find.text('To Wallet'), findsOneWidget);
+
+      // Category sector should be hidden
+      expect(find.text('Food'), findsNothing);
     });
 
     testWidgets('displays initial amount as Rp 0', (tester) async {

@@ -923,6 +923,20 @@ class $TransactionsTable extends Transactions
       'REFERENCES categories (id)',
     ),
   );
+  static const VerificationMeta _toWalletIdMeta = const VerificationMeta(
+    'toWalletId',
+  );
+  @override
+  late final GeneratedColumn<int> toWalletId = GeneratedColumn<int>(
+    'to_wallet_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES wallets (id)',
+    ),
+  );
   static const VerificationMeta _noteMeta = const VerificationMeta('note');
   @override
   late final GeneratedColumn<String> note = GeneratedColumn<String>(
@@ -961,6 +975,7 @@ class $TransactionsTable extends Transactions
     amount,
     type,
     categoryId,
+    toWalletId,
     note,
     date,
     createdAt,
@@ -1003,6 +1018,15 @@ class $TransactionsTable extends Transactions
       );
     } else if (isInserting) {
       context.missing(_categoryIdMeta);
+    }
+    if (data.containsKey('to_wallet_id')) {
+      context.handle(
+        _toWalletIdMeta,
+        toWalletId.isAcceptableOrUnknown(
+          data['to_wallet_id']!,
+          _toWalletIdMeta,
+        ),
+      );
     }
     if (data.containsKey('note')) {
       context.handle(
@@ -1055,6 +1079,10 @@ class $TransactionsTable extends Transactions
         DriftSqlType.int,
         data['${effectivePrefix}category_id'],
       )!,
+      toWalletId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}to_wallet_id'],
+      ),
       note: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}note'],
@@ -1085,6 +1113,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   final double amount;
   final TransactionType type;
   final int categoryId;
+  final int? toWalletId;
   final String note;
   final DateTime date;
   final DateTime createdAt;
@@ -1094,6 +1123,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     required this.amount,
     required this.type,
     required this.categoryId,
+    this.toWalletId,
     required this.note,
     required this.date,
     required this.createdAt,
@@ -1110,6 +1140,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       );
     }
     map['category_id'] = Variable<int>(categoryId);
+    if (!nullToAbsent || toWalletId != null) {
+      map['to_wallet_id'] = Variable<int>(toWalletId);
+    }
     map['note'] = Variable<String>(note);
     map['date'] = Variable<DateTime>(date);
     map['created_at'] = Variable<DateTime>(createdAt);
@@ -1123,6 +1156,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       amount: Value(amount),
       type: Value(type),
       categoryId: Value(categoryId),
+      toWalletId: toWalletId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(toWalletId),
       note: Value(note),
       date: Value(date),
       createdAt: Value(createdAt),
@@ -1142,6 +1178,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
         serializer.fromJson<String>(json['type']),
       ),
       categoryId: serializer.fromJson<int>(json['categoryId']),
+      toWalletId: serializer.fromJson<int?>(json['toWalletId']),
       note: serializer.fromJson<String>(json['note']),
       date: serializer.fromJson<DateTime>(json['date']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -1158,6 +1195,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
         $TransactionsTable.$convertertype.toJson(type),
       ),
       'categoryId': serializer.toJson<int>(categoryId),
+      'toWalletId': serializer.toJson<int?>(toWalletId),
       'note': serializer.toJson<String>(note),
       'date': serializer.toJson<DateTime>(date),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -1170,6 +1208,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     double? amount,
     TransactionType? type,
     int? categoryId,
+    Value<int?> toWalletId = const Value.absent(),
     String? note,
     DateTime? date,
     DateTime? createdAt,
@@ -1179,6 +1218,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     amount: amount ?? this.amount,
     type: type ?? this.type,
     categoryId: categoryId ?? this.categoryId,
+    toWalletId: toWalletId.present ? toWalletId.value : this.toWalletId,
     note: note ?? this.note,
     date: date ?? this.date,
     createdAt: createdAt ?? this.createdAt,
@@ -1192,6 +1232,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       categoryId: data.categoryId.present
           ? data.categoryId.value
           : this.categoryId,
+      toWalletId: data.toWalletId.present
+          ? data.toWalletId.value
+          : this.toWalletId,
       note: data.note.present ? data.note.value : this.note,
       date: data.date.present ? data.date.value : this.date,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
@@ -1206,6 +1249,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           ..write('amount: $amount, ')
           ..write('type: $type, ')
           ..write('categoryId: $categoryId, ')
+          ..write('toWalletId: $toWalletId, ')
           ..write('note: $note, ')
           ..write('date: $date, ')
           ..write('createdAt: $createdAt')
@@ -1220,6 +1264,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     amount,
     type,
     categoryId,
+    toWalletId,
     note,
     date,
     createdAt,
@@ -1233,6 +1278,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           other.amount == this.amount &&
           other.type == this.type &&
           other.categoryId == this.categoryId &&
+          other.toWalletId == this.toWalletId &&
           other.note == this.note &&
           other.date == this.date &&
           other.createdAt == this.createdAt);
@@ -1244,6 +1290,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<double> amount;
   final Value<TransactionType> type;
   final Value<int> categoryId;
+  final Value<int?> toWalletId;
   final Value<String> note;
   final Value<DateTime> date;
   final Value<DateTime> createdAt;
@@ -1253,6 +1300,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.amount = const Value.absent(),
     this.type = const Value.absent(),
     this.categoryId = const Value.absent(),
+    this.toWalletId = const Value.absent(),
     this.note = const Value.absent(),
     this.date = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -1263,6 +1311,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     required double amount,
     required TransactionType type,
     required int categoryId,
+    this.toWalletId = const Value.absent(),
     this.note = const Value.absent(),
     required DateTime date,
     this.createdAt = const Value.absent(),
@@ -1277,6 +1326,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Expression<double>? amount,
     Expression<String>? type,
     Expression<int>? categoryId,
+    Expression<int>? toWalletId,
     Expression<String>? note,
     Expression<DateTime>? date,
     Expression<DateTime>? createdAt,
@@ -1287,6 +1337,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       if (amount != null) 'amount': amount,
       if (type != null) 'type': type,
       if (categoryId != null) 'category_id': categoryId,
+      if (toWalletId != null) 'to_wallet_id': toWalletId,
       if (note != null) 'note': note,
       if (date != null) 'date': date,
       if (createdAt != null) 'created_at': createdAt,
@@ -1299,6 +1350,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Value<double>? amount,
     Value<TransactionType>? type,
     Value<int>? categoryId,
+    Value<int?>? toWalletId,
     Value<String>? note,
     Value<DateTime>? date,
     Value<DateTime>? createdAt,
@@ -1309,6 +1361,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       amount: amount ?? this.amount,
       type: type ?? this.type,
       categoryId: categoryId ?? this.categoryId,
+      toWalletId: toWalletId ?? this.toWalletId,
       note: note ?? this.note,
       date: date ?? this.date,
       createdAt: createdAt ?? this.createdAt,
@@ -1335,6 +1388,9 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     if (categoryId.present) {
       map['category_id'] = Variable<int>(categoryId.value);
     }
+    if (toWalletId.present) {
+      map['to_wallet_id'] = Variable<int>(toWalletId.value);
+    }
     if (note.present) {
       map['note'] = Variable<String>(note.value);
     }
@@ -1355,6 +1411,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
           ..write('amount: $amount, ')
           ..write('type: $type, ')
           ..write('categoryId: $categoryId, ')
+          ..write('toWalletId: $toWalletId, ')
           ..write('note: $note, ')
           ..write('date: $date, ')
           ..write('createdAt: $createdAt')
@@ -1939,24 +1996,6 @@ final class $$WalletsTableReferences
     extends BaseReferences<_$AppDatabase, $WalletsTable, Wallet> {
   $$WalletsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$TransactionsTable, List<Transaction>>
-  _transactionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.transactions,
-    aliasName: $_aliasNameGenerator(db.wallets.id, db.transactions.walletId),
-  );
-
-  $$TransactionsTableProcessedTableManager get transactionsRefs {
-    final manager = $$TransactionsTableTableManager(
-      $_db,
-      $_db.transactions,
-    ).filter((f) => f.walletId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_transactionsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
   static MultiTypedResultKey<
     $InvestmentSnapshotsTable,
     List<InvestmentSnapshot>
@@ -2034,31 +2073,6 @@ class $$WalletsTableFilterComposer
     column: $table.updatedAt,
     builder: (column) => ColumnFilters(column),
   );
-
-  Expression<bool> transactionsRefs(
-    Expression<bool> Function($$TransactionsTableFilterComposer f) f,
-  ) {
-    final $$TransactionsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.transactions,
-      getReferencedColumn: (t) => t.walletId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$TransactionsTableFilterComposer(
-            $db: $db,
-            $table: $db.transactions,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 
   Expression<bool> investmentSnapshotsRefs(
     Expression<bool> Function($$InvestmentSnapshotsTableFilterComposer f) f,
@@ -2169,31 +2183,6 @@ class $$WalletsTableAnnotationComposer
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
-  Expression<T> transactionsRefs<T extends Object>(
-    Expression<T> Function($$TransactionsTableAnnotationComposer a) f,
-  ) {
-    final $$TransactionsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.transactions,
-      getReferencedColumn: (t) => t.walletId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$TransactionsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.transactions,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
   Expression<T> investmentSnapshotsRefs<T extends Object>(
     Expression<T> Function($$InvestmentSnapshotsTableAnnotationComposer a) f,
   ) {
@@ -2234,10 +2223,7 @@ class $$WalletsTableTableManager
           $$WalletsTableUpdateCompanionBuilder,
           (Wallet, $$WalletsTableReferences),
           Wallet,
-          PrefetchHooks Function({
-            bool transactionsRefs,
-            bool investmentSnapshotsRefs,
-          })
+          PrefetchHooks Function({bool investmentSnapshotsRefs})
         > {
   $$WalletsTableTableManager(_$AppDatabase db, $WalletsTable table)
     : super(
@@ -2298,63 +2284,37 @@ class $$WalletsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback:
-              ({transactionsRefs = false, investmentSnapshotsRefs = false}) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [
-                    if (transactionsRefs) db.transactions,
-                    if (investmentSnapshotsRefs) db.investmentSnapshots,
-                  ],
-                  addJoins: null,
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (transactionsRefs)
-                        await $_getPrefetchedData<
-                          Wallet,
-                          $WalletsTable,
-                          Transaction
-                        >(
-                          currentTable: table,
-                          referencedTable: $$WalletsTableReferences
-                              ._transactionsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$WalletsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).transactionsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.walletId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                      if (investmentSnapshotsRefs)
-                        await $_getPrefetchedData<
-                          Wallet,
-                          $WalletsTable,
-                          InvestmentSnapshot
-                        >(
-                          currentTable: table,
-                          referencedTable: $$WalletsTableReferences
-                              ._investmentSnapshotsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$WalletsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).investmentSnapshotsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.walletId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
-                  },
-                );
+          prefetchHooksCallback: ({investmentSnapshotsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (investmentSnapshotsRefs) db.investmentSnapshots,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (investmentSnapshotsRefs)
+                    await $_getPrefetchedData<
+                      Wallet,
+                      $WalletsTable,
+                      InvestmentSnapshot
+                    >(
+                      currentTable: table,
+                      referencedTable: $$WalletsTableReferences
+                          ._investmentSnapshotsRefsTable(db),
+                      managerFromTypedResult: (p0) => $$WalletsTableReferences(
+                        db,
+                        table,
+                        p0,
+                      ).investmentSnapshotsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.walletId == item.id),
+                      typedResults: items,
+                    ),
+                ];
               },
+            );
+          },
         ),
       );
 }
@@ -2371,10 +2331,7 @@ typedef $$WalletsTableProcessedTableManager =
       $$WalletsTableUpdateCompanionBuilder,
       (Wallet, $$WalletsTableReferences),
       Wallet,
-      PrefetchHooks Function({
-        bool transactionsRefs,
-        bool investmentSnapshotsRefs,
-      })
+      PrefetchHooks Function({bool investmentSnapshotsRefs})
     >;
 typedef $$CategoriesTableCreateCompanionBuilder =
     CategoriesCompanion Function({
@@ -2682,6 +2639,7 @@ typedef $$TransactionsTableCreateCompanionBuilder =
       required double amount,
       required TransactionType type,
       required int categoryId,
+      Value<int?> toWalletId,
       Value<String> note,
       required DateTime date,
       Value<DateTime> createdAt,
@@ -2693,6 +2651,7 @@ typedef $$TransactionsTableUpdateCompanionBuilder =
       Value<double> amount,
       Value<TransactionType> type,
       Value<int> categoryId,
+      Value<int?> toWalletId,
       Value<String> note,
       Value<DateTime> date,
       Value<DateTime> createdAt,
@@ -2734,6 +2693,25 @@ final class $$TransactionsTableReferences
       $_db.categories,
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_categoryIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $WalletsTable _toWalletIdTable(_$AppDatabase db) =>
+      db.wallets.createAlias(
+        $_aliasNameGenerator(db.transactions.toWalletId, db.wallets.id),
+      );
+
+  $$WalletsTableProcessedTableManager? get toWalletId {
+    final $_column = $_itemColumn<int>('to_wallet_id');
+    if ($_column == null) return null;
+    final manager = $$WalletsTableTableManager(
+      $_db,
+      $_db.wallets,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_toWalletIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -2818,6 +2796,29 @@ class $$TransactionsTableFilterComposer
           }) => $$CategoriesTableFilterComposer(
             $db: $db,
             $table: $db.categories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$WalletsTableFilterComposer get toWalletId {
+    final $$WalletsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.toWalletId,
+      referencedTable: $db.wallets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WalletsTableFilterComposer(
+            $db: $db,
+            $table: $db.wallets,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2912,6 +2913,29 @@ class $$TransactionsTableOrderingComposer
     );
     return composer;
   }
+
+  $$WalletsTableOrderingComposer get toWalletId {
+    final $$WalletsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.toWalletId,
+      referencedTable: $db.wallets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WalletsTableOrderingComposer(
+            $db: $db,
+            $table: $db.wallets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$TransactionsTableAnnotationComposer
@@ -2986,6 +3010,29 @@ class $$TransactionsTableAnnotationComposer
     );
     return composer;
   }
+
+  $$WalletsTableAnnotationComposer get toWalletId {
+    final $$WalletsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.toWalletId,
+      referencedTable: $db.wallets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WalletsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.wallets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$TransactionsTableTableManager
@@ -3001,7 +3048,11 @@ class $$TransactionsTableTableManager
           $$TransactionsTableUpdateCompanionBuilder,
           (Transaction, $$TransactionsTableReferences),
           Transaction,
-          PrefetchHooks Function({bool walletId, bool categoryId})
+          PrefetchHooks Function({
+            bool walletId,
+            bool categoryId,
+            bool toWalletId,
+          })
         > {
   $$TransactionsTableTableManager(_$AppDatabase db, $TransactionsTable table)
     : super(
@@ -3021,6 +3072,7 @@ class $$TransactionsTableTableManager
                 Value<double> amount = const Value.absent(),
                 Value<TransactionType> type = const Value.absent(),
                 Value<int> categoryId = const Value.absent(),
+                Value<int?> toWalletId = const Value.absent(),
                 Value<String> note = const Value.absent(),
                 Value<DateTime> date = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -3030,6 +3082,7 @@ class $$TransactionsTableTableManager
                 amount: amount,
                 type: type,
                 categoryId: categoryId,
+                toWalletId: toWalletId,
                 note: note,
                 date: date,
                 createdAt: createdAt,
@@ -3041,6 +3094,7 @@ class $$TransactionsTableTableManager
                 required double amount,
                 required TransactionType type,
                 required int categoryId,
+                Value<int?> toWalletId = const Value.absent(),
                 Value<String> note = const Value.absent(),
                 required DateTime date,
                 Value<DateTime> createdAt = const Value.absent(),
@@ -3050,6 +3104,7 @@ class $$TransactionsTableTableManager
                 amount: amount,
                 type: type,
                 categoryId: categoryId,
+                toWalletId: toWalletId,
                 note: note,
                 date: date,
                 createdAt: createdAt,
@@ -3062,60 +3117,80 @@ class $$TransactionsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({walletId = false, categoryId = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (walletId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.walletId,
-                                referencedTable: $$TransactionsTableReferences
-                                    ._walletIdTable(db),
-                                referencedColumn: $$TransactionsTableReferences
-                                    ._walletIdTable(db)
-                                    .id,
-                              )
-                              as T;
-                    }
-                    if (categoryId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.categoryId,
-                                referencedTable: $$TransactionsTableReferences
-                                    ._categoryIdTable(db),
-                                referencedColumn: $$TransactionsTableReferences
-                                    ._categoryIdTable(db)
-                                    .id,
-                              )
-                              as T;
-                    }
+          prefetchHooksCallback:
+              ({walletId = false, categoryId = false, toWalletId = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (walletId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.walletId,
+                                    referencedTable:
+                                        $$TransactionsTableReferences
+                                            ._walletIdTable(db),
+                                    referencedColumn:
+                                        $$TransactionsTableReferences
+                                            ._walletIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (categoryId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.categoryId,
+                                    referencedTable:
+                                        $$TransactionsTableReferences
+                                            ._categoryIdTable(db),
+                                    referencedColumn:
+                                        $$TransactionsTableReferences
+                                            ._categoryIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (toWalletId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.toWalletId,
+                                    referencedTable:
+                                        $$TransactionsTableReferences
+                                            ._toWalletIdTable(db),
+                                    referencedColumn:
+                                        $$TransactionsTableReferences
+                                            ._toWalletIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
 
-                    return state;
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [];
                   },
-              getPrefetchedDataCallback: (items) async {
-                return [];
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -3132,7 +3207,7 @@ typedef $$TransactionsTableProcessedTableManager =
       $$TransactionsTableUpdateCompanionBuilder,
       (Transaction, $$TransactionsTableReferences),
       Transaction,
-      PrefetchHooks Function({bool walletId, bool categoryId})
+      PrefetchHooks Function({bool walletId, bool categoryId, bool toWalletId})
     >;
 typedef $$InvestmentSnapshotsTableCreateCompanionBuilder =
     InvestmentSnapshotsCompanion Function({

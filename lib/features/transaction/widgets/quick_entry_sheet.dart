@@ -39,6 +39,7 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
   TransactionType _type = TransactionType.expense;
   String _amountText = '0';
   int? _selectedWalletId;
+  int? _selectedToWalletId;
   int? _selectedCategoryId;
   bool _isSaving = false;
   final _noteController = TextEditingController();
@@ -91,7 +92,44 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
 
               // ── Wallet Selector ──────────────────────────────────
               walletsAsync.when(
-                data: (wallets) => _buildWalletSelector(theme, wallets),
+                data: (wallets) {
+                  if (_type == TransactionType.transfer) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'From Wallet',
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildWalletSelector(theme, wallets, isSource: true),
+                        const SizedBox(height: 12),
+                        Text(
+                          'To Wallet',
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildWalletSelector(theme, wallets, isSource: false),
+                        if (_selectedWalletId == _selectedToWalletId &&
+                            _selectedWalletId != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Text(
+                              'Source and destination cannot be the same',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.error,
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  }
+                  return _buildWalletSelector(theme, wallets, isSource: true);
+                },
                 loading: () => const SizedBox(
                   height: 48,
                   child: Center(child: CircularProgressIndicator()),
@@ -101,8 +139,10 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
               const SizedBox(height: 12),
 
               // ── Category Selector ────────────────────────────────
-              _buildCategorySelector(theme),
-              const SizedBox(height: 12),
+              if (_type != TransactionType.transfer) ...[
+                _buildCategorySelector(theme),
+                const SizedBox(height: 12),
+              ],
 
               // ── Note Field (Optional) ─────────────────────────────
               TextField(
@@ -312,7 +352,11 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
 
   // ── Wallet selector ───────────────────────────────────────────────
 
-  Widget _buildWalletSelector(ThemeData theme, List<Wallet> wallets) {
+  Widget _buildWalletSelector(
+    ThemeData theme,
+    List<Wallet> wallets, {
+    bool isSource = true,
+  }) {
     if (wallets.isEmpty) {
       return Text(
         'No wallets available. Create one first.',
@@ -323,7 +367,17 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
     }
 
     // Auto-select first wallet if none selected.
-    _selectedWalletId ??= wallets.first.id;
+    if (isSource) {
+      _selectedWalletId ??= wallets.first.id;
+    } else {
+      _selectedToWalletId ??= wallets.length > 1
+          ? wallets[1].id
+          : wallets.first.id;
+    }
+
+    final currentSelectedId = isSource
+        ? _selectedWalletId
+        : _selectedToWalletId;
 
     return SizedBox(
       height: 48,
@@ -333,13 +387,19 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
         separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final wallet = wallets[index];
-          final isSelected = wallet.id == _selectedWalletId;
+          final isSelected = wallet.id == currentSelectedId;
 
           return ChoiceChip(
             label: Text(wallet.name),
             selected: isSelected,
             onSelected: (_) {
-              setState(() => _selectedWalletId = wallet.id);
+              setState(() {
+                if (isSource) {
+                  _selectedWalletId = wallet.id;
+                } else {
+                  _selectedToWalletId = wallet.id;
+                }
+              });
             },
             selectedColor: OceanFlowColors.primary.withValues(alpha: 0.15),
             labelStyle: TextStyle(
@@ -458,38 +518,60 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
   // ── Save transaction ──────────────────────────────────────────────
 
   Future<void> _onSave() async {
-    if (_selectedWalletId == null ||
-        _selectedCategoryId == null ||
-        _amount <= 0) {
+    if (_selectedWalletId == null || _amount <= 0) return;
+    if (_type != TransactionType.transfer && _selectedCategoryId == null)
       return;
-    }
+    if (_type == TransactionType.transfer &&
+        (_selectedToWalletId == null ||
+            _selectedWalletId == _selectedToWalletId))
+      return;
 
     setState(() => _isSaving = true);
 
     try {
       final repo = ref.read(transactionRepositoryProvider);
 
-      // Determine balance delta based on type.
-      final balanceDelta = switch (_type) {
-        TransactionType.income => _amount,
-        TransactionType.expense => -_amount,
-        TransactionType.transfer => -_amount, // Debit from source wallet.
-      };
+      if (_type == TransactionType.transfer) {
+        // Find or use a default category ID for transfer if needed, but the schema allows any category or we can query it.
+        // For now, let's use the first transfer category available or 0 if we must, wait, `TransactionRepository.performInternalTransfer` requires `categoryId`.
+        // Let's get the transfer categories. We can read them via `ref.read(categoriesByTypeProvider(TransactionType.transfer)).value.first.id`.
+        final transferCategories = ref
+            .read(categoriesByTypeProvider(TransactionType.transfer))
+            .value;
+        final defaultTransferCategoryId =
+            transferCategories?.firstOrNull?.id ?? 0;
 
-      final companion = TransactionsCompanion(
-        walletId: Value(_selectedWalletId!),
-        amount: Value(_amount),
-        type: Value(_type),
-        categoryId: Value(_selectedCategoryId!),
-        note: Value(_noteController.text),
-        date: Value(_selectedDate),
-      );
+        await repo.performInternalTransfer(
+          fromWalletId: _selectedWalletId!,
+          toWalletId: _selectedToWalletId!,
+          amount: _amount,
+          date: _selectedDate,
+          categoryId: defaultTransferCategoryId,
+          note: _noteController.text,
+        );
+      } else {
+        // Determine balance delta based on type.
+        final balanceDelta = switch (_type) {
+          TransactionType.income => _amount,
+          TransactionType.expense => -_amount,
+          TransactionType.transfer => 0.0, // Should not reach here
+        };
 
-      await repo.insertTransactionAndUpdateBalance(
-        transaction: companion,
-        walletId: _selectedWalletId!,
-        balanceDelta: balanceDelta,
-      );
+        final companion = TransactionsCompanion(
+          walletId: Value(_selectedWalletId!),
+          amount: Value(_amount),
+          type: Value(_type),
+          categoryId: Value(_selectedCategoryId!),
+          note: Value(_noteController.text),
+          date: Value(_selectedDate),
+        );
+
+        await repo.insertTransactionAndUpdateBalance(
+          transaction: companion,
+          walletId: _selectedWalletId!,
+          balanceDelta: balanceDelta,
+        );
+      }
 
       if (mounted) {
         Navigator.of(context).pop();

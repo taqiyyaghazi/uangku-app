@@ -61,6 +61,18 @@ class FakeTransactionRepository implements TransactionRepository {
   }) async {
     updateAtomicCallCount++;
   }
+
+  @override
+  Future<int> performInternalTransfer({
+    required int fromWalletId,
+    required int toWalletId,
+    required double amount,
+    required DateTime date,
+    required int categoryId,
+    String note = '',
+  }) async {
+    return 1;
+  }
 }
 
 class FakeCategoryRepository implements CategoryRepository {
