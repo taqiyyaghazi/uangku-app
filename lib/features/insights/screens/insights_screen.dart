@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/features/insights/providers/insights_provider.dart';
 import 'package:uangku/features/insights/widgets/spending_pie_chart.dart';
 
@@ -135,9 +136,9 @@ class InsightsScreen extends ConsumerWidget {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-              onSurface: Theme.of(context).colorScheme.onSurface,
-            ),
+            colorScheme: Theme.of(
+              context,
+            ).colorScheme.copyWith(primary: OceanFlowColors.primary),
           ),
           child: child!,
         );
