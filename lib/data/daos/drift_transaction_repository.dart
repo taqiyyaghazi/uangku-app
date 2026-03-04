@@ -172,7 +172,6 @@ class DriftTransactionRepository implements TransactionRepository {
     required int toWalletId,
     required double amount,
     required DateTime date,
-    required int categoryId,
     String note = '',
   }) async {
     final startTime = DateTime.now();
@@ -183,6 +182,7 @@ class DriftTransactionRepository implements TransactionRepository {
       );
       final id = await _db.transaction(() async {
         // 1. Insert the transfer transaction record.
+        // categoryId is omitted since it is now nullable for transfers
         final txId = await _db
             .into(_db.transactions)
             .insert(
@@ -191,7 +191,6 @@ class DriftTransactionRepository implements TransactionRepository {
                 toWalletId: Value(toWalletId),
                 amount: Value(amount),
                 type: const Value(TransactionType.transfer),
-                categoryId: Value(categoryId),
                 note: Value(note),
                 date: Value(date),
               ),

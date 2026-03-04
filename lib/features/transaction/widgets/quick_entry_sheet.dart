@@ -534,22 +534,30 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
       final repo = ref.read(transactionRepositoryProvider);
 
       if (_type == TransactionType.transfer) {
-        // We must await the provider's future to get the first emitted list of categories
-        // instead of synchronously reading an uninitialized AsyncValue.
-        final transferCategories = await ref.read(
-          categoriesByTypeProvider(TransactionType.transfer).future,
-        );
-        final defaultTransferCategoryId =
-            transferCategories.firstOrNull?.id ?? 0;
-
         await repo.performInternalTransfer(
           fromWalletId: _selectedWalletId!,
           toWalletId: _selectedToWalletId!,
           amount: _amount,
           date: _selectedDate,
-          categoryId: defaultTransferCategoryId,
           note: _noteController.text,
         );
+
+        if (mounted) {
+          final wallets = ref.read(walletsProvider).value ?? [];
+          final toWallet = wallets.firstWhere(
+            (w) => w.id == _selectedToWalletId,
+            orElse: () => wallets.first,
+          );
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Rp ${_amount.toStringAsFixed(0)} moved to ${toWallet.name}',
+              ),
+              backgroundColor: OceanFlowColors.primary,
+            ),
+          );
+        }
       } else {
         // Determine balance delta based on type.
         final balanceDelta = switch (_type) {

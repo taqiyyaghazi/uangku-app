@@ -19,7 +19,8 @@ class Transactions extends Table {
 
   TextColumn get type => textEnum<TransactionType>()();
 
-  IntColumn get categoryId => integer().references(Categories, #id)();
+  IntColumn get categoryId =>
+      integer().nullable().references(Categories, #id)();
 
   IntColumn get toWalletId => integer().nullable().references(Wallets, #id)();
 

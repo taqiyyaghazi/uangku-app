@@ -68,7 +68,6 @@ class FakeTransactionRepository implements TransactionRepository {
     required int toWalletId,
     required double amount,
     required DateTime date,
-    required int categoryId,
     String note = '',
   }) async {
     return 1;

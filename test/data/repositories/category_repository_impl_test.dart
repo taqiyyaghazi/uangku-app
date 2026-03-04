@@ -100,7 +100,7 @@ void main() {
               walletId: 1,
               amount: 50.0,
               type: TransactionType.expense,
-              categoryId: catId,
+              categoryId: Value(catId),
               date: DateTime.now(),
             ),
           );

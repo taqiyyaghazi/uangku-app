@@ -71,7 +71,6 @@ abstract class TransactionRepository {
     required int toWalletId,
     required double amount,
     required DateTime date,
-    required int categoryId,
     String note = '',
   });
 }

@@ -82,7 +82,7 @@ class _TransactionDetailSheetState
     _amountText = tx.amount.truncateToDouble() == tx.amount
         ? tx.amount.toInt().toString()
         : tx.amount.toString();
-    _selectedCategoryId = tx.categoryId;
+    _selectedCategoryId = tx.categoryId ?? 0;
     _noteController.text = tx.note;
   }
 
