@@ -174,12 +174,12 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
         ButtonSegment(
           value: TransactionType.expense,
           label: const Text('Expense'),
-          icon: const Icon(Icons.arrow_downward, size: 18),
+          icon: const Icon(Icons.arrow_upward, size: 18),
         ),
         ButtonSegment(
           value: TransactionType.income,
           label: const Text('Income'),
-          icon: const Icon(Icons.arrow_upward, size: 18),
+          icon: const Icon(Icons.arrow_downward, size: 18),
         ),
         ButtonSegment(
           value: TransactionType.transfer,
