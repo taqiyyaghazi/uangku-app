@@ -248,10 +248,14 @@ void main() {
       await tester.pumpWidget(buildDirectSheet());
       await tester.pumpAndSettle();
 
-      // Tap digit 5.
-      await tester.tap(
-        find.descendant(of: find.byType(Numpad), matching: find.text('5')),
+      // Tap digit 5 (ensure it's visible first since the sheet might be tall).
+      final digit5 = find.descendant(
+        of: find.byType(Numpad),
+        matching: find.text('5'),
       );
+      await tester.ensureVisible(digit5);
+      await tester.pumpAndSettle();
+      await tester.tap(digit5);
       await tester.pumpAndSettle();
 
       // Use find.textContaining since the currency formatter adds thin spaces and Rs symbols.
