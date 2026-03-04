@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/models/category_spending.dart';
+import 'package:uangku/data/models/daily_spending.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/repositories/transaction_repository.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
@@ -104,6 +105,44 @@ class DriftTransactionRepository implements TransactionRepository {
           totalAmount: row.read(amountSum) ?? 0.0,
         );
       }).toList();
+    });
+  }
+
+  @override
+  Stream<List<DailySpending>> watchDailySpending(DateTime month) {
+    final startOfMonth = DateTime(month.year, month.month, 1);
+    final endOfMonth = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
+
+    final dayExpr = CustomExpression<String>(
+      "strftime('%Y-%m-%d', datetime(date, 'unixepoch', 'localtime'))",
+    );
+    final amountSum = _db.transactions.amount.sum();
+
+    final query = _db.selectOnly(_db.transactions)
+      ..addColumns([dayExpr, amountSum])
+      ..where(
+        _db.transactions.date.isBiggerOrEqualValue(startOfMonth) &
+            _db.transactions.date.isSmallerOrEqualValue(endOfMonth) &
+            _db.transactions.type.equals(TransactionType.expense.name),
+      )
+      ..groupBy([dayExpr]);
+
+    return query.watch().map((rows) {
+      final resultMap = {
+        for (final row in rows) row.read(dayExpr)!: row.read(amountSum) ?? 0.0,
+      };
+
+      final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
+      return List.generate(daysInMonth, (index) {
+        final day = index + 1;
+        final date = DateTime(month.year, month.month, day);
+        // drift's .date property returns YYYY-MM-DD
+        final dateString =
+            '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+
+        final amount = resultMap[dateString] ?? 0.0;
+        return DailySpending(date: date, totalAmount: amount);
+      });
     });
   }
 

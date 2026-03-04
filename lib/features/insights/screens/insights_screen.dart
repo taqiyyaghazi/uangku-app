@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/features/insights/providers/insights_provider.dart';
+import 'package:uangku/features/insights/widgets/daily_spending_line_chart.dart';
 import 'package:uangku/features/insights/widgets/spending_pie_chart.dart';
 
 class InsightsScreen extends ConsumerWidget {
@@ -11,6 +12,7 @@ class InsightsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedMonth = ref.watch(selectedMonthProvider);
     final categorySpendingAsync = ref.watch(watchCategorySpendingProvider);
+    final dailySpendingAsync = ref.watch(watchDailySpendingProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -60,17 +62,20 @@ class InsightsScreen extends ConsumerWidget {
               ),
             ),
           ),
-          SliverFillRemaining(
-            child: categorySpendingAsync.when(
-              data: (data) {
-                final totalSpending = data.fold<double>(
-                  0.0,
-                  (sum, item) => sum + item.totalAmount,
-                );
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8,
+              ),
+              child: categorySpendingAsync.when(
+                data: (data) {
+                  final totalSpending = data.fold<double>(
+                    0.0,
+                    (sum, item) => sum + item.totalAmount,
+                  );
 
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Container(
+                  return Container(
                     decoration: BoxDecoration(
                       color:
                           Theme.of(context).cardTheme.color ??
@@ -91,12 +96,49 @@ class InsightsScreen extends ConsumerWidget {
                       spendingData: data,
                       totalSpending: totalSpending,
                     ),
-                  ),
-                );
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) =>
-                  Center(child: Text('Gagal memuat data:\n$err')),
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (err, stack) =>
+                    Center(child: Text('Gagal memuat data:\n$err')),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
+              child: dailySpendingAsync.when(
+                data: (data) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      color:
+                          Theme.of(context).cardTheme.color ??
+                          Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 24,
+                      horizontal: 8,
+                    ),
+                    child: DailySpendingLineChart(spendingData: data),
+                  );
+                },
+                loading: () => const SizedBox(
+                  height: 200,
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                error: (err, stack) =>
+                    Center(child: Text('Gagal memuat tren:\n$err')),
+              ),
             ),
           ),
         ],

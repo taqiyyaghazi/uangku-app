@@ -1,7 +1,7 @@
 # Uangku - Implementation Progress Report
 
 **As of:** 2026-03-04
-**Overall Completion:** ~80% (15/19 Stories Implemented)
+**Overall Completion:** ~84% (16/19 Stories Implemented)
 
 ---
 
@@ -62,7 +62,7 @@
 | ID  | Story Name                               | Status       |
 | --- | ---------------------------------------- | ------------ |
 | 5.1 | The Spending Pie (Category Distribution) | ✅ Completed |
-| 5.2 | Daily Spending Trend (Line Chart)        | ⏳ Ready     |
+| 5.2 | Daily Spending Trend (Line Chart)        | ✅ Completed |
 | 5.3 | Monthly Comparison (Performance Review)  | ⏳ Ready     |
 
 ---
@@ -78,6 +78,6 @@
 
 ---
 
-The core system and Insights engine are now active. The most recent major addition was **The Spending Pie (Story 5.1)**, which provides interactive visual breakdowns of expenses by category.
+The core system and Insights engine are now active. Recent major additions include **The Spending Pie (Story 5.1)** and the **Daily Spending Trend (Story 5.2)**, providing both categorical and temporal analysis of user spending.
 
-**Next Priority:** Remaining Insights features (5.2, 5.3) to provide trend analysis and performance reviews.
+**Next Priority:** Story 5.3 (Monthly Comparison) to complete the primary Insights epic.

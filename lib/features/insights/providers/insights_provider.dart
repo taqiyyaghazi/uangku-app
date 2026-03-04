@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/data/models/category_spending.dart';
+import 'package:uangku/data/models/daily_spending.dart';
 
 /// Notifier to manage the currently selected month.
 class SelectedMonth extends Notifier<DateTime> {
@@ -26,4 +27,13 @@ final watchCategorySpendingProvider =
       final repo = ref.watch(transactionRepositoryProvider);
 
       return repo.watchCategorySpending(selectedMonth);
+    });
+
+/// Provider that watches the daily spending trend for the currently selected month.
+final watchDailySpendingProvider =
+    StreamProvider.autoDispose<List<DailySpending>>((ref) {
+      final selectedMonth = ref.watch(selectedMonthProvider);
+      final repo = ref.watch(transactionRepositoryProvider);
+
+      return repo.watchDailySpending(selectedMonth);
     });
