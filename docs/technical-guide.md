@@ -12,10 +12,10 @@ Gunakan package `flutter_launcher_icons`. Ini jauh lebih mudah daripada menggant
 
 Cara paling aman adalah menggunakan package `rename`.
 
-- Jalankan: `flutter pub global run rename --bundleId com.namaanda.uangku`.
-- Jalankan: `flutter pub global run rename --appname "Uangku"`.
+- Jalankan: `flutter pub global run rename setBundleId --value com.taqiyyaghazi.uangku --targets android,ios,macos`.
+- Jalankan: `flutter pub global run rename setAppName --value "Uangku" --targets android,ios,macos`.
 
-### 3. Cara Update Versi (Teknis)
+### 3. Cara Update Versi (Teknik)
 
 Buka file `pubspec.yaml`, cari baris:
 `version: 1.0.0+1`
