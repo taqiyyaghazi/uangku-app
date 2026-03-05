@@ -62,6 +62,7 @@ class _TransactionDetailSheetState
   late TransactionType _type;
   late String _amountText;
   late int _selectedCategoryId;
+  late DateTime _selectedDate;
   final _noteController = TextEditingController();
 
   @override
@@ -84,6 +85,7 @@ class _TransactionDetailSheetState
         : tx.amount.toString();
     _selectedCategoryId = tx.categoryId ?? 0;
     _noteController.text = tx.note;
+    _selectedDate = tx.date;
   }
 
   double get _amount => double.tryParse(_amountText) ?? 0.0;
@@ -317,17 +319,22 @@ class _TransactionDetailSheetState
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Center(
-          child: Text(
-            CurrencyFormatter.format(_amount),
-            style: theme.textTheme.headlineLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: _colorForType,
-              letterSpacing: -0.5,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              CurrencyFormatter.format(_amount),
+              style: theme.textTheme.headlineLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: _colorForType,
+                letterSpacing: -0.5,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+            const SizedBox(height: 8),
+            _buildDateSelector(theme),
+          ],
         ),
       ),
       const SizedBox(height: 12),
@@ -466,6 +473,78 @@ class _TransactionDetailSheetState
     ];
   }
 
+  // ── Edit mode helpers ──────────────────────────────────────────────
+
+  Widget _buildDateSelector(ThemeData theme) {
+    final now = DateTime.now();
+    final isToday =
+        _selectedDate.year == now.year &&
+        _selectedDate.month == now.month &&
+        _selectedDate.day == now.day;
+    final dateText = isToday
+        ? 'Today'
+        : '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}';
+
+    return ActionChip(
+      avatar: Icon(
+        Icons.calendar_today,
+        size: 16,
+        color: isToday
+            ? theme.colorScheme.onSurfaceVariant
+            : OceanFlowColors.primary,
+      ),
+      label: Text(dateText),
+      labelStyle: TextStyle(
+        fontSize: 12,
+        fontWeight: isToday ? FontWeight.w500 : FontWeight.w600,
+        color: isToday
+            ? theme.colorScheme.onSurfaceVariant
+            : OceanFlowColors.primary,
+      ),
+      backgroundColor: isToday
+          ? theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+          : OceanFlowColors.primary.withValues(alpha: 0.1),
+      side: BorderSide.none,
+      visualDensity: VisualDensity.compact,
+      onPressed: () => _selectDate(context),
+    );
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: now,
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(
+              context,
+            ).colorScheme.copyWith(primary: OceanFlowColors.primary),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        // Keep the current time for chronological sorting
+        final originalDate = widget.transaction.transaction.date;
+        _selectedDate = DateTime(
+          picked.year,
+          picked.month,
+          picked.day,
+          originalDate.hour,
+          originalDate.minute,
+          originalDate.second,
+        );
+      });
+    }
+  }
+
   // ── Numpad callbacks ───────────────────────────────────────────────
 
   void _onDigit(String digit) {
@@ -574,6 +653,7 @@ class _TransactionDetailSheetState
         type: Value(_type),
         categoryId: Value(_selectedCategoryId),
         note: Value(_noteController.text),
+        date: Value(_selectedDate),
       );
 
       await repo.updateTransactionAtomic(
@@ -583,7 +663,15 @@ class _TransactionDetailSheetState
         balanceDelta: balanceDelta,
       );
 
-      if (mounted) Navigator.of(context).pop();
+      if (mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Transaction updated'),
+            backgroundColor: OceanFlowColors.primary,
+          ),
+        );
+      }
     } catch (e, st) {
       developer.log(
         'Error saving transaction edit',
