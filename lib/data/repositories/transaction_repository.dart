@@ -3,6 +3,7 @@ import 'package:uangku/data/database.dart';
 import 'package:uangku/data/models/category_spending.dart';
 import 'package:uangku/data/models/daily_spending.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
+import 'package:uangku/data/models/transaction_with_details.dart';
 
 /// Repository interface (contract) for Transaction data access.
 ///
@@ -87,4 +88,10 @@ abstract class TransactionRepository {
     required DateTime date,
     String note = '',
   });
+
+  /// Returns all transactions with resolved category and wallet names.
+  ///
+  /// Used for CSV export. Performs JOINs on Categories and Wallets tables
+  /// to return human-readable strings instead of foreign-key IDs.
+  Future<List<TransactionWithDetails>> getAllTransactionsWithDetails();
 }

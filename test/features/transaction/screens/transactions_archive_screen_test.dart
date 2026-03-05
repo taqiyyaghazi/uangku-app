@@ -9,6 +9,7 @@ import 'package:uangku/data/models/category_spending.dart';
 import 'package:uangku/data/models/daily_spending.dart';
 import 'package:uangku/data/models/monthly_summary.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
+import 'package:uangku/data/models/transaction_with_details.dart';
 import 'package:uangku/data/repositories/transaction_repository.dart';
 import 'package:uangku/data/repositories/wallet_repository.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
@@ -130,6 +131,10 @@ class FakeTransactionRepository implements TransactionRepository {
   }) async {
     return 1;
   }
+
+  @override
+  Future<List<TransactionWithDetails>> getAllTransactionsWithDetails() async =>
+      [];
 }
 
 void main() {

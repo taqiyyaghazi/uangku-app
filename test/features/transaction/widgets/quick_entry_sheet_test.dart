@@ -8,6 +8,7 @@ import 'package:uangku/data/models/category_spending.dart';
 import 'package:uangku/data/models/daily_spending.dart';
 import 'package:uangku/data/models/monthly_summary.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
+import 'package:uangku/data/models/transaction_with_details.dart';
 import 'package:uangku/data/repositories/category_repository.dart';
 import 'package:uangku/data/repositories/transaction_repository.dart';
 import 'package:uangku/data/repositories/wallet_repository.dart';
@@ -107,6 +108,10 @@ class FakeTransactionRepository implements TransactionRepository {
     required int walletId,
     required double balanceDelta,
   }) async {}
+
+  @override
+  Future<List<TransactionWithDetails>> getAllTransactionsWithDetails() async =>
+      [];
 }
 
 class FakeCategoryRepository implements CategoryRepository {

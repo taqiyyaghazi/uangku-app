@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uangku/core/theme/app_theme.dart';
+import 'package:uangku/features/export/providers/export_provider.dart';
 import 'package:uangku/features/insights/providers/insights_provider.dart';
 import 'package:uangku/features/insights/widgets/daily_spending_line_chart.dart';
 import 'package:uangku/features/insights/widgets/monthly_comparison_card.dart';
@@ -15,12 +16,47 @@ class InsightsScreen extends ConsumerWidget {
     final categorySpendingAsync = ref.watch(watchCategorySpendingProvider);
     final dailySpendingAsync = ref.watch(watchDailySpendingProvider);
 
+    final exportState = ref.watch(exportNotifierProvider);
+
+    // Listen for export state changes to show snackbars.
+    ref.listen<ExportState>(exportNotifierProvider, (previous, next) {
+      if (next == ExportState.success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Data exported successfully!')),
+        );
+        ref.read(exportNotifierProvider.notifier).reset();
+      } else if (next == ExportState.error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Gagal mengekspor data. Silakan coba lagi.'),
+          ),
+        );
+        ref.read(exportNotifierProvider.notifier).reset();
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Insights'),
         elevation: 0,
         centerTitle: false,
         actions: [
+          // Export to CSV
+          IconButton(
+            icon: exportState == ExportState.loading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.file_download_outlined),
+            tooltip: 'Export to CSV',
+            onPressed: exportState == ExportState.loading
+                ? null
+                : () => ref
+                      .read(exportNotifierProvider.notifier)
+                      .exportAndShare(),
+          ),
           // Month Selector
           IconButton(
             icon: const Icon(Icons.calendar_month_outlined),

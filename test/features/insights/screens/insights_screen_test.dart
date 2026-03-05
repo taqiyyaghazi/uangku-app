@@ -6,6 +6,7 @@ import 'package:uangku/data/database.dart';
 import 'package:uangku/data/models/category_spending.dart';
 import 'package:uangku/data/models/daily_spending.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
+import 'package:uangku/data/models/transaction_with_details.dart';
 import 'package:uangku/data/repositories/transaction_repository.dart';
 import 'package:uangku/data/models/monthly_summary.dart';
 import 'package:uangku/features/insights/screens/insights_screen.dart';
@@ -79,6 +80,10 @@ class FakeTransactionRepository implements TransactionRepository {
     required DateTime date,
     String note = '',
   }) async => 1;
+
+  @override
+  Future<List<TransactionWithDetails>> getAllTransactionsWithDetails() async =>
+      [];
 }
 
 void main() {

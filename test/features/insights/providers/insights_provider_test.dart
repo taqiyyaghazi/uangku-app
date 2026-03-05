@@ -8,6 +8,7 @@ import 'package:uangku/data/models/category_spending.dart';
 import 'package:uangku/data/models/daily_spending.dart';
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
+import 'package:uangku/data/models/transaction_with_details.dart';
 
 class MockTransactionRepository implements TransactionRepository {
   final Map<DateTime, MonthlySummary> summaries = {};
@@ -67,6 +68,10 @@ class MockTransactionRepository implements TransactionRepository {
     required DateTime date,
     String note = '',
   }) async => 0;
+
+  @override
+  Future<List<TransactionWithDetails>> getAllTransactionsWithDetails() async =>
+      [];
 }
 
 void main() {

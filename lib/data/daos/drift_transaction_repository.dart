@@ -5,6 +5,7 @@ import 'package:uangku/data/models/category_spending.dart';
 import 'package:uangku/data/models/daily_spending.dart';
 import 'package:uangku/data/models/monthly_summary.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
+import 'package:uangku/data/models/transaction_with_details.dart';
 import 'package:uangku/data/repositories/transaction_repository.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/features/insights/logic/daily_spending_helper.dart';
@@ -545,6 +546,67 @@ class DriftTransactionRepository implements TransactionRepository {
     } catch (e, st) {
       developer.log(
         'Failed to update transaction atomic id: $transactionId',
+        name: 'DriftTransactionRepository',
+        error: e,
+        stackTrace: st,
+      );
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<TransactionWithDetails>> getAllTransactionsWithDetails() async {
+    const operation = 'getAllTransactionsWithDetails';
+    final startTime = DateTime.now();
+    developer.log('START: $operation', name: 'DriftTransactionRepository');
+
+    try {
+      // Alias the wallets table for the two different joins.
+      final sourceWallet = _db.alias(_db.wallets, 'sw');
+      final destWallet = _db.alias(_db.wallets, 'dw');
+
+      final query = _db.select(_db.transactions).join([
+        leftOuterJoin(
+          _db.categories,
+          _db.categories.id.equalsExp(_db.transactions.categoryId),
+        ),
+        innerJoin(
+          sourceWallet,
+          sourceWallet.id.equalsExp(_db.transactions.walletId),
+        ),
+        leftOuterJoin(
+          destWallet,
+          destWallet.id.equalsExp(_db.transactions.toWalletId),
+        ),
+      ])..orderBy([OrderingTerm.desc(_db.transactions.date)]);
+
+      final rows = await query.get();
+
+      final results = rows.map((row) {
+        final transaction = row.readTable(_db.transactions);
+        final category = row.readTableOrNull(_db.categories);
+        final srcWallet = row.readTable(sourceWallet);
+        final dstWallet = row.readTableOrNull(destWallet);
+
+        return TransactionWithDetails(
+          transaction: transaction,
+          categoryName: category?.name,
+          walletName: srcWallet.name,
+          toWalletName: dstWallet?.name,
+        );
+      }).toList();
+
+      final durationMs = DateTime.now().difference(startTime).inMilliseconds;
+      developer.log(
+        'SUCCESS: $operation',
+        name: 'DriftTransactionRepository',
+        error: {'rows': results.length, 'durationMs': durationMs},
+      );
+
+      return results;
+    } catch (e, st) {
+      developer.log(
+        'FAILURE: $operation',
         name: 'DriftTransactionRepository',
         error: e,
         stackTrace: st,

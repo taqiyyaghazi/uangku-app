@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide isNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:uangku/data/database.dart';
@@ -365,6 +365,109 @@ void main() {
           .first;
       expect(wallet3Tx.length, 1);
       expect(wallet3Tx.first.transaction.amount, 500.0);
+    });
+  });
+
+  group('DriftTransactionRepository.getAllTransactionsWithDetails', () {
+    test(
+      'returns transactions with resolved category and wallet names',
+      () async {
+        // 1. Setup wallets.
+        final walletId = await db
+            .into(db.wallets)
+            .insert(
+              WalletsCompanion.insert(
+                name: 'Bank BCA',
+                balance: const Value(1000000.0),
+                type: WalletType.bank,
+              ),
+            );
+
+        // 2. Setup category.
+        final foodCatId = await db
+            .into(db.categories)
+            .insert(
+              CategoriesCompanion.insert(
+                name: 'Food',
+                iconCode: '🍔',
+                type: TransactionType.expense,
+              ),
+            );
+
+        // 3. Insert an expense transaction.
+        await db
+            .into(db.transactions)
+            .insert(
+              TransactionsCompanion.insert(
+                walletId: walletId,
+                amount: 50000,
+                type: TransactionType.expense,
+                categoryId: Value(foodCatId),
+                note: const Value('Lunch'),
+                date: DateTime(2026, 3, 5),
+              ),
+            );
+
+        // 4. Verify.
+        final results = await repository.getAllTransactionsWithDetails();
+
+        expect(results.length, 1);
+        expect(results.first.categoryName, 'Food');
+        expect(results.first.walletName, 'Bank BCA');
+        expect(results.first.toWalletName, isNull);
+        expect(results.first.transaction.amount, 50000.0);
+      },
+    );
+
+    test('returns transfer with source and destination wallet names', () async {
+      // 1. Setup wallets.
+      final wallet1 = await db
+          .into(db.wallets)
+          .insert(
+            WalletsCompanion.insert(
+              name: 'Bank BCA',
+              balance: const Value(1000000.0),
+              type: WalletType.bank,
+            ),
+          );
+
+      final wallet2 = await db
+          .into(db.wallets)
+          .insert(
+            WalletsCompanion.insert(
+              name: 'Cash',
+              balance: const Value(500000.0),
+              type: WalletType.cash,
+            ),
+          );
+
+      // 2. Insert a transfer transaction.
+      await db
+          .into(db.transactions)
+          .insert(
+            TransactionsCompanion.insert(
+              walletId: wallet1,
+              toWalletId: Value(wallet2),
+              amount: 100000,
+              type: TransactionType.transfer,
+              note: const Value('Withdraw'),
+              date: DateTime(2026, 3, 10),
+            ),
+          );
+
+      // 3. Verify.
+      final results = await repository.getAllTransactionsWithDetails();
+
+      expect(results.length, 1);
+      expect(results.first.categoryName, isNull);
+      expect(results.first.walletName, 'Bank BCA');
+      expect(results.first.toWalletName, 'Cash');
+      expect(results.first.transaction.type, TransactionType.transfer);
+    });
+
+    test('returns empty list when no transactions exist', () async {
+      final results = await repository.getAllTransactionsWithDetails();
+      expect(results, isEmpty);
     });
   });
 }
