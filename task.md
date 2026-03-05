@@ -32,5 +32,5 @@
 
 ## Phase 5: Ship
 
-- [ ] Git commit with conventional format.
-- [ ] Finalize `task.md`.
+- [x] Git commit with conventional format.
+- [x] Finalize `task.md`.
