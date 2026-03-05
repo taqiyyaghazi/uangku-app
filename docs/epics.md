@@ -105,6 +105,19 @@ This document decomposes the requirements for **Uangku** into logical phases of 
 
 ---
 
+## Epic 8: Cloud Synchronization
+
+**Goal:** Provide secure data backup and enable cross-device synchronization through Google account integration.
+**Success Criteria:** User can authenticate with Google, local data is mirrored to Firestore in real-time, and data is successfully restored on new devices.
+
+### Stories in Epic 8:
+
+- **Story 8.1: Secure Login with Google (Firebase Auth)** (3 pts)
+- **Story 8.2: Database Mapping to Firestore (Cloud Sync)** (8 pts)
+- **Story 8.3: Instant Sync & Recovery (Data Restoration)** (5 pts)
+
+---
+
 ## Implementation Sequence
 
 1.  **Epic 1** (Foundation & UI Shell)
@@ -114,7 +127,8 @@ This document decomposes the requirements for **Uangku** into logical phases of 
 5.  **Epic 5** (Financial Insights)
 6.  **Epic 6** (Identity & Polish)
 7.  **Epic 7** (Data Integrity & Portability)
+8.  **Epic 8** (Cloud Synchronization)
 
-**Total Story Points:** 60 Points
-**Total Stories:** 23 Stories
-**Estimated Timeline:** 5-7 Sprints (approx. 1.5-2 months)
+**Total Story Points:** 76 Points
+**Total Stories:** 26 Stories
+**Estimated Timeline:** 6-8 Sprints (approx. 2-2.5 months)
