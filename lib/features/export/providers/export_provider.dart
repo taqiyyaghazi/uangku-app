@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:uangku/core/di/providers.dart';
+import 'package:uangku/core/services/monitoring_service.dart';
 import 'package:uangku/features/export/logic/csv_export_service.dart';
 
 /// State for the CSV export operation.
@@ -28,8 +29,11 @@ class ExportNotifier extends Notifier<ExportState> {
     developer.log('START: $operation', name: 'ExportNotifier');
 
     state = ExportState.loading;
+    final monitoring = ref.read(monitoringServiceProvider);
 
     try {
+      await monitoring.logEvent(name: 'export_csv_start');
+
       // 1. Fetch data.
       final repo = ref.read(transactionRepositoryProvider);
       final transactions = await repo.getAllTransactionsWithDetails();
@@ -72,6 +76,14 @@ class ExportNotifier extends Notifier<ExportState> {
         },
       );
 
+      await monitoring.logEvent(
+        name: 'export_csv_success',
+        parameters: {
+          'transaction_count': transactions.length,
+          'duration_ms': durationMs,
+        },
+      );
+
       state = ExportState.success;
       return true;
     } catch (e, st) {
@@ -81,6 +93,13 @@ class ExportNotifier extends Notifier<ExportState> {
         error: e,
         stackTrace: st,
       );
+
+      await monitoring.recordError(
+        e,
+        st,
+        reason: 'Failed to export transactions to CSV',
+      );
+
       state = ExportState.error;
       return false;
     }

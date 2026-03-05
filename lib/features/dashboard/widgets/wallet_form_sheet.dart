@@ -156,10 +156,7 @@ class _WalletFormSheetState extends State<WalletFormSheet> {
                     decimal: true,
                   ),
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(
-                      // ignore: deprecated_member_use
-                      RegExp(r'^\d*\.?\d{0,2}'),
-                    ),
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
                   ],
                   validator: (value) {
                     if (value != null && value.isNotEmpty) {

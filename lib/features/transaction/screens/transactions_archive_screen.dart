@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uangku/core/di/providers.dart';
+import 'package:uangku/core/services/monitoring_service.dart';
 import 'package:uangku/features/transaction/logic/transaction_grouping_logic.dart';
 import 'package:uangku/features/dashboard/widgets/transaction_item.dart';
 import 'package:uangku/features/transaction/screens/multi_sliver_widget.dart';
@@ -73,6 +74,13 @@ class _TransactionsArchiveScreenState
                                           selectedWalletFilterProvider.notifier,
                                         )
                                         .setFilter(null);
+
+                                    ref
+                                        .read(monitoringServiceProvider)
+                                        .logEvent(
+                                          name: 'filter_wallet_changed',
+                                          parameters: {'is_all_wallets': true},
+                                        );
                                   }
                                 },
                               ),
@@ -84,11 +92,25 @@ class _TransactionsArchiveScreenState
                                   label: Text(wallet.name),
                                   selected: selectedWalletId == wallet.id,
                                   onSelected: (selected) {
+                                    final walletId = selected
+                                        ? wallet.id
+                                        : null;
                                     ref
                                         .read(
                                           selectedWalletFilterProvider.notifier,
                                         )
-                                        .setFilter(selected ? wallet.id : null);
+                                        .setFilter(walletId);
+
+                                    ref
+                                        .read(monitoringServiceProvider)
+                                        .logEvent(
+                                          name: 'filter_wallet_changed',
+                                          parameters: {
+                                            'is_all_wallets': !selected,
+                                            'wallet_id':
+                                                walletId?.toString() ?? 'none',
+                                          },
+                                        );
                                   },
                                 ),
                               );

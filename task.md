@@ -1,27 +1,36 @@
-# Task: Upgrade Project Packages
+# Epic 7.4: Stability & Usage Monitoring (Firebase SDK)
 
-## Phase 1: Assess - [DONE]
+## Phase 1: Research
 
-- [x] Run `fvm flutter pub outdated` to identify upgradeable packages.
+- [x] Analyze request and project context.
+- [x] Search for Firebase (Crashlytics/Analytics) integration patterns in Flutter.
+- [x] Document findings in `docs/research_logs/7.4-stability-and-usage-monitoring.md`.
+- [x] Define implementation plan in `task.md`.
 
-Outdated Packages Updated:
-| Package Name | Current | New | Risk |
-|--------------|---------|--------|------|
-| build_runner | 2.11.1 | 2.12.1 | Low (Minor) |
-| flutter_launcher_icons | 0.13.1 | 0.14.4 | Low (Feature Update) |
+## Phase 2: Implement
 
-## Phase 2: Upgrade - [DONE]
+- [x] Add dependencies to `pubspec.yaml` (firebase_core, firebase_analytics, firebase_crashlytics).
+- [x] Configure Android platform settings (build.gradle.kts).
+- [x] Configure iOS platform settings (Native Plist found).
+- [x] Implement Firebase initialization in `main.dart`.
+- [x] Implement global error handling for Crashlytics in `main.dart`.
+- [x] Create `MonitoringService` (renamed from AnalyticsService) for custom event tracking and crash reporting.
+- [x] Integrate screen tracking with NavigatorObserver.
+- [x] Instrument Epic 7 features (Export, Filter, Edit) with custom events using `MonitoringService`.
 
-- [x] Run `fvm flutter pub upgrade` for minor/patch updates.
-- [x] Run `fvm flutter pub upgrade --major-versions` for `flutter_launcher_icons`.
+## Phase 3: Integrate
 
-## Phase 3: Resolve & Verify - [DONE]
+- [x] Verify Firebase connection (using mocks in unit tests).
+- [x] Test `MonitoringService` with unit tests (mocking FirebaseAnalytics/FirebaseCrashlytics).
+- [x] Test Crashlytics error reporting in `ExportNotifier` and `TransactionDetailSheet` (using mocks).
 
-- [x] Run `fvm flutter pub run build_runner build --delete-conflicting-outputs`.
-- [x] Run `fvm flutter analyze` (No issues found).
-- [x] Run `fvm flutter test` (204 tests passed).
+## Phase 4: Verify
 
-## Phase 4: Commit - [IN PROGRESS]
+- [x] Run `fvm flutter analyze` (Clean analysis except for false-positive RegExp deprecation).
+- [x] Run all unit tests with `fvm flutter test` (210/210 passed).
+- [x] Update documentation (ADR 0001 created, User Story 7.4 updated).
 
-- [ ] Stage changes.
-- [ ] Commit with `build(deps): bump dependencies`.
+## Phase 5: Ship
+
+- [ ] Git commit with conventional format.
+- [ ] Finalize `task.md`.

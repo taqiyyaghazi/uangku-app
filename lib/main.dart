@@ -1,13 +1,30 @@
+import 'dart:ui';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:uangku/core/constants/app_constants.dart';
+import 'package:uangku/core/services/monitoring_service.dart';
 import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/features/main_shell.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase (Assuming native configuration is already present).
+  await Firebase.initializeApp();
+
+  // Pass all uncaught errors to Crashlytics.
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+
+  // Pass all asynchronous errors that aren't caught by the Flutter framework to Crashlytics.
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true;
+  };
+
   runApp(const ProviderScope(child: UangkuApp()));
 }
 
@@ -15,11 +32,11 @@ void main() {
 ///
 /// Wraps the app in [ProviderScope] (done in [main]) so that
 /// all Riverpod providers are available throughout the tree.
-class UangkuApp extends StatelessWidget {
+class UangkuApp extends ConsumerWidget {
   const UangkuApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // Inject Google Fonts at the composition root.
     final interTextTheme = GoogleFonts.interTextTheme();
     final interDarkTextTheme = GoogleFonts.interTextTheme(
@@ -49,6 +66,7 @@ class UangkuApp extends StatelessWidget {
       ),
       themeMode: ThemeMode.system,
       home: const MainShell(),
+      navigatorObservers: [ref.watch(monitoringServiceProvider).observer],
     );
   }
 }

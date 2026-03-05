@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:uangku/core/di/providers.dart';
+import 'package:uangku/core/services/monitoring_service.dart';
 import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
@@ -617,6 +618,16 @@ class _TransactionDetailSheetState
       final repo = ref.read(transactionRepositoryProvider);
       await repo.deleteTransactionAtomic(widget.transaction.transaction);
 
+      await ref
+          .read(monitoringServiceProvider)
+          .logEvent(
+            name: 'transaction_deleted',
+            parameters: {
+              'type': widget.transaction.transaction.type.name,
+              'category': widget.transaction.category?.name ?? 'Transfer',
+            },
+          );
+
       if (mounted) Navigator.of(context).pop();
     } catch (e, st) {
       developer.log(
@@ -625,6 +636,11 @@ class _TransactionDetailSheetState
         error: e,
         stackTrace: st,
       );
+
+      await ref
+          .read(monitoringServiceProvider)
+          .recordError(e, st, reason: 'Failed to delete transaction');
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -645,6 +661,7 @@ class _TransactionDetailSheetState
 
     try {
       final repo = ref.read(transactionRepositoryProvider);
+      final monitoring = ref.read(monitoringServiceProvider);
 
       final balanceDelta = TransactionBalanceLogic.updateDelta(
         old: widget.transaction.transaction,
@@ -667,6 +684,18 @@ class _TransactionDetailSheetState
         balanceDelta: balanceDelta,
       );
 
+      // Log analytics.
+      final dateChanged = _selectedDate != widget.transaction.transaction.date;
+      await monitoring.logEvent(
+        name: 'transaction_updated',
+        parameters: {
+          'type': _type.name,
+          'date_changed': dateChanged,
+          'amount_changed': _amount != widget.transaction.transaction.amount,
+          'note_length': _noteController.text.length,
+        },
+      );
+
       if (mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -683,6 +712,11 @@ class _TransactionDetailSheetState
         error: e,
         stackTrace: st,
       );
+
+      await ref
+          .read(monitoringServiceProvider)
+          .recordError(e, st, reason: 'Failed to save transaction edit');
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

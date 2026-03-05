@@ -164,7 +164,7 @@ class _BudgetSettingModalState extends ConsumerState<BudgetSettingModal> {
                   fillColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
                 ),
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*')),
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
                 ],
                 validator: (val) {
                   if (val == null || val.isEmpty) {
