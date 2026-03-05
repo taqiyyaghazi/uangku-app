@@ -252,4 +252,119 @@ void main() {
       expect(results.every((r) => r.totalAmount == 0.0), isTrue);
     });
   });
+
+  group('DriftTransactionRepository.watchAllTransactions', () {
+    test('filters transactions by walletId or toWalletId', () async {
+      // 1. Setup Data: Wallets & Category
+      final wallet1 = await db
+          .into(db.wallets)
+          .insert(
+            WalletsCompanion.insert(
+              name: 'Wallet 1',
+              balance: const Value(1000.0),
+              type: WalletType.cash,
+            ),
+          );
+
+      final wallet2 = await db
+          .into(db.wallets)
+          .insert(
+            WalletsCompanion.insert(
+              name: 'Wallet 2',
+              balance: const Value(1000.0),
+              type: WalletType.bank,
+            ),
+          );
+
+      final wallet3 = await db
+          .into(db.wallets)
+          .insert(
+            WalletsCompanion.insert(
+              name: 'Wallet 3',
+              balance: const Value(1000.0),
+              type: WalletType.bank,
+            ),
+          );
+
+      final catId = await db
+          .into(db.categories)
+          .insert(
+            CategoriesCompanion.insert(
+              name: 'Food',
+              iconCode: '🍔',
+              type: TransactionType.expense,
+            ),
+          );
+
+      // 2. Insert Transactions
+      // tx1: Expense on Wallet 1
+      await db
+          .into(db.transactions)
+          .insert(
+            TransactionsCompanion.insert(
+              walletId: wallet1,
+              amount: 50.0,
+              type: TransactionType.expense,
+              categoryId: Value(catId),
+              date: DateTime(2025, 3, 5),
+            ),
+          );
+
+      // tx2: Transfer from Wallet 1 to Wallet 2
+      await db
+          .into(db.transactions)
+          .insert(
+            TransactionsCompanion.insert(
+              walletId: wallet1,
+              toWalletId: Value(wallet2),
+              amount: 100.0,
+              type: TransactionType.transfer,
+              date: DateTime(2025, 3, 6),
+            ),
+          );
+
+      // tx3: Income on Wallet 3
+      await db
+          .into(db.transactions)
+          .insert(
+            TransactionsCompanion.insert(
+              walletId: wallet3,
+              amount: 500.0,
+              type: TransactionType.income,
+              categoryId: Value(catId),
+              date: DateTime(2025, 3, 7),
+            ),
+          );
+
+      // 3. Verify No Filter (All Transactions)
+      final allTx = await repository.watchAllTransactions().first;
+      expect(allTx.length, 3);
+
+      // 4. Verify Wallet 1 Filter
+      // Should include tx1 (wallet1) and tx2 (wallet1 -> wallet2)
+      final wallet1Tx = await repository
+          .watchAllTransactions(walletId: wallet1)
+          .first;
+      expect(wallet1Tx.length, 2);
+      expect(wallet1Tx.any((t) => t.transaction.amount == 50.0), isTrue);
+      expect(wallet1Tx.any((t) => t.transaction.amount == 100.0), isTrue);
+
+      // 5. Verify Wallet 2 Filter
+      // Should include tx2 (wallet1 -> wallet2)
+      final wallet2Tx = await repository
+          .watchAllTransactions(walletId: wallet2)
+          .first;
+      expect(wallet2Tx.length, 1);
+      expect(wallet2Tx.first.transaction.amount, 100.0);
+      expect(wallet2Tx.first.transaction.type, TransactionType.transfer);
+
+      // 6. Verify Wallet 3 Filter
+      // Should include tx3 (wallet3)
+      final wallet3Tx = await repository
+          .watchAllTransactions(walletId: wallet3)
+          .first;
+      expect(wallet3Tx.length, 1);
+      expect(wallet3Tx.first.transaction.amount, 500.0);
+    });
+  });
 }

@@ -34,8 +34,12 @@ class TransactionItem extends StatelessWidget {
     final theme = Theme.of(context);
     final tx = transaction.transaction;
     final cat = transaction.category;
+
+    final String iconCode = cat?.iconCode ?? 'swap_horiz';
+    final String catName = cat?.name ?? 'Transfer';
+
     final categoryInfo = CategoryIconMapper.get(
-      cat.iconCode.isNotEmpty ? cat.iconCode : cat.name,
+      iconCode.isNotEmpty ? iconCode : catName,
     );
     final isIncome = tx.type == TransactionType.income;
 
@@ -57,7 +61,7 @@ class TransactionItem extends StatelessWidget {
         child: Icon(categoryInfo.icon, color: categoryInfo.color, size: 20),
       ),
       title: Text(
-        cat.name,
+        catName,
         style: theme.textTheme.bodyMedium?.copyWith(
           fontWeight: FontWeight.w600,
         ),

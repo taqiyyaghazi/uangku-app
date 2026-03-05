@@ -25,6 +25,7 @@ class _TransactionsArchiveScreenState
     // 1. Watch all transactions (descending order)
     final transactionsAsync = ref.watch(allTransactionsProvider);
     final walletsAsync = ref.watch(walletsProvider);
+    final selectedWalletId = ref.watch(selectedWalletFilterProvider);
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -35,20 +36,71 @@ class _TransactionsArchiveScreenState
             pinned: true,
             title: const Text('All Transactions'),
             bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(60),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                child: CupertinoSearchTextField(
-                  placeholder: 'Search notes or categories...',
-                  onChanged: (value) {
-                    setState(() {
-                      _searchQuery = value;
-                    });
-                  },
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.05),
-                ),
+              preferredSize: const Size.fromHeight(110),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: CupertinoSearchTextField(
+                      placeholder: 'Search notes or categories...',
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value;
+                        });
+                      },
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.05),
+                    ),
+                  ),
+                  walletsAsync.when(
+                    data: (wallets) {
+                      return SizedBox(
+                        height: 40,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: ChoiceChip(
+                                label: const Text('All Wallets'),
+                                selected: selectedWalletId == null,
+                                onSelected: (selected) {
+                                  if (selected) {
+                                    ref
+                                        .read(
+                                          selectedWalletFilterProvider.notifier,
+                                        )
+                                        .setFilter(null);
+                                  }
+                                },
+                              ),
+                            ),
+                            ...wallets.map((wallet) {
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: ChoiceChip(
+                                  label: Text(wallet.name),
+                                  selected: selectedWalletId == wallet.id,
+                                  onSelected: (selected) {
+                                    ref
+                                        .read(
+                                          selectedWalletFilterProvider.notifier,
+                                        )
+                                        .setFilter(selected ? wallet.id : null);
+                                  },
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                      );
+                    },
+                    loading: () => const SizedBox(height: 40),
+                    error: (error, stack) => const SizedBox(height: 40),
+                  ),
+                ],
               ),
             ),
           ),
@@ -57,6 +109,13 @@ class _TransactionsArchiveScreenState
           transactionsAsync.when(
             data: (transactions) {
               if (transactions.isEmpty) {
+                if (selectedWalletId != null) {
+                  return const SliverFillRemaining(
+                    child: Center(
+                      child: Text('Belum ada transaksi di wallet ini.'),
+                    ),
+                  );
+                }
                 return const SliverFillRemaining(
                   child: Center(
                     child: Text('Riwayat kosong. Mulai mencatat hari ini!'),
@@ -121,20 +180,24 @@ class _TransactionsArchiveScreenState
                               final walletName = getWalletName(
                                 transaction.transaction.walletId,
                               );
-                              return TransactionItem(
-                                transaction: transaction,
-                                walletName: walletName,
-                                onTap: () {
-                                  showModalBottomSheet(
-                                    context: context,
-                                    isScrollControlled: true,
-                                    builder: (context) =>
-                                        TransactionDetailSheet(
-                                          transaction: transaction,
-                                          walletName: walletName,
-                                        ),
-                                  );
-                                },
+                              return AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 300),
+                                child: TransactionItem(
+                                  key: ValueKey(transaction.transaction.id),
+                                  transaction: transaction,
+                                  walletName: walletName,
+                                  onTap: () {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      isScrollControlled: true,
+                                      builder: (context) =>
+                                          TransactionDetailSheet(
+                                            transaction: transaction,
+                                            walletName: walletName,
+                                          ),
+                                    );
+                                  },
+                                ),
                               );
                             }, childCount: monthTransactions.length),
                           ),

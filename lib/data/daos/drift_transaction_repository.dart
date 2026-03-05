@@ -412,7 +412,7 @@ class DriftTransactionRepository implements TransactionRepository {
   Stream<List<TransactionWithCategory>> watchRecentTransactions(int limit) {
     final query =
         _db.select(_db.transactions).join([
-            innerJoin(
+            leftOuterJoin(
               _db.categories,
               _db.categories.id.equalsExp(_db.transactions.categoryId),
             ),
@@ -424,26 +424,33 @@ class DriftTransactionRepository implements TransactionRepository {
       return rows.map((row) {
         return TransactionWithCategory(
           transaction: row.readTable(_db.transactions),
-          category: row.readTable(_db.categories),
+          category: row.readTableOrNull(_db.categories),
         );
       }).toList();
     });
   }
 
   @override
-  Stream<List<TransactionWithCategory>> watchAllTransactions() {
+  Stream<List<TransactionWithCategory>> watchAllTransactions({int? walletId}) {
     final query = _db.select(_db.transactions).join([
-      innerJoin(
+      leftOuterJoin(
         _db.categories,
         _db.categories.id.equalsExp(_db.transactions.categoryId),
       ),
     ])..orderBy([OrderingTerm.desc(_db.transactions.date)]);
 
+    if (walletId != null) {
+      query.where(
+        _db.transactions.walletId.equals(walletId) |
+            _db.transactions.toWalletId.equals(walletId),
+      );
+    }
+
     return query.watch().map((rows) {
       return rows.map((row) {
         return TransactionWithCategory(
           transaction: row.readTable(_db.transactions),
-          category: row.readTable(_db.categories),
+          category: row.readTableOrNull(_db.categories),
         );
       }).toList();
     });

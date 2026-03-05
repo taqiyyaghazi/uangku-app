@@ -24,8 +24,10 @@ class MockTransactionRepository implements TransactionRepository {
   Stream<List<DailySpending>> watchDailySpending(DateTime month) =>
       Stream.value([]);
   @override
-  Stream<List<TransactionWithCategory>> watchAllTransactions() =>
-      Stream.value([]);
+  Stream<List<TransactionWithCategory>> watchAllTransactions({int? walletId}) {
+    return Stream.value([]);
+  }
+
   @override
   Stream<List<TransactionWithCategory>> watchRecentTransactions(int limit) =>
       Stream.value([]);

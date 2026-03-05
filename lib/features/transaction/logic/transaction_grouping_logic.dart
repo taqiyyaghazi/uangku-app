@@ -41,7 +41,8 @@ class TransactionGroupingLogic {
     final query = searchQuery.toLowerCase().trim();
     return transactions.where((t) {
       final noteMatch = t.transaction.note.toLowerCase().contains(query);
-      final categoryMatch = t.category.name.toLowerCase().contains(query);
+      final catName = t.category?.name ?? 'Transfer';
+      final categoryMatch = catName.toLowerCase().contains(query);
       return noteMatch || categoryMatch;
     }).toList();
   }

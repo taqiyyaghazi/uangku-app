@@ -119,11 +119,29 @@ final recentTransactionsProvider =
       return repo.watchRecentTransactions(10);
     });
 
+/// State provider to hold the currently selected wallet ID for filtering.
+/// null means "All Wallets".
+class SelectedWalletFilterNotifier extends Notifier<int?> {
+  @override
+  int? build() => null;
+
+  void setFilter(int? walletId) {
+    state = walletId;
+  }
+}
+
+final selectedWalletFilterProvider =
+    NotifierProvider<SelectedWalletFilterNotifier, int?>(
+      () => SelectedWalletFilterNotifier(),
+    );
+
 /// Provides a reactive stream of all transactions
 /// across all wallets, ordered by date descending.
+/// Respects the [selectedWalletFilterProvider] if set.
 final allTransactionsProvider = StreamProvider<List<TransactionWithCategory>>((
   ref,
 ) {
   final repo = ref.watch(transactionRepositoryProvider);
-  return repo.watchAllTransactions();
+  final selectedWalletId = ref.watch(selectedWalletFilterProvider);
+  return repo.watchAllTransactions(walletId: selectedWalletId);
 });

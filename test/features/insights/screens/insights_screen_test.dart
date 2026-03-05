@@ -28,8 +28,9 @@ class FakeTransactionRepository implements TransactionRepository {
       Stream.value(MonthlySummary.empty());
 
   @override
-  Stream<List<TransactionWithCategory>> watchAllTransactions() =>
-      Stream.value([]);
+  Stream<List<TransactionWithCategory>> watchAllTransactions({int? walletId}) {
+    return Stream.value([]);
+  }
 
   @override
   Stream<List<TransactionWithCategory>> watchRecentTransactions(int limit) =>

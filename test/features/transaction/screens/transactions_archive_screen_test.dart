@@ -51,8 +51,9 @@ class FakeTransactionRepository implements TransactionRepository {
   FakeTransactionRepository({required this.transactions});
 
   @override
-  Stream<List<TransactionWithCategory>> watchAllTransactions() =>
-      Stream.value(transactions);
+  Stream<List<TransactionWithCategory>> watchAllTransactions({int? walletId}) {
+    return Stream.value(transactions);
+  }
 
   @override
   Stream<List<TransactionWithCategory>> watchRecentTransactions(int limit) =>

@@ -140,8 +140,12 @@ class _TransactionDetailSheetState
     final theme = Theme.of(context);
     final tx = widget.transaction.transaction;
     final cat = widget.transaction.category;
+
+    final String iconCode = cat?.iconCode ?? 'swap_horiz';
+    final String catName = cat?.name ?? 'Transfer';
+
     final categoryInfo = CategoryIconMapper.get(
-      cat.iconCode.isNotEmpty ? cat.iconCode : cat.name,
+      iconCode.isNotEmpty ? iconCode : catName,
     );
     final isIncome = tx.type == TransactionType.income;
     final amountColor = isIncome
@@ -164,7 +168,7 @@ class _TransactionDetailSheetState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  cat.name,
+                  catName,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),

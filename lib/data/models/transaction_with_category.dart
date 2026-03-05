@@ -3,14 +3,12 @@ import 'package:uangku/data/database.dart';
 /// A composite model that holds a Transaction and its associated Category.
 ///
 /// This is used by the UI so it doesn't have to perform table joins.
+/// For transfers, [category] will be null.
 class TransactionWithCategory {
   final Transaction transaction;
-  final Category category;
+  final Category? category;
 
-  const TransactionWithCategory({
-    required this.transaction,
-    required this.category,
-  });
+  const TransactionWithCategory({required this.transaction, this.category});
 
   @override
   bool operator ==(Object other) {

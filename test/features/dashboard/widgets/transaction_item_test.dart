@@ -6,8 +6,10 @@ import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/features/dashboard/widgets/transaction_item.dart';
 
+import 'package:intl/intl.dart';
+
 void main() {
-  final now = DateTime(2026, 3, 3, 14, 30);
+  final now = DateTime.now();
 
   TransactionWithCategory makeTransaction({
     int id = 1,
@@ -65,8 +67,9 @@ void main() {
 
     testWidgets('displays relative time in subtitle', (tester) async {
       await tester.pumpWidget(buildTestWidget(makeTransaction()));
-      // "Today, 14:30" or similar should appear in subtitle.
-      expect(find.textContaining('14:30'), findsOneWidget);
+      // "Today, HH:mm" or similar should appear in subtitle.
+      final expectedTime = DateFormat('HH:mm').format(now);
+      expect(find.textContaining(expectedTime), findsOneWidget);
     });
 
     testWidgets('displays formatted expense amount with minus prefix', (
