@@ -44,7 +44,7 @@ dev_dependencies:
   mockito: ^5.4.6
 
   # Icons
-  flutter_launcher_icons: ^0.13.1
+  flutter_launcher_icons: ^0.14.4
 
 flutter_launcher_icons:
   android: 'launcher_icon'
