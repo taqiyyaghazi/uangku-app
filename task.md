@@ -13,3 +13,9 @@ Address the findings from the code audit performed on the Insights feature (docs
 
 - [x] Update Bundle ID and App Name using `rename` package.
 - [x] Configure and generate launcher icons using `flutter_launcher_icons`.
+
+## CI/CD
+
+- [x] Setup GitHub Actions for Firebase App Distribution release.
+- [x] Create CI/CD setup documentation (`docs/ci-cd-setup-guide.md`).
+- [x] Integrate Firebase configuration (`google-services.json`, `GoogleService-Info.plist`).
