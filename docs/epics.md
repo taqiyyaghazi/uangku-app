@@ -91,6 +91,20 @@ This document decomposes the requirements for **Uangku** into logical phases of 
 
 ---
 
+## Epic 7: Data Integrity & Portability
+
+**Goal:** Ensure users have accurate, flexible, and exportable financial data, alongside application stability monitoring.
+**Success Criteria:** Users can backdate transactions, filter history by wallet, export data to CSV, and the app monitors crashes and feature usage via Firebase.
+
+### Stories in Epic 7:
+
+- **Story 7.1: Edit Transaction Date (Backdating Adjustment)** (2 pts)
+- **Story 7.2: Wallet-Based History Filter** (3 pts)
+- **Story 7.3: Export Transactions to CSV** (5 pts)
+- **Story 7.4: Stability & Usage Monitoring (Firebase SDK)** (3 pts)
+
+---
+
 ## Implementation Sequence
 
 1.  **Epic 1** (Foundation & UI Shell)
@@ -99,7 +113,8 @@ This document decomposes the requirements for **Uangku** into logical phases of 
 4.  **Epic 4** (Advanced Transaction Features)
 5.  **Epic 5** (Financial Insights)
 6.  **Epic 6** (Identity & Polish)
+7.  **Epic 7** (Data Integrity & Portability)
 
-**Total Story Points:** 47 Points
-**Total Stories:** 19 Stories
-**Estimated Timeline:** 4-6 Sprints (approx. 1-1.5 months)
+**Total Story Points:** 60 Points
+**Total Stories:** 23 Stories
+**Estimated Timeline:** 5-7 Sprints (approx. 1.5-2 months)
