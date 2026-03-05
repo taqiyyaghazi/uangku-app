@@ -3,7 +3,7 @@ name: Deploy Signed APK to Firebase
 on:
   push:
     branches:
-      - main  # Trigger otomatis saat push ke branch main
+      - main # Trigger otomatis saat push ke branch main
 
 jobs:
   build_and_deploy:
@@ -45,10 +45,8 @@ jobs:
 
       # Langkah 4: Get Last Commit Message
       - name: Get Last Commit Message
-        id: commit_msg
         run: |
-          msg=$(git log -1 --pretty=format:"%s")
-          echo "message=$msg" >> $GITHUB_OUTPUT
+          git log -1 --pretty=format:"%s" > release-notes.txt
 
       # Langkah 5: Kirim ke Firebase App Distribution
       - name: Upload to Firebase
@@ -58,6 +56,6 @@ jobs:
             appdistribution:distribute build/app/outputs/flutter-apk/app-release.apk 
             --app ${{ secrets.APP_ID }} 
             --groups "testers" 
-            --release-notes "${{ steps.commit_msg.outputs.message }}"
+            --release-notes-file release-notes.txt
         env:
           GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_CREDENTIALS }}
