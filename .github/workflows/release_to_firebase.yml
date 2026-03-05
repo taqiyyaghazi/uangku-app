@@ -43,10 +43,21 @@ jobs:
       - name: Build Signed APK
         run: flutter build apk --release --obfuscate --split-debug-info=build/app/outputs/symbols
 
-      # Langkah 4: Kirim ke Firebase App Distribution
+      # Langkah 4: Get Last Commit Message
+      - name: Get Last Commit Message
+        id: commit_msg
+        run: |
+          msg=$(git log -1 --pretty=format:"%s")
+          echo "message=$msg" >> $GITHUB_OUTPUT
+
+      # Langkah 5: Kirim ke Firebase App Distribution
       - name: Upload to Firebase
         uses: w9jds/firebase-action@master
         with:
-          args: appdistribution:distribute build/app/outputs/flutter-apk/app-release.apk --app ${{ secrets.APP_ID }} --groups "testers"
+          args: >
+            appdistribution:distribute build/app/outputs/flutter-apk/app-release.apk 
+            --app ${{ secrets.APP_ID }} 
+            --groups "testers" 
+            --release-notes "${{ steps.commit_msg.outputs.message }}"
         env:
           GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_CREDENTIALS }}
