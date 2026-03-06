@@ -2,20 +2,37 @@ import 'package:drift/drift.dart';
 import 'package:uangku/data/database.dart';
 import 'package:uangku/features/sync/services/sync_service.dart';
 import 'package:uangku/features/sync/utils/firestore_mapper.dart';
-import 'dart:developer' as developer;
+import 'package:uangku/core/services/monitoring_service.dart';
 
-/// Coordinates fetching data from the local Drift database
-/// and pushing the mapped JSON to the [SyncService].
-class SyncRepository {
+/// Abstract contract for synchronization capabilities.
+///
+/// This allows data repositories to trigger sync operations without
+/// depending on specific implementations (like Firestore).
+abstract class SyncRepository {
+  Future<void> syncTransaction(int transactionId);
+  Future<void> deleteTransaction(int transactionId);
+  Future<void> syncCategory(int categoryId);
+  Future<void> deleteCategory(int categoryId);
+  Future<void> syncWallet(int walletId);
+  Future<void> deleteWallet(int walletId);
+  Future<void> syncFromCloud();
+}
+
+/// Firestore-backed implementation of [SyncRepository].
+class FirestoreSyncRepository implements SyncRepository {
   final AppDatabase _db;
   final SyncService _sync;
+  final MonitoringService _monitoring;
   final String? Function() _getUserId;
 
-  SyncRepository(this._db, this._sync, this._getUserId);
+  FirestoreSyncRepository(
+    this._db,
+    this._sync,
+    this._monitoring,
+    this._getUserId,
+  );
 
-  // --- Transactions ---
-
-  /// Reads a transaction from the local DB and upserts it to Firestore.
+  @override
   Future<void> syncTransaction(int transactionId) async {
     final uid = _getUserId();
     if (uid == null) return;
@@ -33,26 +50,30 @@ class SyncRepository {
         );
       }
     } catch (e, st) {
-      developer.log(
-        'Failed to sync transaction $transactionId',
-        name: 'SyncRepository',
-        error: e,
-        stackTrace: st,
-      );
+      _monitoring.logError('Failed to sync transaction $transactionId', e, st, {
+        'transactionId': transactionId,
+      });
     }
   }
 
-  /// Removes a transaction from Firestore.
+  @override
   Future<void> deleteTransaction(int transactionId) async {
     final uid = _getUserId();
     if (uid == null) return;
 
-    await _sync.deleteTransaction(uid, transactionId.toString());
+    try {
+      await _sync.deleteTransaction(uid, transactionId.toString());
+    } catch (e, st) {
+      _monitoring.logError(
+        'Failed to delete transaction $transactionId',
+        e,
+        st,
+        {'transactionId': transactionId},
+      );
+    }
   }
 
-  // --- Categories ---
-
-  /// Reads a category from the local DB and upserts it to Firestore.
+  @override
   Future<void> syncCategory(int categoryId) async {
     final uid = _getUserId();
     if (uid == null) return;
@@ -70,26 +91,27 @@ class SyncRepository {
         );
       }
     } catch (e, st) {
-      developer.log(
-        'Failed to sync category $categoryId',
-        name: 'SyncRepository',
-        error: e,
-        stackTrace: st,
-      );
+      _monitoring.logError('Failed to sync category $categoryId', e, st, {
+        'categoryId': categoryId,
+      });
     }
   }
 
-  /// Removes a category from Firestore.
+  @override
   Future<void> deleteCategory(int categoryId) async {
     final uid = _getUserId();
     if (uid == null) return;
 
-    await _sync.deleteCategory(uid, categoryId.toString());
+    try {
+      await _sync.deleteCategory(uid, categoryId.toString());
+    } catch (e, st) {
+      _monitoring.logError('Failed to delete category $categoryId', e, st, {
+        'categoryId': categoryId,
+      });
+    }
   }
 
-  // --- Wallets ---
-
-  /// Reads a wallet from the local DB and upserts it to Firestore.
+  @override
   Future<void> syncWallet(int walletId) async {
     final uid = _getUserId();
     if (uid == null) return;
@@ -107,27 +129,27 @@ class SyncRepository {
         );
       }
     } catch (e, st) {
-      developer.log(
-        'Failed to sync wallet $walletId',
-        name: 'SyncRepository',
-        error: e,
-        stackTrace: st,
-      );
+      _monitoring.logError('Failed to sync wallet $walletId', e, st, {
+        'walletId': walletId,
+      });
     }
   }
 
-  /// Removes a wallet from Firestore.
+  @override
   Future<void> deleteWallet(int walletId) async {
     final uid = _getUserId();
     if (uid == null) return;
 
-    await _sync.deleteWallet(uid, walletId.toString());
+    try {
+      await _sync.deleteWallet(uid, walletId.toString());
+    } catch (e, st) {
+      _monitoring.logError('Failed to delete wallet $walletId', e, st, {
+        'walletId': walletId,
+      });
+    }
   }
 
-  // --- Restoration Logic ---
-
-  /// Fetches everything from Firestore and populates the local DB.
-  /// Uses sequential batch inserts to satisfy Foreign Key constraints.
+  @override
   Future<void> syncFromCloud() async {
     final uid = _getUserId();
     if (uid == null) return;
@@ -173,17 +195,13 @@ class SyncRepository {
         );
       });
 
-      developer.log(
-        'Successfully restored ${transactions.length} transactions from cloud.',
-        name: 'SyncRepository',
-      );
+      _monitoring.logInfo('Successfully restored data from cloud', {
+        'transactions': transactions.length,
+        'categories': categories.length,
+        'wallets': wallets.length,
+      });
     } catch (e, st) {
-      developer.log(
-        'Critical failure during cloud restoration',
-        name: 'SyncRepository',
-        error: e,
-        stackTrace: st,
-      );
+      _monitoring.logError('Critical failure during cloud restoration', e, st);
       rethrow;
     }
   }

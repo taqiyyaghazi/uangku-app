@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/features/auth/state/auth_provider.dart';
 import 'package:uangku/features/sync/state/sync_status_provider.dart';
@@ -37,13 +36,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         // Reset sync status to allow restoration for the new user.
         ref.read(syncStatusProvider.notifier).fullReset();
       }
-    } catch (e, stack) {
-      debugPrint('LoginScreen SIGN-IN ERROR: $e');
-      debugPrint('Stacktrace: $stack');
+    } catch (e) {
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _errorMessage = 'Sign-in failed. Please try again. ($e)';
+          _errorMessage = 'Sign-in failed. Please try again.';
         });
       }
     }

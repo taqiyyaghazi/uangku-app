@@ -1,6 +1,6 @@
-import 'dart:developer' as developer;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uangku/core/di/providers.dart';
+import 'package:uangku/core/services/monitoring_service.dart';
 import 'package:uangku/features/auth/state/auth_provider.dart';
 
 enum SyncStatus { idle, syncing, completed, error }
@@ -47,8 +47,15 @@ class SyncStatusState {
 }
 
 class SyncStatusNotifier extends Notifier<SyncStatusState> {
+  MonitoringService get _monitoring => ref.read(monitoringServiceProvider);
+
   @override
-  SyncStatusState build() => SyncStatusState.idle();
+  SyncStatusState build() {
+    // Proactively check if restoration is needed when this provider is first watched.
+    // This makes the sync trigger more declarative.
+    Future.microtask(() => restoreDataIfNeeded());
+    return SyncStatusState.idle();
+  }
 
   Future<void> restoreDataIfNeeded() async {
     // 1. If we are already syncing or have attempted restoration in this session, do nothing.
@@ -69,27 +76,32 @@ class SyncStatusNotifier extends Notifier<SyncStatusState> {
 
       if (wallets.isNotEmpty) {
         // Data already exists, mark as attempted to prevent redundant checks.
+        _monitoring.logInfo(
+          'Data already exists locally, skipping cloud restoration',
+        );
         state = state.copyWith(hasAttemptedRestoration: true);
         return;
       }
-    } catch (e) {
-      developer.log(
-        'Database check failed',
-        name: 'SyncStatusNotifier',
-        error: e,
+    } catch (e, st) {
+      _monitoring.logError(
+        'Database check failed during restoration check',
+        e,
+        st,
       );
       return;
     }
 
     // 4. Start Sync
+    _monitoring.logInfo('Starting cloud data restoration...');
     state = SyncStatusState.syncing('Restoring your data from cloud...');
 
     try {
       final repository = ref.read(syncRepositoryProvider);
       await repository.syncFromCloud();
+      _monitoring.logInfo('Cloud restoration completed successfully');
       state = SyncStatusState.completed();
-    } catch (e) {
-      developer.log('Restoration failed', name: 'SyncStatusNotifier', error: e);
+    } catch (e, st) {
+      _monitoring.logError('Restoration failed', e, st);
       state = SyncStatusState.error(
         'Failed to restore data. Please check your connection.',
       );

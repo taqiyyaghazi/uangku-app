@@ -1,11 +1,11 @@
 import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:uangku/core/config/app_config.dart';
+import 'package:uangku/core/services/monitoring_service.dart';
 import 'package:uangku/features/auth/models/user_profile.dart';
 import 'package:uangku/features/auth/repository/auth_repository.dart';
-import 'package:uangku/core/services/monitoring_service.dart';
 
 class FirebaseAuthRepositoryImpl implements AuthRepository {
   final FirebaseAuth _firebaseAuth;
@@ -68,7 +68,6 @@ class FirebaseAuthRepositoryImpl implements AuthRepository {
       await _initCompleter.future;
 
       final googleUser = await _googleSignIn.authenticate();
-      debugPrint('Google User: ${googleUser.email}');
 
       final GoogleSignInAuthentication googleAuth = googleUser.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(
@@ -107,7 +106,6 @@ class FirebaseAuthRepositoryImpl implements AuthRepository {
       );
       rethrow;
     } catch (e, stack) {
-      debugPrint('SIGN-IN ERROR in AuthRepository: $e');
       _monitoring.logError('SignIn failed', e, stack, {
         'operation': operation,
         'provider': 'google',

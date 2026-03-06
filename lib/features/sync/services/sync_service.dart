@@ -111,7 +111,7 @@ class SyncService {
       return snapshot.docs.map((doc) => doc.data()).toList();
     } catch (e, st) {
       _monitoring.logError('SyncService.fetchAllTransactions failure', e, st);
-      return [];
+      rethrow;
     }
   }
 
@@ -122,7 +122,7 @@ class SyncService {
       return snapshot.docs.map((doc) => doc.data()).toList();
     } catch (e, st) {
       _monitoring.logError('SyncService.fetchAllCategories failure', e, st);
-      return [];
+      rethrow;
     }
   }
 
@@ -133,7 +133,7 @@ class SyncService {
       return snapshot.docs.map((doc) => doc.data()).toList();
     } catch (e, st) {
       _monitoring.logError('SyncService.fetchAllWallets failure', e, st);
-      return [];
+      rethrow;
     }
   }
 }

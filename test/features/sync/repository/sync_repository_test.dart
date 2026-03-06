@@ -4,6 +4,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:uangku/core/services/monitoring_service.dart';
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/data/tables/wallets_table.dart';
@@ -12,18 +13,25 @@ import 'package:uangku/features/sync/services/sync_service.dart';
 
 import 'sync_repository_test.mocks.dart';
 
-@GenerateMocks([SyncService])
+@GenerateMocks([SyncService, MonitoringService])
 void main() {
   late AppDatabase db;
   late MockSyncService mockSync;
-  late SyncRepository syncRepository;
+  late MockMonitoringService mockMonitoring;
+  late FirestoreSyncRepository syncRepository;
   String? userId = 'user-123';
 
   setUp(() {
     userId = 'user-123';
     db = AppDatabase.forTesting(NativeDatabase.memory());
     mockSync = MockSyncService();
-    syncRepository = SyncRepository(db, mockSync, () => userId);
+    mockMonitoring = MockMonitoringService();
+    syncRepository = FirestoreSyncRepository(
+      db,
+      mockSync,
+      mockMonitoring,
+      () => userId,
+    );
   });
 
   tearDown(() async {

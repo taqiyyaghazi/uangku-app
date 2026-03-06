@@ -1,15 +1,15 @@
+import 'dart:developer' as developer;
+
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:intl/intl.dart';
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/features/transaction/widgets/numpad.dart';
 import 'package:uangku/shared/utils/currency_formatter.dart';
-import 'package:intl/intl.dart';
-import 'dart:developer' as developer;
 
 /// Bottom sheet for quick transaction entry.
 ///
@@ -593,7 +593,6 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
         stackTrace: st,
       );
       if (mounted) {
-        debugPrint('Failed to save: $e');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to save: $e'),

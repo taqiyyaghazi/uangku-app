@@ -49,9 +49,11 @@ final syncServiceProvider = Provider<SyncService>((ref) {
 final syncRepositoryProvider = Provider<SyncRepository>((ref) {
   final db = ref.watch(databaseProvider);
   final syncService = ref.watch(syncServiceProvider);
-  return SyncRepository(
+  final monitoring = ref.watch(monitoringServiceProvider);
+  return FirestoreSyncRepository(
     db,
     syncService,
+    monitoring,
     () => ref.read(authStateProvider).value?.id,
   );
 });
@@ -62,7 +64,8 @@ final syncRepositoryProvider = Provider<SyncRepository>((ref) {
 final walletRepositoryProvider = Provider<WalletRepository>((ref) {
   final db = ref.watch(databaseProvider);
   final syncRepo = ref.watch(syncRepositoryProvider);
-  return DriftWalletRepository(db, syncRepo);
+  final monitoring = ref.watch(monitoringServiceProvider);
+  return DriftWalletRepository(db, monitoring, syncRepo);
 });
 
 /// Provides a reactive stream of all wallets.
@@ -77,14 +80,16 @@ final walletsProvider = StreamProvider<List<Wallet>>((ref) {
 final transactionRepositoryProvider = Provider<TransactionRepository>((ref) {
   final db = ref.watch(databaseProvider);
   final syncRepo = ref.watch(syncRepositoryProvider);
-  return DriftTransactionRepository(db, syncRepo);
+  final monitoring = ref.watch(monitoringServiceProvider);
+  return DriftTransactionRepository(db, monitoring, syncRepo);
 });
 
 /// Provides the [CategoryRepository] backed by Drift + Sync.
 final categoryRepositoryProvider = Provider<CategoryRepository>((ref) {
   final db = ref.watch(databaseProvider);
   final syncRepo = ref.watch(syncRepositoryProvider);
-  return CategoryRepositoryImpl(db, syncRepo);
+  final monitoring = ref.watch(monitoringServiceProvider);
+  return CategoryRepositoryImpl(db, monitoring, syncRepo);
 });
 
 /// Provides a reactive stream of categories filtered by type.
@@ -100,7 +105,8 @@ final categoriesByTypeProvider =
 final investmentRepositoryProvider = Provider<InvestmentRepository>((ref) {
   final db = ref.watch(databaseProvider);
   final syncRepo = ref.watch(syncRepositoryProvider);
-  return DriftInvestmentRepository(db, syncRepo);
+  final monitoring = ref.watch(monitoringServiceProvider);
+  return DriftInvestmentRepository(db, monitoring, syncRepo);
 });
 
 /// Provides a reactive stream of snapshots for a specific investment wallet.

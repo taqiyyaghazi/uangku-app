@@ -1,18 +1,25 @@
 import 'package:drift/drift.dart' hide isNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
+import 'package:uangku/core/services/monitoring_service.dart';
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/daos/drift_transaction_repository.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/data/tables/wallets_table.dart';
 
+import 'drift_transaction_repository_test.mocks.dart';
+
+@GenerateMocks([MonitoringService])
 void main() {
   late AppDatabase db;
   late DriftTransactionRepository repository;
+  late MockMonitoringService mockMonitoring;
 
   setUp(() {
     db = AppDatabase.forTesting(NativeDatabase.memory());
-    repository = DriftTransactionRepository(db);
+    mockMonitoring = MockMonitoringService();
+    repository = DriftTransactionRepository(db, mockMonitoring);
   });
 
   tearDown(() async {

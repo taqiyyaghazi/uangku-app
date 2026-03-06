@@ -3,14 +3,16 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i3;
+import 'dart:async' as _i4;
 
+import 'package:firebase_analytics/firebase_analytics.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:uangku/data/database.dart' as _i5;
-import 'package:uangku/data/repositories/wallet_repository.dart' as _i4;
-import 'package:uangku/features/auth/models/user_profile.dart' as _i7;
-import 'package:uangku/features/auth/repository/auth_repository.dart' as _i6;
-import 'package:uangku/features/sync/repository/sync_repository.dart' as _i2;
+import 'package:uangku/core/services/monitoring_service.dart' as _i9;
+import 'package:uangku/data/database.dart' as _i6;
+import 'package:uangku/data/repositories/wallet_repository.dart' as _i5;
+import 'package:uangku/features/auth/models/user_profile.dart' as _i8;
+import 'package:uangku/features/auth/repository/auth_repository.dart' as _i7;
+import 'package:uangku/features/sync/repository/sync_repository.dart' as _i3;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -27,157 +29,267 @@ import 'package:uangku/features/sync/repository/sync_repository.dart' as _i2;
 // ignore_for_file: subtype_of_sealed_class
 // ignore_for_file: invalid_use_of_internal_member
 
+class _FakeFirebaseAnalyticsObserver_0 extends _i1.SmartFake
+    implements _i2.FirebaseAnalyticsObserver {
+  _FakeFirebaseAnalyticsObserver_0(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [SyncRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSyncRepository extends _i1.Mock implements _i2.SyncRepository {
+class MockSyncRepository extends _i1.Mock implements _i3.SyncRepository {
   MockSyncRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i3.Future<void> syncTransaction(int? transactionId) =>
+  _i4.Future<void> syncTransaction(int? transactionId) =>
       (super.noSuchMethod(
             Invocation.method(#syncTransaction, [transactionId]),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i3.Future<void>);
+          as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteTransaction(int? transactionId) =>
+  _i4.Future<void> deleteTransaction(int? transactionId) =>
       (super.noSuchMethod(
             Invocation.method(#deleteTransaction, [transactionId]),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i3.Future<void>);
+          as _i4.Future<void>);
 
   @override
-  _i3.Future<void> syncCategory(int? categoryId) =>
+  _i4.Future<void> syncCategory(int? categoryId) =>
       (super.noSuchMethod(
             Invocation.method(#syncCategory, [categoryId]),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i3.Future<void>);
+          as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteCategory(int? categoryId) =>
+  _i4.Future<void> deleteCategory(int? categoryId) =>
       (super.noSuchMethod(
             Invocation.method(#deleteCategory, [categoryId]),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i3.Future<void>);
+          as _i4.Future<void>);
 
   @override
-  _i3.Future<void> syncWallet(int? walletId) =>
+  _i4.Future<void> syncWallet(int? walletId) =>
       (super.noSuchMethod(
             Invocation.method(#syncWallet, [walletId]),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i3.Future<void>);
+          as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteWallet(int? walletId) =>
+  _i4.Future<void> deleteWallet(int? walletId) =>
       (super.noSuchMethod(
             Invocation.method(#deleteWallet, [walletId]),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i3.Future<void>);
+          as _i4.Future<void>);
 
   @override
-  _i3.Future<void> syncFromCloud() =>
+  _i4.Future<void> syncFromCloud() =>
       (super.noSuchMethod(
             Invocation.method(#syncFromCloud, []),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i3.Future<void>);
+          as _i4.Future<void>);
 }
 
 /// A class which mocks [WalletRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockWalletRepository extends _i1.Mock implements _i4.WalletRepository {
+class MockWalletRepository extends _i1.Mock implements _i5.WalletRepository {
   MockWalletRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i3.Stream<List<_i5.Wallet>> watchAllWallets() =>
+  _i4.Stream<List<_i6.Wallet>> watchAllWallets() =>
       (super.noSuchMethod(
             Invocation.method(#watchAllWallets, []),
-            returnValue: _i3.Stream<List<_i5.Wallet>>.empty(),
+            returnValue: _i4.Stream<List<_i6.Wallet>>.empty(),
           )
-          as _i3.Stream<List<_i5.Wallet>>);
+          as _i4.Stream<List<_i6.Wallet>>);
 
   @override
-  _i3.Future<int> createWallet(_i5.WalletsCompanion? wallet) =>
+  _i4.Future<int> createWallet(_i6.WalletsCompanion? wallet) =>
       (super.noSuchMethod(
             Invocation.method(#createWallet, [wallet]),
-            returnValue: _i3.Future<int>.value(0),
+            returnValue: _i4.Future<int>.value(0),
           )
-          as _i3.Future<int>);
+          as _i4.Future<int>);
 
   @override
-  _i3.Future<bool> updateWallet(_i5.WalletsCompanion? wallet) =>
+  _i4.Future<bool> updateWallet(_i6.WalletsCompanion? wallet) =>
       (super.noSuchMethod(
             Invocation.method(#updateWallet, [wallet]),
-            returnValue: _i3.Future<bool>.value(false),
+            returnValue: _i4.Future<bool>.value(false),
           )
-          as _i3.Future<bool>);
+          as _i4.Future<bool>);
 
   @override
-  _i3.Future<bool> deleteWallet(int? id) =>
+  _i4.Future<bool> deleteWallet(int? id) =>
       (super.noSuchMethod(
             Invocation.method(#deleteWallet, [id]),
-            returnValue: _i3.Future<bool>.value(false),
+            returnValue: _i4.Future<bool>.value(false),
           )
-          as _i3.Future<bool>);
+          as _i4.Future<bool>);
 
   @override
-  _i3.Future<_i5.Wallet?> getWalletById(int? id) =>
+  _i4.Future<_i6.Wallet?> getWalletById(int? id) =>
       (super.noSuchMethod(
             Invocation.method(#getWalletById, [id]),
-            returnValue: _i3.Future<_i5.Wallet?>.value(),
+            returnValue: _i4.Future<_i6.Wallet?>.value(),
           )
-          as _i3.Future<_i5.Wallet?>);
+          as _i4.Future<_i6.Wallet?>);
 }
 
 /// A class which mocks [AuthRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockAuthRepository extends _i1.Mock implements _i6.AuthRepository {
+class MockAuthRepository extends _i1.Mock implements _i7.AuthRepository {
   MockAuthRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i3.Stream<_i7.UserProfile?> get authStateChanges =>
+  _i4.Stream<_i8.UserProfile?> get authStateChanges =>
       (super.noSuchMethod(
             Invocation.getter(#authStateChanges),
-            returnValue: _i3.Stream<_i7.UserProfile?>.empty(),
+            returnValue: _i4.Stream<_i8.UserProfile?>.empty(),
           )
-          as _i3.Stream<_i7.UserProfile?>);
+          as _i4.Stream<_i8.UserProfile?>);
 
   @override
-  _i3.Future<_i7.UserProfile?> signInWithGoogle() =>
+  _i4.Future<_i8.UserProfile?> signInWithGoogle() =>
       (super.noSuchMethod(
             Invocation.method(#signInWithGoogle, []),
-            returnValue: _i3.Future<_i7.UserProfile?>.value(),
+            returnValue: _i4.Future<_i8.UserProfile?>.value(),
           )
-          as _i3.Future<_i7.UserProfile?>);
+          as _i4.Future<_i8.UserProfile?>);
 
   @override
-  _i3.Future<void> signOut() =>
+  _i4.Future<void> signOut() =>
       (super.noSuchMethod(
             Invocation.method(#signOut, []),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i3.Future<void>);
+          as _i4.Future<void>);
+}
+
+/// A class which mocks [MonitoringService].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockMonitoringService extends _i1.Mock implements _i9.MonitoringService {
+  MockMonitoringService() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i2.FirebaseAnalyticsObserver get observer =>
+      (super.noSuchMethod(
+            Invocation.getter(#observer),
+            returnValue: _FakeFirebaseAnalyticsObserver_0(
+              this,
+              Invocation.getter(#observer),
+            ),
+          )
+          as _i2.FirebaseAnalyticsObserver);
+
+  @override
+  _i4.Future<void> logEvent({
+    required String? name,
+    Map<String, Object>? parameters,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#logEvent, [], {
+              #name: name,
+              #parameters: parameters,
+            }),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> setUserId(String? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#setUserId, [userId]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> setUserProperty({
+    required String? name,
+    required String? value,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#setUserProperty, [], {
+              #name: name,
+              #value: value,
+            }),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> recordError(
+    dynamic exception,
+    StackTrace? stack, {
+    dynamic reason,
+    bool? fatal = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #recordError,
+              [exception, stack],
+              {#reason: reason, #fatal: fatal},
+            ),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> log(String? message) =>
+      (super.noSuchMethod(
+            Invocation.method(#log, [message]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  void logInfo(String? message, [Map<String, Object>? context]) =>
+      super.noSuchMethod(
+        Invocation.method(#logInfo, [message, context]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void logError(
+    String? message,
+    dynamic exception,
+    StackTrace? stack, [
+    Map<String, Object>? context,
+  ]) => super.noSuchMethod(
+    Invocation.method(#logError, [message, exception, stack, context]),
+    returnValueForMissingStub: null,
+  );
 }

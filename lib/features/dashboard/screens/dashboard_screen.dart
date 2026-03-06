@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uangku/core/config/app_config.dart';
 import 'package:uangku/core/constants/app_constants.dart';
 import 'package:uangku/core/di/providers.dart';
+import 'package:uangku/features/auth/state/auth_provider.dart';
 import 'package:uangku/data/database.dart';
 import 'package:uangku/features/dashboard/widgets/daily_breath_bar.dart';
 import 'package:uangku/features/dashboard/widgets/dashboard_header.dart';
@@ -26,9 +27,9 @@ class DashboardScreen extends ConsumerWidget {
     final walletsAsync = ref.watch(walletsProvider);
     final syncStatus = ref.watch(syncStatusProvider);
 
-    // Trigger restoration on first load if local DB is empty.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (context.mounted) {
+    // Listen for auth state changes to trigger restoration.
+    ref.listen(authStateProvider, (previous, next) {
+      if (next.value != null && (previous == null || previous.value == null)) {
         ref.read(syncStatusProvider.notifier).restoreDataIfNeeded();
       }
     });

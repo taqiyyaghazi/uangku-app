@@ -10,8 +10,7 @@ import 'package:uangku/data/models/transaction_with_details.dart';
 import 'package:uangku/data/repositories/transaction_repository.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/features/insights/logic/daily_spending_helper.dart';
-import 'dart:developer' as developer;
-
+import 'package:uangku/core/services/monitoring_service.dart';
 import 'package:uangku/features/sync/repository/sync_repository.dart';
 
 /// Drift (SQLite) implementation of [TransactionRepository].
@@ -20,13 +19,18 @@ import 'package:uangku/features/sync/repository/sync_repository.dart';
 class DriftTransactionRepository implements TransactionRepository {
   final AppDatabase _db;
   final SyncRepository? _syncRepo;
+  final MonitoringService _monitoring;
 
-  DriftTransactionRepository(this._db, [this._syncRepo]);
+  DriftTransactionRepository(this._db, this._monitoring, [this._syncRepo]);
 
   @override
   Stream<List<TransactionWithCategory>> watchTransactionsByWallet(
     int walletId,
   ) {
+    const operation = 'watchTransactionsByWallet';
+    final startTime = DateTime.now();
+    _monitoring.logInfo('START: $operation', {'walletId': walletId});
+
     final query =
         _db.select(_db.transactions).join([
             innerJoin(
@@ -37,14 +41,30 @@ class DriftTransactionRepository implements TransactionRepository {
           ..where(_db.transactions.walletId.equals(walletId))
           ..orderBy([OrderingTerm.desc(_db.transactions.date)]);
 
-    return query.watch().map((rows) {
-      return rows.map((row) {
-        return TransactionWithCategory(
-          transaction: row.readTable(_db.transactions),
-          category: row.readTable(_db.categories),
-        );
-      }).toList();
-    });
+    return query
+        .watch()
+        .map((rows) {
+          final successTime = DateTime.now();
+          final durationMs = successTime.difference(startTime).inMilliseconds;
+          _monitoring.logInfo('SUCCESS: $operation', {
+            'walletId': walletId,
+            'rows': rows.length,
+            'durationMs': durationMs,
+          });
+
+          return rows.map((row) {
+            return TransactionWithCategory(
+              transaction: row.readTable(_db.transactions),
+              category: row.readTable(_db.categories),
+            );
+          }).toList();
+        })
+        .handleError((err, stack) {
+          _monitoring.logError('FAILURE: $operation', err, stack, {
+            'walletId': walletId,
+          });
+          throw err;
+        });
   }
 
   @override
@@ -52,6 +72,13 @@ class DriftTransactionRepository implements TransactionRepository {
     DateTime start,
     DateTime end,
   ) {
+    const operation = 'watchTransactionsByDateRange';
+    final startTime = DateTime.now();
+    _monitoring.logInfo('START: $operation', {
+      'start': start.toIso8601String(),
+      'end': end.toIso8601String(),
+    });
+
     final query =
         _db.select(_db.transactions).join([
             innerJoin(
@@ -65,18 +92,37 @@ class DriftTransactionRepository implements TransactionRepository {
           )
           ..orderBy([OrderingTerm.desc(_db.transactions.date)]);
 
-    return query.watch().map((rows) {
-      return rows.map((row) {
-        return TransactionWithCategory(
-          transaction: row.readTable(_db.transactions),
-          category: row.readTable(_db.categories),
-        );
-      }).toList();
-    });
+    return query
+        .watch()
+        .map((rows) {
+          final successTime = DateTime.now();
+          final durationMs = successTime.difference(startTime).inMilliseconds;
+          _monitoring.logInfo('SUCCESS: $operation', {
+            'rows': rows.length,
+            'durationMs': durationMs,
+          });
+
+          return rows.map((row) {
+            return TransactionWithCategory(
+              transaction: row.readTable(_db.transactions),
+              category: row.readTable(_db.categories),
+            );
+          }).toList();
+        })
+        .handleError((err, stack) {
+          _monitoring.logError('FAILURE: $operation', err, stack);
+          throw err;
+        });
   }
 
   @override
   Stream<List<CategorySpending>> watchCategorySpending(DateTime month) {
+    const operation = 'watchCategorySpending';
+    final startTime = DateTime.now();
+    _monitoring.logInfo('START: $operation', {
+      'month': month.toIso8601String(),
+    });
+
     // 1. Calculate the start and end of the month
     final startOfMonth = DateTime(month.year, month.month, 1);
     final endOfMonth = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
@@ -101,29 +147,42 @@ class DriftTransactionRepository implements TransactionRepository {
       ..groupBy([_db.categories.id]);
 
     // 4. Map rows to CategorySpending objects
-    return query.watch().map((rows) {
-      return rows.map((row) {
-        final categoryName = row.read(_db.categories.name)!;
-        final hash = categoryName.hashCode;
-        final colorHex = (hash & 0xFFFFFF).toRadixString(16).padLeft(6, '0');
-        return CategorySpending(
-          categoryName: categoryName,
-          colorCode: '#$colorHex',
-          totalAmount: row.read(amountSum) ?? 0.0,
-        );
-      }).toList();
-    });
+    return query
+        .watch()
+        .map((rows) {
+          final successTime = DateTime.now();
+          final durationMs = successTime.difference(startTime).inMilliseconds;
+          _monitoring.logInfo('SUCCESS: $operation', {
+            'rows': rows.length,
+            'durationMs': durationMs,
+          });
+
+          return rows.map((row) {
+            final categoryName = row.read(_db.categories.name)!;
+            final hash = categoryName.hashCode;
+            final colorHex = (hash & 0xFFFFFF)
+                .toRadixString(16)
+                .padLeft(6, '0');
+            return CategorySpending(
+              categoryName: categoryName,
+              colorCode: '#$colorHex',
+              totalAmount: row.read(amountSum) ?? 0.0,
+            );
+          }).toList();
+        })
+        .handleError((err, stack) {
+          _monitoring.logError('FAILURE: $operation', err, stack);
+          throw err;
+        });
   }
 
   @override
   Stream<List<DailySpending>> watchDailySpending(DateTime month) {
     const operation = 'watchDailySpending';
     final startTime = DateTime.now();
-    developer.log(
-      'START: $operation',
-      name: 'DriftTransactionRepository',
-      error: {'month': month.toIso8601String()},
-    );
+    _monitoring.logInfo('START: $operation', {
+      'month': month.toIso8601String(),
+    });
 
     final startOfMonth = DateTime(month.year, month.month, 1);
     final endOfMonth = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
@@ -147,11 +206,10 @@ class DriftTransactionRepository implements TransactionRepository {
         .map((rows) {
           final successTime = DateTime.now();
           final durationMs = successTime.difference(startTime).inMilliseconds;
-          developer.log(
-            'SUCCESS: $operation',
-            name: 'DriftTransactionRepository',
-            error: {'rows': rows.length, 'durationMs': durationMs},
-          );
+          _monitoring.logInfo('SUCCESS: $operation', {
+            'rows': rows.length,
+            'durationMs': durationMs,
+          });
 
           final records = rows.map((row) {
             final dayStr = row.read(dayExpr)!;
@@ -165,12 +223,7 @@ class DriftTransactionRepository implements TransactionRepository {
           return DailySpendingHelper.fillDailySpendingGaps(records, month);
         })
         .handleError((err, stack) {
-          developer.log(
-            'FAILURE: $operation',
-            name: 'DriftTransactionRepository',
-            error: err,
-            stackTrace: stack,
-          );
+          _monitoring.logError('FAILURE: $operation', err, stack);
           throw err;
         });
   }
@@ -179,11 +232,9 @@ class DriftTransactionRepository implements TransactionRepository {
   Stream<MonthlySummary> watchMonthlySummary(DateTime month) {
     const operation = 'watchMonthlySummary';
     final startTime = DateTime.now();
-    developer.log(
-      'START: $operation',
-      name: 'DriftTransactionRepository',
-      error: {'month': month.toIso8601String()},
-    );
+    _monitoring.logInfo('START: $operation', {
+      'month': month.toIso8601String(),
+    });
 
     final startOfMonth = DateTime(month.year, month.month, 1);
     final endOfMonth = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
@@ -204,11 +255,10 @@ class DriftTransactionRepository implements TransactionRepository {
         .map((rows) {
           final successTime = DateTime.now();
           final durationMs = successTime.difference(startTime).inMilliseconds;
-          developer.log(
-            'SUCCESS: $operation',
-            name: 'DriftTransactionRepository',
-            error: {'rows': rows.length, 'durationMs': durationMs},
-          );
+          _monitoring.logInfo('SUCCESS: $operation', {
+            'rows': rows.length,
+            'durationMs': durationMs,
+          });
 
           double income = 0;
           double expense = 0;
@@ -227,12 +277,7 @@ class DriftTransactionRepository implements TransactionRepository {
           return MonthlySummary(totalIncome: income, totalExpenses: expense);
         })
         .handleError((err, stack) {
-          developer.log(
-            'FAILURE: $operation',
-            name: 'DriftTransactionRepository',
-            error: err,
-            stackTrace: stack,
-          );
+          _monitoring.logError('FAILURE: $operation', err, stack);
           throw err;
         });
   }
@@ -241,27 +286,20 @@ class DriftTransactionRepository implements TransactionRepository {
   Future<int> createTransaction(TransactionsCompanion transaction) async {
     final startTime = DateTime.now();
     try {
-      developer.log(
-        'Creating transaction...',
-        name: 'DriftTransactionRepository',
-      );
+      _monitoring.logInfo('Creating transaction...');
       final id = await _db.into(_db.transactions).insert(transaction);
-      developer.log(
-        'Successfully created transaction id: $id in ${DateTime.now().difference(startTime).inMilliseconds}ms',
-        name: 'DriftTransactionRepository',
-      );
+      final durationMs = DateTime.now().difference(startTime).inMilliseconds;
+      _monitoring.logInfo('Successfully created transaction', {
+        'id': id,
+        'durationMs': durationMs,
+      });
 
       // Sync to cloud
       unawaited(_syncRepo?.syncTransaction(id));
 
       return id;
     } catch (e, st) {
-      developer.log(
-        'Failed to create transaction',
-        name: 'DriftTransactionRepository',
-        error: e,
-        stackTrace: st,
-      );
+      _monitoring.logError('Failed to create transaction', e, st);
       rethrow;
     }
   }
@@ -270,29 +308,23 @@ class DriftTransactionRepository implements TransactionRepository {
   Future<bool> deleteTransaction(int id) async {
     final startTime = DateTime.now();
     try {
-      developer.log(
-        'Deleting transaction id: $id...',
-        name: 'DriftTransactionRepository',
-      );
+      _monitoring.logInfo('Deleting transaction', {'id': id});
       final rowsAffected = await (_db.delete(
         _db.transactions,
       )..where((t) => t.id.equals(id))).go();
-      developer.log(
-        'Successfully deleted transaction id: $id (rows affected: $rowsAffected) in ${DateTime.now().difference(startTime).inMilliseconds}ms',
-        name: 'DriftTransactionRepository',
-      );
+      final durationMs = DateTime.now().difference(startTime).inMilliseconds;
+      _monitoring.logInfo('Successfully deleted transaction', {
+        'id': id,
+        'rowsAffected': rowsAffected,
+        'durationMs': durationMs,
+      });
 
       // Sync to cloud
       unawaited(_syncRepo?.deleteTransaction(id));
 
       return rowsAffected > 0;
     } catch (e, st) {
-      developer.log(
-        'Failed to delete transaction id: $id',
-        name: 'DriftTransactionRepository',
-        error: e,
-        stackTrace: st,
-      );
+      _monitoring.logError('Failed to delete transaction', e, st, {'id': id});
       rethrow;
     }
   }
@@ -305,10 +337,9 @@ class DriftTransactionRepository implements TransactionRepository {
   }) async {
     final startTime = DateTime.now();
     try {
-      developer.log(
-        'Inserting transaction and updating balance for wallet id: $walletId...',
-        name: 'DriftTransactionRepository',
-      );
+      _monitoring.logInfo('Inserting transaction and updating balance', {
+        'walletId': walletId,
+      });
       final id = await _db.transaction(() async {
         // 1. Insert the transaction record.
         final txId = await _db.into(_db.transactions).insert(transaction);
@@ -329,9 +360,10 @@ class DriftTransactionRepository implements TransactionRepository {
 
         return txId;
       });
-      developer.log(
-        'Successfully inserted transaction and updated balance id: $id in ${DateTime.now().difference(startTime).inMilliseconds}ms',
-        name: 'DriftTransactionRepository',
+      final durationMs = DateTime.now().difference(startTime).inMilliseconds;
+      _monitoring.logInfo(
+        'Successfully inserted transaction and updated balance',
+        {'id': id, 'durationMs': durationMs},
       );
 
       // Sync to cloud
@@ -340,11 +372,10 @@ class DriftTransactionRepository implements TransactionRepository {
 
       return id;
     } catch (e, st) {
-      developer.log(
+      _monitoring.logError(
         'Failed to insert transaction and update balance',
-        name: 'DriftTransactionRepository',
-        error: e,
-        stackTrace: st,
+        e,
+        st,
       );
       rethrow;
     }
@@ -360,10 +391,10 @@ class DriftTransactionRepository implements TransactionRepository {
   }) async {
     final startTime = DateTime.now();
     try {
-      developer.log(
-        'Performing internal transfer $fromWalletId -> $toWalletId...',
-        name: 'DriftTransactionRepository',
-      );
+      _monitoring.logInfo('Performing internal transfer', {
+        'from': fromWalletId,
+        'to': toWalletId,
+      });
       final id = await _db.transaction(() async {
         // 1. Insert the transfer transaction record.
         // categoryId is omitted since it is now nullable for transfers
@@ -410,10 +441,11 @@ class DriftTransactionRepository implements TransactionRepository {
 
         return txId;
       });
-      developer.log(
-        'Successfully performed internal transfer id: $id in ${DateTime.now().difference(startTime).inMilliseconds}ms',
-        name: 'DriftTransactionRepository',
-      );
+      final durationMs = DateTime.now().difference(startTime).inMilliseconds;
+      _monitoring.logInfo('Successfully performed internal transfer', {
+        'id': id,
+        'durationMs': durationMs,
+      });
 
       // Sync to cloud
       unawaited(_syncRepo?.syncTransaction(id));
@@ -422,18 +454,17 @@ class DriftTransactionRepository implements TransactionRepository {
 
       return id;
     } catch (e, st) {
-      developer.log(
-        'Failed to perform internal transfer',
-        name: 'DriftTransactionRepository',
-        error: e,
-        stackTrace: st,
-      );
+      _monitoring.logError('Failed to perform internal transfer', e, st);
       rethrow;
     }
   }
 
   @override
   Stream<List<TransactionWithCategory>> watchRecentTransactions(int limit) {
+    const operation = 'watchRecentTransactions';
+    final startTime = DateTime.now();
+    _monitoring.logInfo('START: $operation', {'limit': limit});
+
     final query =
         _db.select(_db.transactions).join([
             leftOuterJoin(
@@ -444,18 +475,35 @@ class DriftTransactionRepository implements TransactionRepository {
           ..orderBy([OrderingTerm.desc(_db.transactions.date)])
           ..limit(limit);
 
-    return query.watch().map((rows) {
-      return rows.map((row) {
-        return TransactionWithCategory(
-          transaction: row.readTable(_db.transactions),
-          category: row.readTableOrNull(_db.categories),
-        );
-      }).toList();
-    });
+    return query
+        .watch()
+        .map((rows) {
+          final successTime = DateTime.now();
+          final durationMs = successTime.difference(startTime).inMilliseconds;
+          _monitoring.logInfo('SUCCESS: $operation', {
+            'rows': rows.length,
+            'durationMs': durationMs,
+          });
+
+          return rows.map((row) {
+            return TransactionWithCategory(
+              transaction: row.readTable(_db.transactions),
+              category: row.readTableOrNull(_db.categories),
+            );
+          }).toList();
+        })
+        .handleError((err, stack) {
+          _monitoring.logError('FAILURE: $operation', err, stack);
+          throw err;
+        });
   }
 
   @override
   Stream<List<TransactionWithCategory>> watchAllTransactions({int? walletId}) {
+    const operation = 'watchAllTransactions';
+    final startTime = DateTime.now();
+    _monitoring.logInfo('START: $operation', {'walletId': walletId ?? 'all'});
+
     final query = _db.select(_db.transactions).join([
       leftOuterJoin(
         _db.categories,
@@ -470,24 +518,39 @@ class DriftTransactionRepository implements TransactionRepository {
       );
     }
 
-    return query.watch().map((rows) {
-      return rows.map((row) {
-        return TransactionWithCategory(
-          transaction: row.readTable(_db.transactions),
-          category: row.readTableOrNull(_db.categories),
-        );
-      }).toList();
-    });
+    return query
+        .watch()
+        .map((rows) {
+          final successTime = DateTime.now();
+          final durationMs = successTime.difference(startTime).inMilliseconds;
+          _monitoring.logInfo('SUCCESS: $operation', {
+            'walletId': walletId ?? 'all',
+            'rows': rows.length,
+            'durationMs': durationMs,
+          });
+
+          return rows.map((row) {
+            return TransactionWithCategory(
+              transaction: row.readTable(_db.transactions),
+              category: row.readTableOrNull(_db.categories),
+            );
+          }).toList();
+        })
+        .handleError((err, stack) {
+          _monitoring.logError('FAILURE: $operation', err, stack, {
+            'walletId': walletId ?? 'all',
+          });
+          throw err;
+        });
   }
 
   @override
   Future<void> deleteTransactionAtomic(Transaction transaction) async {
     final startTime = DateTime.now();
     try {
-      developer.log(
-        'Deleting transaction atomic id: ${transaction.id}...',
-        name: 'DriftTransactionRepository',
-      );
+      _monitoring.logInfo('Deleting transaction atomic', {
+        'id': transaction.id,
+      });
       await _db.transaction(() async {
         // 1. Delete the transaction record.
         await (_db.delete(
@@ -514,21 +577,19 @@ class DriftTransactionRepository implements TransactionRepository {
           ),
         );
       });
-      developer.log(
-        'Successfully deleted transaction atomic id: ${transaction.id} in ${DateTime.now().difference(startTime).inMilliseconds}ms',
-        name: 'DriftTransactionRepository',
-      );
+      final durationMs = DateTime.now().difference(startTime).inMilliseconds;
+      _monitoring.logInfo('Successfully deleted transaction atomic', {
+        'id': transaction.id,
+        'durationMs': durationMs,
+      });
 
       // Sync to cloud
       unawaited(_syncRepo?.deleteTransaction(transaction.id));
       unawaited(_syncRepo?.syncWallet(transaction.walletId));
     } catch (e, st) {
-      developer.log(
-        'Failed to delete transaction atomic id: ${transaction.id}',
-        name: 'DriftTransactionRepository',
-        error: e,
-        stackTrace: st,
-      );
+      _monitoring.logError('Failed to delete transaction atomic', e, st, {
+        'id': transaction.id,
+      });
       rethrow;
     }
   }
@@ -542,10 +603,7 @@ class DriftTransactionRepository implements TransactionRepository {
   }) async {
     final startTime = DateTime.now();
     try {
-      developer.log(
-        'Updating transaction atomic id: $transactionId...',
-        name: 'DriftTransactionRepository',
-      );
+      _monitoring.logInfo('Updating transaction atomic', {'id': transactionId});
       await _db.transaction(() async {
         // 1. Update the transaction record.
         await (_db.update(
@@ -566,21 +624,19 @@ class DriftTransactionRepository implements TransactionRepository {
           ),
         );
       });
-      developer.log(
-        'Successfully updated transaction atomic id: $transactionId in ${DateTime.now().difference(startTime).inMilliseconds}ms',
-        name: 'DriftTransactionRepository',
-      );
+      final durationMs = DateTime.now().difference(startTime).inMilliseconds;
+      _monitoring.logInfo('Successfully updated transaction atomic', {
+        'id': transactionId,
+        'durationMs': durationMs,
+      });
 
       // Sync to cloud
       unawaited(_syncRepo?.syncTransaction(transactionId));
       unawaited(_syncRepo?.syncWallet(walletId));
     } catch (e, st) {
-      developer.log(
-        'Failed to update transaction atomic id: $transactionId',
-        name: 'DriftTransactionRepository',
-        error: e,
-        stackTrace: st,
-      );
+      _monitoring.logError('Failed to update transaction atomic', e, st, {
+        'id': transactionId,
+      });
       rethrow;
     }
   }
@@ -589,7 +645,7 @@ class DriftTransactionRepository implements TransactionRepository {
   Future<List<TransactionWithDetails>> getAllTransactionsWithDetails() async {
     const operation = 'getAllTransactionsWithDetails';
     final startTime = DateTime.now();
-    developer.log('START: $operation', name: 'DriftTransactionRepository');
+    _monitoring.logInfo('START: $operation');
 
     try {
       // Alias the wallets table for the two different joins.
@@ -628,20 +684,14 @@ class DriftTransactionRepository implements TransactionRepository {
       }).toList();
 
       final durationMs = DateTime.now().difference(startTime).inMilliseconds;
-      developer.log(
-        'SUCCESS: $operation',
-        name: 'DriftTransactionRepository',
-        error: {'rows': results.length, 'durationMs': durationMs},
-      );
+      _monitoring.logInfo('SUCCESS: $operation', {
+        'rows': results.length,
+        'durationMs': durationMs,
+      });
 
       return results;
     } catch (e, st) {
-      developer.log(
-        'FAILURE: $operation',
-        name: 'DriftTransactionRepository',
-        error: e,
-        stackTrace: st,
-      );
+      _monitoring.logError('FAILURE: $operation', e, st);
       rethrow;
     }
   }
