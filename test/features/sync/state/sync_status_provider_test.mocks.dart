@@ -98,6 +98,42 @@ class MockSyncRepository extends _i1.Mock implements _i3.SyncRepository {
           as _i4.Future<void>);
 
   @override
+  _i4.Future<void> syncBudget(int? categoryId, String? periodMonth) =>
+      (super.noSuchMethod(
+            Invocation.method(#syncBudget, [categoryId, periodMonth]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> deleteBudget(int? categoryId, String? periodMonth) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteBudget, [categoryId, periodMonth]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> syncInvestment(int? snapshotId) =>
+      (super.noSuchMethod(
+            Invocation.method(#syncInvestment, [snapshotId]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> deleteInvestment(int? snapshotId) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteInvestment, [snapshotId]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
   _i4.Future<void> syncFromCloud() =>
       (super.noSuchMethod(
             Invocation.method(#syncFromCloud, []),

@@ -15,6 +15,10 @@ abstract class SyncRepository {
   Future<void> deleteCategory(int categoryId);
   Future<void> syncWallet(int walletId);
   Future<void> deleteWallet(int walletId);
+  Future<void> syncBudget(int categoryId, String periodMonth);
+  Future<void> deleteBudget(int categoryId, String periodMonth);
+  Future<void> syncInvestment(int snapshotId);
+  Future<void> deleteInvestment(int snapshotId);
   Future<void> syncFromCloud();
 }
 
@@ -150,6 +154,90 @@ class FirestoreSyncRepository implements SyncRepository {
   }
 
   @override
+  Future<void> syncBudget(int categoryId, String periodMonth) async {
+    final uid = _getUserId();
+    if (uid == null) return;
+
+    try {
+      final budget =
+          await (_db.select(_db.budgets)..where(
+                (t) =>
+                    t.categoryId.equals(categoryId) &
+                    t.periodMonth.equals(periodMonth),
+              ))
+              .getSingleOrNull();
+
+      if (budget != null) {
+        final budgetId = '${categoryId}_$periodMonth';
+        await _sync.upsertBudget(
+          uid,
+          budgetId,
+          FirestoreMapper.budgetToFirestore(budget),
+        );
+      }
+    } catch (e, st) {
+      _monitoring.logError('Failed to sync budget $categoryId', e, st, {
+        'categoryId': categoryId,
+        'periodMonth': periodMonth,
+      });
+    }
+  }
+
+  @override
+  Future<void> deleteBudget(int categoryId, String periodMonth) async {
+    final uid = _getUserId();
+    if (uid == null) return;
+
+    try {
+      final budgetId = '${categoryId}_$periodMonth';
+      await _sync.deleteBudget(uid, budgetId);
+    } catch (e, st) {
+      _monitoring.logError('Failed to delete budget $categoryId', e, st, {
+        'categoryId': categoryId,
+        'periodMonth': periodMonth,
+      });
+    }
+  }
+
+  @override
+  Future<void> syncInvestment(int snapshotId) async {
+    final uid = _getUserId();
+    if (uid == null) return;
+
+    try {
+      final snapshot = await (_db.select(
+        _db.investmentSnapshots,
+      )..where((t) => t.id.equals(snapshotId))).getSingleOrNull();
+
+      if (snapshot != null) {
+        await _sync.upsertInvestment(
+          uid,
+          snapshot.id.toString(),
+          FirestoreMapper.investmentToFirestore(snapshot),
+        );
+      }
+    } catch (e, st) {
+      _monitoring.logError('Failed to sync investment $snapshotId', e, st, {
+        'snapshotId': snapshotId,
+      });
+    }
+  }
+
+  @override
+  Future<void> deleteInvestment(int snapshotId) async {
+    final uid = _getUserId();
+    if (uid == null) return;
+
+    try {
+      await _sync.deleteInvestment(uid, snapshotId.toString());
+    } catch (e, st) {
+      _monitoring.logError('Failed to delete investment $snapshotId', e, st, {
+        'snapshotId': snapshotId,
+      });
+    }
+  }
+
+  @override
   Future<void> syncFromCloud() async {
     final uid = _getUserId();
     if (uid == null) return;
@@ -159,10 +247,14 @@ class FirestoreSyncRepository implements SyncRepository {
       final categoriesData = await _sync.fetchAllCategories(uid);
       final walletsData = await _sync.fetchAllWallets(uid);
       final transactionsData = await _sync.fetchAllTransactions(uid);
+      final budgetsData = await _sync.fetchAllBudgets(uid);
+      final investmentsData = await _sync.fetchAllInvestments(uid);
 
       if (categoriesData.isEmpty &&
           walletsData.isEmpty &&
-          transactionsData.isEmpty) {
+          transactionsData.isEmpty &&
+          budgetsData.isEmpty &&
+          investmentsData.isEmpty) {
         return;
       }
 
@@ -176,6 +268,10 @@ class FirestoreSyncRepository implements SyncRepository {
       final transactions = transactionsData
           .map(FirestoreMapper.transactionFromFirestore)
           .toList();
+      final budgets = budgetsData.map(FirestoreMapper.budgetFromValue).toList();
+      final investments = investmentsData
+          .map(FirestoreMapper.investmentFromFirestore)
+          .toList();
 
       // 3. Sequential Batch Insert
       await _db.batch((b) {
@@ -187,6 +283,14 @@ class FirestoreSyncRepository implements SyncRepository {
         );
         // Then Wallets
         b.insertAll(_db.wallets, wallets, mode: InsertMode.insertOrReplace);
+        // Then Budgets
+        b.insertAll(_db.budgets, budgets, mode: InsertMode.insertOrReplace);
+        // Then Investments
+        b.insertAll(
+          _db.investmentSnapshots,
+          investments,
+          mode: InsertMode.insertOrReplace,
+        );
         // Finally Transactions
         b.insertAll(
           _db.transactions,
@@ -199,6 +303,8 @@ class FirestoreSyncRepository implements SyncRepository {
         'transactions': transactions.length,
         'categories': categories.length,
         'wallets': wallets.length,
+        'budgets': budgets.length,
+        'investments': investments.length,
       });
     } catch (e, st) {
       _monitoring.logError('Critical failure during cloud restoration', e, st);

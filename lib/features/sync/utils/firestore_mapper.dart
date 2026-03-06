@@ -88,4 +88,46 @@ class FirestoreMapper {
       updatedAt: (data['updatedAt'] as firestore.Timestamp).toDate(),
     );
   }
+
+  /// Converts a [Budget] to a Firestore-compatible Map.
+  static Map<String, dynamic> budgetToFirestore(Budget budget) {
+    return {
+      'categoryId': budget.categoryId,
+      'limitAmount': budget.limitAmount,
+      'periodMonth': budget.periodMonth,
+      'updatedAt': firestore.Timestamp.fromDate(budget.updatedAt),
+    };
+  }
+
+  /// Converts a Firestore Map to a [Budget].
+  static Budget budgetFromValue(Map<String, dynamic> data) {
+    return Budget(
+      categoryId: data['categoryId'] as int,
+      limitAmount: (data['limitAmount'] as num).toDouble(),
+      periodMonth: data['periodMonth'] as String,
+      updatedAt: (data['updatedAt'] as firestore.Timestamp).toDate(),
+    );
+  }
+
+  /// Converts an [InvestmentSnapshot] to a Firestore-compatible Map.
+  static Map<String, dynamic> investmentToFirestore(
+    InvestmentSnapshot snapshot,
+  ) {
+    return {
+      'id': snapshot.id,
+      'walletId': snapshot.walletId,
+      'totalValue': snapshot.totalValue,
+      'snapshotDate': firestore.Timestamp.fromDate(snapshot.snapshotDate),
+    };
+  }
+
+  /// Converts a Firestore Map to an [InvestmentSnapshot].
+  static InvestmentSnapshot investmentFromFirestore(Map<String, dynamic> data) {
+    return InvestmentSnapshot(
+      id: data['id'] as int,
+      walletId: data['walletId'] as int,
+      totalValue: (data['totalValue'] as num).toDouble(),
+      snapshotDate: (data['snapshotDate'] as firestore.Timestamp).toDate(),
+    );
+  }
 }

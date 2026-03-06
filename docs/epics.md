@@ -114,6 +114,7 @@ This document decomposes the requirements for **Uangku** into logical phases of 
 
 - **Story 8.1: Secure Login with Google (Firebase Auth)** (3 pts)
 - **Story 8.2: Database Mapping to Firestore (Cloud Sync)** (8 pts)
+- **Story 8.2.1: Cloud Sync for Budgets & Investments** (3 pts)
 - **Story 8.3: Instant Sync & Recovery (Data Restoration)** (5 pts)
 - **Story 8.4: Flutter Flavors Setup (Environment Separation)** (5 pts)
 
@@ -130,6 +131,6 @@ This document decomposes the requirements for **Uangku** into logical phases of 
 7.  **Epic 7** (Data Integrity & Portability)
 8.  **Epic 8** (Cloud Synchronization)
 
-**Total Story Points:** 81 Points
-**Total Stories:** 27 Stories
+**Total Story Points:** 84 Points
+**Total Stories:** 28 Stories
 **Estimated Timeline:** 6-8 Sprints (approx. 2-2.5 months)

@@ -91,6 +91,8 @@ class DriftInvestmentRepository implements InvestmentRepository {
 
       // Sync wallet balance to cloud
       unawaited(_syncRepo?.syncWallet(walletId));
+      // Sync investment snapshot to cloud
+      unawaited(_syncRepo?.syncInvestment(id));
       return id;
     } catch (e, st) {
       _monitoring.logError('FAILURE: $operation', e, st, {

@@ -111,5 +111,69 @@ void main() {
       expect(map['name'], 'Food');
       expect(map['type'], 'expense');
     });
+
+    test('budgetToFirestore maps correctly', () {
+      final budget = Budget(
+        categoryId: 5,
+        limitAmount: 1000.0,
+        periodMonth: '2026-03',
+        updatedAt: now,
+      );
+
+      final map = FirestoreMapper.budgetToFirestore(budget);
+
+      expect(map['categoryId'], 5);
+      expect(map['limitAmount'], 1000.0);
+      expect(map['periodMonth'], '2026-03');
+      expect(map['updatedAt'], isA<firestore.Timestamp>());
+    });
+
+    test('budgetFromValue maps correctly', () {
+      final data = {
+        'categoryId': 5,
+        'limitAmount': 1000.0,
+        'periodMonth': '2026-03',
+        'updatedAt': firestore.Timestamp.fromDate(now),
+      };
+
+      final budget = FirestoreMapper.budgetFromValue(data);
+
+      expect(budget.categoryId, 5);
+      expect(budget.limitAmount, 1000.0);
+      expect(budget.periodMonth, '2026-03');
+      expect(budget.updatedAt, now);
+    });
+
+    test('investmentToFirestore maps correctly', () {
+      final snapshot = InvestmentSnapshot(
+        id: 1,
+        walletId: 2,
+        totalValue: 5000.0,
+        snapshotDate: now,
+      );
+
+      final map = FirestoreMapper.investmentToFirestore(snapshot);
+
+      expect(map['id'], 1);
+      expect(map['walletId'], 2);
+      expect(map['totalValue'], 5000.0);
+      expect(map['snapshotDate'], isA<firestore.Timestamp>());
+    });
+
+    test('investmentFromFirestore maps correctly', () {
+      final data = {
+        'id': 1,
+        'walletId': 2,
+        'totalValue': 5000.0,
+        'snapshotDate': firestore.Timestamp.fromDate(now),
+      };
+
+      final snapshot = FirestoreMapper.investmentFromFirestore(data);
+
+      expect(snapshot.id, 1);
+      expect(snapshot.walletId, 2);
+      expect(snapshot.totalValue, 5000.0);
+      expect(snapshot.snapshotDate, now);
+    });
   });
 }

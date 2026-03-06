@@ -11,6 +11,8 @@ import 'package:uangku/data/repositories/investment_repository.dart';
 import 'package:uangku/data/repositories/wallet_repository.dart';
 import 'package:uangku/data/repositories/transaction_repository.dart';
 import 'package:uangku/data/repositories/category_repository_impl.dart';
+import 'package:uangku/data/repositories/budget_repository.dart';
+import 'package:uangku/data/daos/drift_budget_repository.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/features/auth/state/auth_provider.dart';
@@ -98,6 +100,14 @@ final categoriesByTypeProvider =
       final repo = ref.watch(categoryRepositoryProvider);
       return repo.watchCategoriesByType(type);
     });
+
+/// Provides the [BudgetRepository] backed by Drift + Sync.
+final budgetRepositoryProvider = Provider<BudgetRepository>((ref) {
+  final db = ref.watch(databaseProvider);
+  final syncRepo = ref.watch(syncRepositoryProvider);
+  final monitoring = ref.watch(monitoringServiceProvider);
+  return DriftBudgetRepository(db, monitoring, syncRepo);
+});
 
 /// Provides the [InvestmentRepository] backed by Drift + Sync.
 ///

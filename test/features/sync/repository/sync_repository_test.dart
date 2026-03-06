@@ -170,6 +170,10 @@ void main() {
       when(
         mockSync.fetchAllTransactions('user-123'),
       ).thenAnswer((_) async => [txData]);
+      when(mockSync.fetchAllBudgets('user-123')).thenAnswer((_) async => []);
+      when(
+        mockSync.fetchAllInvestments('user-123'),
+      ).thenAnswer((_) async => []);
 
       // 2. Clear local DB categories
       await db.delete(db.categories).go();

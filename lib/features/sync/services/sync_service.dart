@@ -102,6 +102,60 @@ class SyncService {
     }
   }
 
+  // --- Budgets ---
+
+  /// Upserts a budget to Firestore.
+  Future<void> upsertBudget(
+    String userId,
+    String budgetId,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      await _userCollection(
+        userId,
+        'budgets',
+      ).doc(budgetId).set(data, SetOptions(merge: true));
+    } catch (e, st) {
+      _monitoring.logError('SyncService.upsertBudget failure', e, st);
+    }
+  }
+
+  /// Deletes a budget from Firestore.
+  Future<void> deleteBudget(String userId, String budgetId) async {
+    try {
+      await _userCollection(userId, 'budgets').doc(budgetId).delete();
+    } catch (e, st) {
+      _monitoring.logError('SyncService.deleteBudget failure', e, st);
+    }
+  }
+
+  // --- Investments ---
+
+  /// Upserts an investment snapshot to Firestore.
+  Future<void> upsertInvestment(
+    String userId,
+    String snapshotId,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      await _userCollection(
+        userId,
+        'investments',
+      ).doc(snapshotId).set(data, SetOptions(merge: true));
+    } catch (e, st) {
+      _monitoring.logError('SyncService.upsertInvestment failure', e, st);
+    }
+  }
+
+  /// Deletes an investment snapshot from Firestore.
+  Future<void> deleteInvestment(String userId, String snapshotId) async {
+    try {
+      await _userCollection(userId, 'investments').doc(snapshotId).delete();
+    } catch (e, st) {
+      _monitoring.logError('SyncService.deleteInvestment failure', e, st);
+    }
+  }
+
   // --- Bulk Fetching (Restoration) ---
 
   /// Fetches all transactions for a user from Firestore.
@@ -133,6 +187,28 @@ class SyncService {
       return snapshot.docs.map((doc) => doc.data()).toList();
     } catch (e, st) {
       _monitoring.logError('SyncService.fetchAllWallets failure', e, st);
+      rethrow;
+    }
+  }
+
+  /// Fetches all budgets for a user from Firestore.
+  Future<List<Map<String, dynamic>>> fetchAllBudgets(String userId) async {
+    try {
+      final snapshot = await _userCollection(userId, 'budgets').get();
+      return snapshot.docs.map((doc) => doc.data()).toList();
+    } catch (e, st) {
+      _monitoring.logError('SyncService.fetchAllBudgets failure', e, st);
+      rethrow;
+    }
+  }
+
+  /// Fetches all investment snapshots for a user from Firestore.
+  Future<List<Map<String, dynamic>>> fetchAllInvestments(String userId) async {
+    try {
+      final snapshot = await _userCollection(userId, 'investments').get();
+      return snapshot.docs.map((doc) => doc.data()).toList();
+    } catch (e, st) {
+      _monitoring.logError('SyncService.fetchAllInvestments failure', e, st);
       rethrow;
     }
   }

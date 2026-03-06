@@ -11,6 +11,7 @@ import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/data/tables/investment_snapshots_table.dart';
 import 'package:uangku/data/tables/app_settings_table.dart';
 import 'package:uangku/data/tables/categories_table.dart';
+import 'package:uangku/data/tables/budgets_table.dart';
 import 'package:uangku/core/constants/transaction_categories.dart';
 
 part 'database.g.dart';
@@ -20,7 +21,14 @@ part 'database.g.dart';
 /// Includes all tables and manages schema versioning.
 /// Use code generation: `dart run build_runner build --delete-conflicting-outputs`
 @DriftDatabase(
-  tables: [Wallets, Transactions, InvestmentSnapshots, AppSettings, Categories],
+  tables: [
+    Wallets,
+    Transactions,
+    InvestmentSnapshots,
+    AppSettings,
+    Categories,
+    Budgets,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase._(super.e);
@@ -38,7 +46,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 6; // Update to 6 manually here for migration.
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration {
@@ -72,6 +80,9 @@ class AppDatabase extends _$AppDatabase {
         if (from < 6) {
           await m.addColumn(transactions, transactions.updatedAt);
           await m.addColumn(categories, categories.updatedAt);
+        }
+        if (from < 7) {
+          await m.createTable(budgets);
         }
       },
       beforeOpen: (details) async {

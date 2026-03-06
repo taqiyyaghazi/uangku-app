@@ -110,6 +110,50 @@ class MockSyncService extends _i1.Mock implements _i3.SyncService {
           as _i4.Future<void>);
 
   @override
+  _i4.Future<void> upsertBudget(
+    String? userId,
+    String? budgetId,
+    Map<String, dynamic>? data,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#upsertBudget, [userId, budgetId, data]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> deleteBudget(String? userId, String? budgetId) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteBudget, [userId, budgetId]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> upsertInvestment(
+    String? userId,
+    String? snapshotId,
+    Map<String, dynamic>? data,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#upsertInvestment, [userId, snapshotId, data]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> deleteInvestment(String? userId, String? snapshotId) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteInvestment, [userId, snapshotId]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
   _i4.Future<List<Map<String, dynamic>>> fetchAllTransactions(String? userId) =>
       (super.noSuchMethod(
             Invocation.method(#fetchAllTransactions, [userId]),
@@ -133,6 +177,26 @@ class MockSyncService extends _i1.Mock implements _i3.SyncService {
   _i4.Future<List<Map<String, dynamic>>> fetchAllWallets(String? userId) =>
       (super.noSuchMethod(
             Invocation.method(#fetchAllWallets, [userId]),
+            returnValue: _i4.Future<List<Map<String, dynamic>>>.value(
+              <Map<String, dynamic>>[],
+            ),
+          )
+          as _i4.Future<List<Map<String, dynamic>>>);
+
+  @override
+  _i4.Future<List<Map<String, dynamic>>> fetchAllBudgets(String? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchAllBudgets, [userId]),
+            returnValue: _i4.Future<List<Map<String, dynamic>>>.value(
+              <Map<String, dynamic>>[],
+            ),
+          )
+          as _i4.Future<List<Map<String, dynamic>>>);
+
+  @override
+  _i4.Future<List<Map<String, dynamic>>> fetchAllInvestments(String? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchAllInvestments, [userId]),
             returnValue: _i4.Future<List<Map<String, dynamic>>>.value(
               <Map<String, dynamic>>[],
             ),
