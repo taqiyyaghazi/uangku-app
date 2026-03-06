@@ -53,4 +53,15 @@ class SettingsRepository {
       return null;
     }
   }
+
+  /// Checks if the initial push to cloud has been completed.
+  Future<bool> isInitialPushCompleted() async {
+    final val = await getDouble('is_initial_push_completed');
+    return val == 1.0;
+  }
+
+  /// Marks the initial push to cloud as completed.
+  Future<void> markInitialPushCompleted() async {
+    await setDouble('is_initial_push_completed', 1.0);
+  }
 }

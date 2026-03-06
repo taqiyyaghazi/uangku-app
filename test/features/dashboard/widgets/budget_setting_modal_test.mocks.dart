@@ -54,4 +54,22 @@ class MockSettingsRepository extends _i1.Mock
             returnValueForMissingStub: _i3.Future<double?>.value(),
           )
           as _i3.Future<double?>);
+
+  @override
+  _i3.Future<bool> isInitialPushCompleted() =>
+      (super.noSuchMethod(
+            Invocation.method(#isInitialPushCompleted, []),
+            returnValue: _i3.Future<bool>.value(false),
+            returnValueForMissingStub: _i3.Future<bool>.value(false),
+          )
+          as _i3.Future<bool>);
+
+  @override
+  _i3.Future<void> markInitialPushCompleted() =>
+      (super.noSuchMethod(
+            Invocation.method(#markInitialPushCompleted, []),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
 }

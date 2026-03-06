@@ -17,9 +17,10 @@ abstract class SyncRepository {
   Future<void> deleteWallet(int walletId);
   Future<void> syncBudget(int categoryId, String periodMonth);
   Future<void> deleteBudget(int categoryId, String periodMonth);
-  Future<void> syncInvestment(int snapshotId);
+  Future<void> syncInvestment(int snapshotId, {InvestmentSnapshot? snapshot});
   Future<void> deleteInvestment(int snapshotId);
   Future<void> syncFromCloud();
+  Future<void> pushAllToCloud();
 
   Future<void> syncSetting(String key);
   Future<void> deleteSetting(String key);
@@ -203,20 +204,25 @@ class FirestoreSyncRepository implements SyncRepository {
   }
 
   @override
-  Future<void> syncInvestment(int snapshotId) async {
+  Future<void> syncInvestment(
+    int snapshotId, {
+    InvestmentSnapshot? snapshot,
+  }) async {
     final uid = _getUserId();
     if (uid == null) return;
 
     try {
-      final snapshot = await (_db.select(
-        _db.investmentSnapshots,
-      )..where((t) => t.id.equals(snapshotId))).getSingleOrNull();
+      final item =
+          snapshot ??
+          await (_db.select(
+            _db.investmentSnapshots,
+          )..where((t) => t.id.equals(snapshotId))).getSingleOrNull();
 
-      if (snapshot != null) {
+      if (item != null) {
         await _sync.upsertInvestment(
           uid,
-          snapshot.id.toString(),
-          FirestoreMapper.investmentToFirestore(snapshot),
+          item.id.toString(),
+          FirestoreMapper.investmentToFirestore(item),
         );
       }
     } catch (e, st) {
@@ -360,6 +366,86 @@ class FirestoreSyncRepository implements SyncRepository {
     } catch (e, st) {
       _monitoring.logError('Critical failure during cloud restoration', e, st);
       rethrow;
+    }
+  }
+
+  @override
+  Future<void> pushAllToCloud() async {
+    final uid = _getUserId();
+    if (uid == null) return;
+
+    try {
+      _monitoring.logInfo('Starting push of all local data to cloud...');
+
+      // 1. Fetch all local data
+      final categories = await _db.select(_db.categories).get();
+      final wallets = await _db.select(_db.wallets).get();
+      final transactions = await _db.select(_db.transactions).get();
+      final budgets = await _db.select(_db.budgets).get();
+      final investments = await _db.select(_db.investmentSnapshots).get();
+      final settings = await _db.select(_db.appSettings).get();
+
+      // 2. Push to Firestore
+      // Categories
+      for (final item in categories) {
+        await _sync.upsertCategory(
+          uid,
+          item.id.toString(),
+          FirestoreMapper.categoryToFirestore(item),
+        );
+      }
+      // Wallets
+      for (final item in wallets) {
+        await _sync.upsertWallet(
+          uid,
+          item.id.toString(),
+          FirestoreMapper.walletToFirestore(item),
+        );
+      }
+      // Transactions
+      for (final item in transactions) {
+        await _sync.upsertTransaction(
+          uid,
+          item.id.toString(),
+          FirestoreMapper.transactionToFirestore(item),
+        );
+      }
+      // Budgets
+      for (final item in budgets) {
+        final budgetId = '${item.categoryId}_${item.periodMonth}';
+        await _sync.upsertBudget(
+          uid,
+          budgetId,
+          FirestoreMapper.budgetToFirestore(item),
+        );
+      }
+      // Investments
+      for (final item in investments) {
+        await _sync.upsertInvestment(
+          uid,
+          item.id.toString(),
+          FirestoreMapper.investmentToFirestore(item),
+        );
+      }
+      // Settings
+      for (final item in settings) {
+        await _sync.upsertSetting(
+          uid,
+          item.key,
+          FirestoreMapper.settingToFirestore(item),
+        );
+      }
+
+      _monitoring.logInfo('Successfully pushed all local data to cloud', {
+        'categories': categories.length,
+        'wallets': wallets.length,
+        'transactions': transactions.length,
+        'budgets': budgets.length,
+        'investments': investments.length,
+        'settings': settings.length,
+      });
+    } catch (e, st) {
+      _monitoring.logError('Failure during cloud push', e, st);
     }
   }
 }

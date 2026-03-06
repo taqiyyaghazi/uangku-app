@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uangku/core/di/providers.dart';
+import 'package:uangku/features/dashboard/logic/settings_providers.dart';
 import 'package:uangku/core/services/monitoring_service.dart';
 import 'package:uangku/features/auth/state/auth_provider.dart';
 
@@ -67,7 +68,7 @@ class SyncStatusNotifier extends Notifier<SyncStatusState> {
     final user = ref.read(authStateProvider).value;
     if (user == null) return;
 
-    // 3. Check if local DB is empty (specifically wallets)
+    // 3. Check if local DB has data (specifically wallets)
     try {
       final wallets = await ref
           .read(walletRepositoryProvider)
@@ -75,11 +76,31 @@ class SyncStatusNotifier extends Notifier<SyncStatusState> {
           .first;
 
       if (wallets.isNotEmpty) {
-        // Data already exists, mark as attempted to prevent redundant checks.
-        _monitoring.logInfo(
-          'Data already exists locally, skipping cloud restoration',
+        // Data exists locally. Check if we need to push it to cloud.
+        final settingsRepo = ref.read(settingsRepositoryProvider);
+        final isPushed = await settingsRepo.isInitialPushCompleted();
+
+        if (!isPushed) {
+          _monitoring.logInfo(
+            'Local data exists but not pushed to cloud yet. Starting push...',
+          );
+          state = SyncStatusState.syncing('Backing up your data to cloud...');
+
+          final syncRepo = ref.read(syncRepositoryProvider);
+          await syncRepo.pushAllToCloud();
+          await settingsRepo.markInitialPushCompleted();
+
+          _monitoring.logInfo('Local data push completed.');
+        } else {
+          _monitoring.logInfo(
+            'Data already exists and pushed, skipping cloud sync actions',
+          );
+        }
+
+        state = state.copyWith(
+          status: SyncStatus.idle,
+          hasAttemptedRestoration: true,
         );
-        state = state.copyWith(hasAttemptedRestoration: true);
         return;
       }
     } catch (e, st) {

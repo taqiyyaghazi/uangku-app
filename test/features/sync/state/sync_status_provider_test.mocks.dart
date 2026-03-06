@@ -3,16 +3,21 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i4;
+import 'dart:async' as _i6;
 
+import 'package:drift/drift.dart' as _i3;
+import 'package:drift/src/runtime/executor/stream_queries.dart' as _i5;
 import 'package:firebase_analytics/firebase_analytics.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:uangku/core/services/monitoring_service.dart' as _i9;
-import 'package:uangku/data/database.dart' as _i6;
-import 'package:uangku/data/repositories/wallet_repository.dart' as _i5;
-import 'package:uangku/features/auth/models/user_profile.dart' as _i8;
-import 'package:uangku/features/auth/repository/auth_repository.dart' as _i7;
-import 'package:uangku/features/sync/repository/sync_repository.dart' as _i3;
+import 'package:mockito/src/dummies.dart' as _i13;
+import 'package:uangku/core/services/monitoring_service.dart' as _i11;
+import 'package:uangku/data/database.dart' as _i4;
+import 'package:uangku/data/repositories/settings_repository.dart' as _i12;
+import 'package:uangku/data/repositories/wallet_repository.dart' as _i8;
+import 'package:uangku/features/auth/models/user_profile.dart' as _i10;
+import 'package:uangku/features/auth/repository/auth_repository.dart' as _i9;
+import 'package:uangku/features/sync/repository/sync_repository.dart' as _i7;
+import 'package:uangku/features/sync/services/sync_service.dart' as _i14;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -35,219 +40,381 @@ class _FakeFirebaseAnalyticsObserver_0 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
+class _FakeMigrationStrategy_1 extends _i1.SmartFake
+    implements _i3.MigrationStrategy {
+  _FakeMigrationStrategy_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$AppDatabaseManager_2 extends _i1.SmartFake
+    implements _i4.$AppDatabaseManager {
+  _Fake$AppDatabaseManager_2(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$WalletsTable_3 extends _i1.SmartFake implements _i4.$WalletsTable {
+  _Fake$WalletsTable_3(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$CategoriesTable_4 extends _i1.SmartFake
+    implements _i4.$CategoriesTable {
+  _Fake$CategoriesTable_4(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$TransactionsTable_5 extends _i1.SmartFake
+    implements _i4.$TransactionsTable {
+  _Fake$TransactionsTable_5(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$InvestmentSnapshotsTable_6 extends _i1.SmartFake
+    implements _i4.$InvestmentSnapshotsTable {
+  _Fake$InvestmentSnapshotsTable_6(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$AppSettingsTable_7 extends _i1.SmartFake
+    implements _i4.$AppSettingsTable {
+  _Fake$AppSettingsTable_7(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$BudgetsTable_8 extends _i1.SmartFake implements _i4.$BudgetsTable {
+  _Fake$BudgetsTable_8(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeGeneratedDatabase_9 extends _i1.SmartFake
+    implements _i3.GeneratedDatabase {
+  _FakeGeneratedDatabase_9(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeDriftDatabaseOptions_10 extends _i1.SmartFake
+    implements _i3.DriftDatabaseOptions {
+  _FakeDriftDatabaseOptions_10(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeStreamQueryUpdateRules_11 extends _i1.SmartFake
+    implements _i3.StreamQueryUpdateRules {
+  _FakeStreamQueryUpdateRules_11(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeDatabaseConnection_12 extends _i1.SmartFake
+    implements _i3.DatabaseConnection {
+  _FakeDatabaseConnection_12(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeQueryExecutor_13 extends _i1.SmartFake implements _i3.QueryExecutor {
+  _FakeQueryExecutor_13(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeStreamQueryStore_14 extends _i1.SmartFake
+    implements _i5.StreamQueryStore {
+  _FakeStreamQueryStore_14(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeDatabaseConnectionUser_15 extends _i1.SmartFake
+    implements _i3.DatabaseConnectionUser {
+  _FakeDatabaseConnectionUser_15(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeMigrator_16 extends _i1.SmartFake implements _i3.Migrator {
+  _FakeMigrator_16(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeFuture_17<T1> extends _i1.SmartFake implements _i6.Future<T1> {
+  _FakeFuture_17(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeInsertStatement_18<T1 extends _i3.Table, D1> extends _i1.SmartFake
+    implements _i3.InsertStatement<T1, D1> {
+  _FakeInsertStatement_18(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeUpdateStatement_19<T extends _i3.Table, D> extends _i1.SmartFake
+    implements _i3.UpdateStatement<T, D> {
+  _FakeUpdateStatement_19(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeSimpleSelectStatement_20<T1 extends _i3.HasResultSet, D>
+    extends _i1.SmartFake
+    implements _i3.SimpleSelectStatement<T1, D> {
+  _FakeSimpleSelectStatement_20(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeJoinedSelectStatement_21<FirstT extends _i3.HasResultSet, FirstD>
+    extends _i1.SmartFake
+    implements _i3.JoinedSelectStatement<FirstT, FirstD> {
+  _FakeJoinedSelectStatement_21(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeBaseSelectStatement_22<Row> extends _i1.SmartFake
+    implements _i3.BaseSelectStatement<Row> {
+  _FakeBaseSelectStatement_22(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeDeleteStatement_23<T1 extends _i3.Table, D1> extends _i1.SmartFake
+    implements _i3.DeleteStatement<T1, D1> {
+  _FakeDeleteStatement_23(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeSelectable_24<T> extends _i1.SmartFake implements _i3.Selectable<T> {
+  _FakeSelectable_24(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeGenerationContext_25 extends _i1.SmartFake
+    implements _i3.GenerationContext {
+  _FakeGenerationContext_25(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [SyncRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSyncRepository extends _i1.Mock implements _i3.SyncRepository {
+class MockSyncRepository extends _i1.Mock implements _i7.SyncRepository {
   MockSyncRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<void> syncTransaction(int? transactionId) =>
+  _i6.Future<void> syncTransaction(int? transactionId) =>
       (super.noSuchMethod(
             Invocation.method(#syncTransaction, [transactionId]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i4.Future<void> deleteTransaction(int? transactionId) =>
+  _i6.Future<void> deleteTransaction(int? transactionId) =>
       (super.noSuchMethod(
             Invocation.method(#deleteTransaction, [transactionId]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i4.Future<void> syncCategory(int? categoryId) =>
+  _i6.Future<void> syncCategory(int? categoryId) =>
       (super.noSuchMethod(
             Invocation.method(#syncCategory, [categoryId]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i4.Future<void> deleteCategory(int? categoryId) =>
+  _i6.Future<void> deleteCategory(int? categoryId) =>
       (super.noSuchMethod(
             Invocation.method(#deleteCategory, [categoryId]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i4.Future<void> syncWallet(int? walletId) =>
+  _i6.Future<void> syncWallet(int? walletId) =>
       (super.noSuchMethod(
             Invocation.method(#syncWallet, [walletId]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i4.Future<void> deleteWallet(int? walletId) =>
+  _i6.Future<void> deleteWallet(int? walletId) =>
       (super.noSuchMethod(
             Invocation.method(#deleteWallet, [walletId]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i4.Future<void> syncBudget(int? categoryId, String? periodMonth) =>
+  _i6.Future<void> syncBudget(int? categoryId, String? periodMonth) =>
       (super.noSuchMethod(
             Invocation.method(#syncBudget, [categoryId, periodMonth]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i4.Future<void> deleteBudget(int? categoryId, String? periodMonth) =>
+  _i6.Future<void> deleteBudget(int? categoryId, String? periodMonth) =>
       (super.noSuchMethod(
             Invocation.method(#deleteBudget, [categoryId, periodMonth]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i4.Future<void> syncInvestment(int? snapshotId) =>
+  _i6.Future<void> syncInvestment(
+    int? snapshotId, {
+    _i4.InvestmentSnapshot? snapshot,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#syncInvestment, [snapshotId]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            Invocation.method(
+              #syncInvestment,
+              [snapshotId],
+              {#snapshot: snapshot},
+            ),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i4.Future<void> deleteInvestment(int? snapshotId) =>
+  _i6.Future<void> deleteInvestment(int? snapshotId) =>
       (super.noSuchMethod(
             Invocation.method(#deleteInvestment, [snapshotId]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i4.Future<void> syncFromCloud() =>
+  _i6.Future<void> syncFromCloud() =>
       (super.noSuchMethod(
             Invocation.method(#syncFromCloud, []),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i4.Future<void> syncSetting(String? key) =>
+  _i6.Future<void> pushAllToCloud() =>
+      (super.noSuchMethod(
+            Invocation.method(#pushAllToCloud, []),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> syncSetting(String? key) =>
       (super.noSuchMethod(
             Invocation.method(#syncSetting, [key]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i4.Future<void> deleteSetting(String? key) =>
+  _i6.Future<void> deleteSetting(String? key) =>
       (super.noSuchMethod(
             Invocation.method(#deleteSetting, [key]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i6.Future<void>);
 }
 
 /// A class which mocks [WalletRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockWalletRepository extends _i1.Mock implements _i5.WalletRepository {
+class MockWalletRepository extends _i1.Mock implements _i8.WalletRepository {
   MockWalletRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Stream<List<_i6.Wallet>> watchAllWallets() =>
+  _i6.Stream<List<_i4.Wallet>> watchAllWallets() =>
       (super.noSuchMethod(
             Invocation.method(#watchAllWallets, []),
-            returnValue: _i4.Stream<List<_i6.Wallet>>.empty(),
+            returnValue: _i6.Stream<List<_i4.Wallet>>.empty(),
           )
-          as _i4.Stream<List<_i6.Wallet>>);
+          as _i6.Stream<List<_i4.Wallet>>);
 
   @override
-  _i4.Future<int> createWallet(_i6.WalletsCompanion? wallet) =>
+  _i6.Future<int> createWallet(_i4.WalletsCompanion? wallet) =>
       (super.noSuchMethod(
             Invocation.method(#createWallet, [wallet]),
-            returnValue: _i4.Future<int>.value(0),
+            returnValue: _i6.Future<int>.value(0),
           )
-          as _i4.Future<int>);
+          as _i6.Future<int>);
 
   @override
-  _i4.Future<bool> updateWallet(_i6.WalletsCompanion? wallet) =>
+  _i6.Future<bool> updateWallet(_i4.WalletsCompanion? wallet) =>
       (super.noSuchMethod(
             Invocation.method(#updateWallet, [wallet]),
-            returnValue: _i4.Future<bool>.value(false),
+            returnValue: _i6.Future<bool>.value(false),
           )
-          as _i4.Future<bool>);
+          as _i6.Future<bool>);
 
   @override
-  _i4.Future<bool> deleteWallet(int? id) =>
+  _i6.Future<bool> deleteWallet(int? id) =>
       (super.noSuchMethod(
             Invocation.method(#deleteWallet, [id]),
-            returnValue: _i4.Future<bool>.value(false),
+            returnValue: _i6.Future<bool>.value(false),
           )
-          as _i4.Future<bool>);
+          as _i6.Future<bool>);
 
   @override
-  _i4.Future<_i6.Wallet?> getWalletById(int? id) =>
+  _i6.Future<_i4.Wallet?> getWalletById(int? id) =>
       (super.noSuchMethod(
             Invocation.method(#getWalletById, [id]),
-            returnValue: _i4.Future<_i6.Wallet?>.value(),
+            returnValue: _i6.Future<_i4.Wallet?>.value(),
           )
-          as _i4.Future<_i6.Wallet?>);
+          as _i6.Future<_i4.Wallet?>);
 }
 
 /// A class which mocks [AuthRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockAuthRepository extends _i1.Mock implements _i7.AuthRepository {
+class MockAuthRepository extends _i1.Mock implements _i9.AuthRepository {
   MockAuthRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Stream<_i8.UserProfile?> get authStateChanges =>
+  _i6.Stream<_i10.UserProfile?> get authStateChanges =>
       (super.noSuchMethod(
             Invocation.getter(#authStateChanges),
-            returnValue: _i4.Stream<_i8.UserProfile?>.empty(),
+            returnValue: _i6.Stream<_i10.UserProfile?>.empty(),
           )
-          as _i4.Stream<_i8.UserProfile?>);
+          as _i6.Stream<_i10.UserProfile?>);
 
   @override
-  _i4.Future<_i8.UserProfile?> signInWithGoogle() =>
+  _i6.Future<_i10.UserProfile?> signInWithGoogle() =>
       (super.noSuchMethod(
             Invocation.method(#signInWithGoogle, []),
-            returnValue: _i4.Future<_i8.UserProfile?>.value(),
+            returnValue: _i6.Future<_i10.UserProfile?>.value(),
           )
-          as _i4.Future<_i8.UserProfile?>);
+          as _i6.Future<_i10.UserProfile?>);
 
   @override
-  _i4.Future<void> signOut() =>
+  _i6.Future<void> signOut() =>
       (super.noSuchMethod(
             Invocation.method(#signOut, []),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i6.Future<void>);
 }
 
 /// A class which mocks [MonitoringService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockMonitoringService extends _i1.Mock implements _i9.MonitoringService {
+class MockMonitoringService extends _i1.Mock implements _i11.MonitoringService {
   MockMonitoringService() {
     _i1.throwOnMissingStub(this);
   }
@@ -264,7 +431,7 @@ class MockMonitoringService extends _i1.Mock implements _i9.MonitoringService {
           as _i2.FirebaseAnalyticsObserver);
 
   @override
-  _i4.Future<void> logEvent({
+  _i6.Future<void> logEvent({
     required String? name,
     Map<String, Object>? parameters,
   }) =>
@@ -273,22 +440,22 @@ class MockMonitoringService extends _i1.Mock implements _i9.MonitoringService {
               #name: name,
               #parameters: parameters,
             }),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i4.Future<void> setUserId(String? userId) =>
+  _i6.Future<void> setUserId(String? userId) =>
       (super.noSuchMethod(
             Invocation.method(#setUserId, [userId]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i4.Future<void> setUserProperty({
+  _i6.Future<void> setUserProperty({
     required String? name,
     required String? value,
   }) =>
@@ -297,13 +464,13 @@ class MockMonitoringService extends _i1.Mock implements _i9.MonitoringService {
               #name: name,
               #value: value,
             }),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i4.Future<void> recordError(
+  _i6.Future<void> recordError(
     dynamic exception,
     StackTrace? stack, {
     dynamic reason,
@@ -315,19 +482,19 @@ class MockMonitoringService extends _i1.Mock implements _i9.MonitoringService {
               [exception, stack],
               {#reason: reason, #fatal: fatal},
             ),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i4.Future<void> log(String? message) =>
+  _i6.Future<void> log(String? message) =>
       (super.noSuchMethod(
             Invocation.method(#log, [message]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i6.Future<void>);
 
   @override
   void logInfo(String? message, [Map<String, Object>? context]) =>
@@ -346,4 +513,910 @@ class MockMonitoringService extends _i1.Mock implements _i9.MonitoringService {
     Invocation.method(#logError, [message, exception, stack, context]),
     returnValueForMissingStub: null,
   );
+}
+
+/// A class which mocks [SettingsRepository].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockSettingsRepository extends _i1.Mock
+    implements _i12.SettingsRepository {
+  MockSettingsRepository() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i6.Stream<double?> watchDouble(String? key) =>
+      (super.noSuchMethod(
+            Invocation.method(#watchDouble, [key]),
+            returnValue: _i6.Stream<double?>.empty(),
+          )
+          as _i6.Stream<double?>);
+
+  @override
+  _i6.Future<void> setDouble(String? key, double? value) =>
+      (super.noSuchMethod(
+            Invocation.method(#setDouble, [key, value]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<double?> getDouble(String? key) =>
+      (super.noSuchMethod(
+            Invocation.method(#getDouble, [key]),
+            returnValue: _i6.Future<double?>.value(),
+          )
+          as _i6.Future<double?>);
+
+  @override
+  _i6.Future<bool> isInitialPushCompleted() =>
+      (super.noSuchMethod(
+            Invocation.method(#isInitialPushCompleted, []),
+            returnValue: _i6.Future<bool>.value(false),
+          )
+          as _i6.Future<bool>);
+
+  @override
+  _i6.Future<void> markInitialPushCompleted() =>
+      (super.noSuchMethod(
+            Invocation.method(#markInitialPushCompleted, []),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+}
+
+/// A class which mocks [AppDatabase].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockAppDatabase extends _i1.Mock implements _i4.AppDatabase {
+  MockAppDatabase() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  int get schemaVersion =>
+      (super.noSuchMethod(Invocation.getter(#schemaVersion), returnValue: 0)
+          as int);
+
+  @override
+  _i3.MigrationStrategy get migration =>
+      (super.noSuchMethod(
+            Invocation.getter(#migration),
+            returnValue: _FakeMigrationStrategy_1(
+              this,
+              Invocation.getter(#migration),
+            ),
+          )
+          as _i3.MigrationStrategy);
+
+  @override
+  _i4.$AppDatabaseManager get managers =>
+      (super.noSuchMethod(
+            Invocation.getter(#managers),
+            returnValue: _Fake$AppDatabaseManager_2(
+              this,
+              Invocation.getter(#managers),
+            ),
+          )
+          as _i4.$AppDatabaseManager);
+
+  @override
+  _i4.$WalletsTable get wallets =>
+      (super.noSuchMethod(
+            Invocation.getter(#wallets),
+            returnValue: _Fake$WalletsTable_3(
+              this,
+              Invocation.getter(#wallets),
+            ),
+          )
+          as _i4.$WalletsTable);
+
+  @override
+  _i4.$CategoriesTable get categories =>
+      (super.noSuchMethod(
+            Invocation.getter(#categories),
+            returnValue: _Fake$CategoriesTable_4(
+              this,
+              Invocation.getter(#categories),
+            ),
+          )
+          as _i4.$CategoriesTable);
+
+  @override
+  _i4.$TransactionsTable get transactions =>
+      (super.noSuchMethod(
+            Invocation.getter(#transactions),
+            returnValue: _Fake$TransactionsTable_5(
+              this,
+              Invocation.getter(#transactions),
+            ),
+          )
+          as _i4.$TransactionsTable);
+
+  @override
+  _i4.$InvestmentSnapshotsTable get investmentSnapshots =>
+      (super.noSuchMethod(
+            Invocation.getter(#investmentSnapshots),
+            returnValue: _Fake$InvestmentSnapshotsTable_6(
+              this,
+              Invocation.getter(#investmentSnapshots),
+            ),
+          )
+          as _i4.$InvestmentSnapshotsTable);
+
+  @override
+  _i4.$AppSettingsTable get appSettings =>
+      (super.noSuchMethod(
+            Invocation.getter(#appSettings),
+            returnValue: _Fake$AppSettingsTable_7(
+              this,
+              Invocation.getter(#appSettings),
+            ),
+          )
+          as _i4.$AppSettingsTable);
+
+  @override
+  _i4.$BudgetsTable get budgets =>
+      (super.noSuchMethod(
+            Invocation.getter(#budgets),
+            returnValue: _Fake$BudgetsTable_8(
+              this,
+              Invocation.getter(#budgets),
+            ),
+          )
+          as _i4.$BudgetsTable);
+
+  @override
+  Iterable<_i3.TableInfo<_i3.Table, Object?>> get allTables =>
+      (super.noSuchMethod(
+            Invocation.getter(#allTables),
+            returnValue: <_i3.TableInfo<_i3.Table, Object?>>[],
+          )
+          as Iterable<_i3.TableInfo<_i3.Table, Object?>>);
+
+  @override
+  List<_i3.DatabaseSchemaEntity> get allSchemaEntities =>
+      (super.noSuchMethod(
+            Invocation.getter(#allSchemaEntities),
+            returnValue: <_i3.DatabaseSchemaEntity>[],
+          )
+          as List<_i3.DatabaseSchemaEntity>);
+
+  @override
+  _i3.GeneratedDatabase get attachedDatabase =>
+      (super.noSuchMethod(
+            Invocation.getter(#attachedDatabase),
+            returnValue: _FakeGeneratedDatabase_9(
+              this,
+              Invocation.getter(#attachedDatabase),
+            ),
+          )
+          as _i3.GeneratedDatabase);
+
+  @override
+  _i3.DriftDatabaseOptions get options =>
+      (super.noSuchMethod(
+            Invocation.getter(#options),
+            returnValue: _FakeDriftDatabaseOptions_10(
+              this,
+              Invocation.getter(#options),
+            ),
+          )
+          as _i3.DriftDatabaseOptions);
+
+  @override
+  _i3.StreamQueryUpdateRules get streamUpdateRules =>
+      (super.noSuchMethod(
+            Invocation.getter(#streamUpdateRules),
+            returnValue: _FakeStreamQueryUpdateRules_11(
+              this,
+              Invocation.getter(#streamUpdateRules),
+            ),
+          )
+          as _i3.StreamQueryUpdateRules);
+
+  @override
+  _i3.DatabaseConnection get connection =>
+      (super.noSuchMethod(
+            Invocation.getter(#connection),
+            returnValue: _FakeDatabaseConnection_12(
+              this,
+              Invocation.getter(#connection),
+            ),
+          )
+          as _i3.DatabaseConnection);
+
+  @override
+  _i3.SqlTypes get typeMapping =>
+      (super.noSuchMethod(
+            Invocation.getter(#typeMapping),
+            returnValue: _i13.dummyValue<_i3.SqlTypes>(
+              this,
+              Invocation.getter(#typeMapping),
+            ),
+          )
+          as _i3.SqlTypes);
+
+  @override
+  _i3.QueryExecutor get executor =>
+      (super.noSuchMethod(
+            Invocation.getter(#executor),
+            returnValue: _FakeQueryExecutor_13(
+              this,
+              Invocation.getter(#executor),
+            ),
+          )
+          as _i3.QueryExecutor);
+
+  @override
+  _i5.StreamQueryStore get streamQueries =>
+      (super.noSuchMethod(
+            Invocation.getter(#streamQueries),
+            returnValue: _FakeStreamQueryStore_14(
+              this,
+              Invocation.getter(#streamQueries),
+            ),
+          )
+          as _i5.StreamQueryStore);
+
+  @override
+  _i3.DatabaseConnectionUser get resolvedEngine =>
+      (super.noSuchMethod(
+            Invocation.getter(#resolvedEngine),
+            returnValue: _FakeDatabaseConnectionUser_15(
+              this,
+              Invocation.getter(#resolvedEngine),
+            ),
+          )
+          as _i3.DatabaseConnectionUser);
+
+  @override
+  _i3.Migrator createMigrator() =>
+      (super.noSuchMethod(
+            Invocation.method(#createMigrator, []),
+            returnValue: _FakeMigrator_16(
+              this,
+              Invocation.method(#createMigrator, []),
+            ),
+          )
+          as _i3.Migrator);
+
+  @override
+  _i6.Future<void> beforeOpen(
+    _i3.QueryExecutor? executor,
+    _i3.OpeningDetails? details,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#beforeOpen, [executor, details]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> close() =>
+      (super.noSuchMethod(
+            Invocation.method(#close, []),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Stream<T> createStream<T extends Object>(
+    _i5.QueryStreamFetcher<T>? stmt,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#createStream, [stmt]),
+            returnValue: _i6.Stream<T>.empty(),
+          )
+          as _i6.Stream<T>);
+
+  @override
+  T alias<T, D>(_i3.ResultSetImplementation<T, D>? table, String? alias) =>
+      (super.noSuchMethod(
+            Invocation.method(#alias, [table, alias]),
+            returnValue: _i13.dummyValue<T>(
+              this,
+              Invocation.method(#alias, [table, alias]),
+            ),
+          )
+          as T);
+
+  @override
+  void markTablesUpdated(Iterable<_i3.TableInfo<_i3.Table, dynamic>>? tables) =>
+      super.noSuchMethod(
+        Invocation.method(#markTablesUpdated, [tables]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void notifyUpdates(Set<_i3.TableUpdate>? updates) => super.noSuchMethod(
+    Invocation.method(#notifyUpdates, [updates]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  _i6.Stream<Set<_i3.TableUpdate>> tableUpdates([
+    _i3.TableUpdateQuery? query = const _i3.TableUpdateQuery.any(),
+  ]) =>
+      (super.noSuchMethod(
+            Invocation.method(#tableUpdates, [query]),
+            returnValue: _i6.Stream<Set<_i3.TableUpdate>>.empty(),
+          )
+          as _i6.Stream<Set<_i3.TableUpdate>>);
+
+  @override
+  _i6.Future<T> doWhenOpened<T>(
+    _i6.FutureOr<T> Function(_i3.QueryExecutor)? fn,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#doWhenOpened, [fn]),
+            returnValue:
+                _i13.ifNotNull(
+                  _i13.dummyValueOrNull<T>(
+                    this,
+                    Invocation.method(#doWhenOpened, [fn]),
+                  ),
+                  (T v) => _i6.Future<T>.value(v),
+                ) ??
+                _FakeFuture_17<T>(this, Invocation.method(#doWhenOpened, [fn])),
+          )
+          as _i6.Future<T>);
+
+  @override
+  _i3.InsertStatement<T, D> into<T extends _i3.Table, D>(
+    _i3.TableInfo<T, D>? table,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#into, [table]),
+            returnValue: _FakeInsertStatement_18<T, D>(
+              this,
+              Invocation.method(#into, [table]),
+            ),
+          )
+          as _i3.InsertStatement<T, D>);
+
+  @override
+  _i3.UpdateStatement<Tbl, R> update<Tbl extends _i3.Table, R>(
+    _i3.TableInfo<Tbl, R>? table,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#update, [table]),
+            returnValue: _FakeUpdateStatement_19<Tbl, R>(
+              this,
+              Invocation.method(#update, [table]),
+            ),
+          )
+          as _i3.UpdateStatement<Tbl, R>);
+
+  @override
+  _i3.SimpleSelectStatement<T, R> select<T extends _i3.HasResultSet, R>(
+    _i3.ResultSetImplementation<T, R>? table, {
+    bool? distinct = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#select, [table], {#distinct: distinct}),
+            returnValue: _FakeSimpleSelectStatement_20<T, R>(
+              this,
+              Invocation.method(#select, [table], {#distinct: distinct}),
+            ),
+          )
+          as _i3.SimpleSelectStatement<T, R>);
+
+  @override
+  _i3.JoinedSelectStatement<T, R> selectOnly<T extends _i3.HasResultSet, R>(
+    _i3.ResultSetImplementation<T, R>? table, {
+    bool? distinct = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#selectOnly, [table], {#distinct: distinct}),
+            returnValue: _FakeJoinedSelectStatement_21<T, R>(
+              this,
+              Invocation.method(#selectOnly, [table], {#distinct: distinct}),
+            ),
+          )
+          as _i3.JoinedSelectStatement<T, R>);
+
+  @override
+  _i3.BaseSelectStatement<_i3.TypedResult> selectExpressions(
+    Iterable<_i3.Expression<Object>>? columns,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#selectExpressions, [columns]),
+            returnValue: _FakeBaseSelectStatement_22<_i3.TypedResult>(
+              this,
+              Invocation.method(#selectExpressions, [columns]),
+            ),
+          )
+          as _i3.BaseSelectStatement<_i3.TypedResult>);
+
+  @override
+  _i3.DeleteStatement<T, D> delete<T extends _i3.Table, D>(
+    _i3.TableInfo<T, D>? table,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#delete, [table]),
+            returnValue: _FakeDeleteStatement_23<T, D>(
+              this,
+              Invocation.method(#delete, [table]),
+            ),
+          )
+          as _i3.DeleteStatement<T, D>);
+
+  @override
+  _i6.Future<int> customUpdate(
+    String? query, {
+    List<_i3.Variable<Object>>? variables = const [],
+    Set<_i3.ResultSetImplementation<dynamic, dynamic>>? updates,
+    _i3.UpdateKind? updateKind,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #customUpdate,
+              [query],
+              {
+                #variables: variables,
+                #updates: updates,
+                #updateKind: updateKind,
+              },
+            ),
+            returnValue: _i6.Future<int>.value(0),
+          )
+          as _i6.Future<int>);
+
+  @override
+  _i6.Future<int> customInsert(
+    String? query, {
+    List<_i3.Variable<Object>>? variables = const [],
+    Set<_i3.ResultSetImplementation<dynamic, dynamic>>? updates,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #customInsert,
+              [query],
+              {#variables: variables, #updates: updates},
+            ),
+            returnValue: _i6.Future<int>.value(0),
+          )
+          as _i6.Future<int>);
+
+  @override
+  _i6.Future<List<_i3.QueryRow>> customWriteReturning(
+    String? query, {
+    List<_i3.Variable<Object>>? variables = const [],
+    Set<_i3.ResultSetImplementation<dynamic, dynamic>>? updates,
+    _i3.UpdateKind? updateKind,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #customWriteReturning,
+              [query],
+              {
+                #variables: variables,
+                #updates: updates,
+                #updateKind: updateKind,
+              },
+            ),
+            returnValue: _i6.Future<List<_i3.QueryRow>>.value(<_i3.QueryRow>[]),
+          )
+          as _i6.Future<List<_i3.QueryRow>>);
+
+  @override
+  _i3.Selectable<_i3.QueryRow> customSelect(
+    String? query, {
+    List<_i3.Variable<Object>>? variables = const [],
+    Set<_i3.ResultSetImplementation<dynamic, dynamic>>? readsFrom = const {},
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #customSelect,
+              [query],
+              {#variables: variables, #readsFrom: readsFrom},
+            ),
+            returnValue: _FakeSelectable_24<_i3.QueryRow>(
+              this,
+              Invocation.method(
+                #customSelect,
+                [query],
+                {#variables: variables, #readsFrom: readsFrom},
+              ),
+            ),
+          )
+          as _i3.Selectable<_i3.QueryRow>);
+
+  @override
+  _i3.Selectable<_i3.QueryRow> customSelectQuery(
+    String? query, {
+    List<_i3.Variable<Object>>? variables = const [],
+    Set<_i3.ResultSetImplementation<dynamic, dynamic>>? readsFrom = const {},
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #customSelectQuery,
+              [query],
+              {#variables: variables, #readsFrom: readsFrom},
+            ),
+            returnValue: _FakeSelectable_24<_i3.QueryRow>(
+              this,
+              Invocation.method(
+                #customSelectQuery,
+                [query],
+                {#variables: variables, #readsFrom: readsFrom},
+              ),
+            ),
+          )
+          as _i3.Selectable<_i3.QueryRow>);
+
+  @override
+  _i6.Future<void> customStatement(String? statement, [List<dynamic>? args]) =>
+      (super.noSuchMethod(
+            Invocation.method(#customStatement, [statement, args]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<T> transaction<T>(
+    _i6.Future<T> Function()? action, {
+    bool? requireNew = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #transaction,
+              [action],
+              {#requireNew: requireNew},
+            ),
+            returnValue:
+                _i13.ifNotNull(
+                  _i13.dummyValueOrNull<T>(
+                    this,
+                    Invocation.method(
+                      #transaction,
+                      [action],
+                      {#requireNew: requireNew},
+                    ),
+                  ),
+                  (T v) => _i6.Future<T>.value(v),
+                ) ??
+                _FakeFuture_17<T>(
+                  this,
+                  Invocation.method(
+                    #transaction,
+                    [action],
+                    {#requireNew: requireNew},
+                  ),
+                ),
+          )
+          as _i6.Future<T>);
+
+  @override
+  _i6.Future<T> exclusively<T>(_i6.Future<T> Function()? action) =>
+      (super.noSuchMethod(
+            Invocation.method(#exclusively, [action]),
+            returnValue:
+                _i13.ifNotNull(
+                  _i13.dummyValueOrNull<T>(
+                    this,
+                    Invocation.method(#exclusively, [action]),
+                  ),
+                  (T v) => _i6.Future<T>.value(v),
+                ) ??
+                _FakeFuture_17<T>(
+                  this,
+                  Invocation.method(#exclusively, [action]),
+                ),
+          )
+          as _i6.Future<T>);
+
+  @override
+  _i6.Future<void> batch(_i6.FutureOr<void> Function(_i3.Batch)? runInBatch) =>
+      (super.noSuchMethod(
+            Invocation.method(#batch, [runInBatch]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<T> runWithInterceptor<T>(
+    _i6.Future<T> Function()? action, {
+    required _i3.QueryInterceptor? interceptor,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #runWithInterceptor,
+              [action],
+              {#interceptor: interceptor},
+            ),
+            returnValue:
+                _i13.ifNotNull(
+                  _i13.dummyValueOrNull<T>(
+                    this,
+                    Invocation.method(
+                      #runWithInterceptor,
+                      [action],
+                      {#interceptor: interceptor},
+                    ),
+                  ),
+                  (T v) => _i6.Future<T>.value(v),
+                ) ??
+                _FakeFuture_17<T>(
+                  this,
+                  Invocation.method(
+                    #runWithInterceptor,
+                    [action],
+                    {#interceptor: interceptor},
+                  ),
+                ),
+          )
+          as _i6.Future<T>);
+
+  @override
+  _i3.GenerationContext $write(
+    _i3.Component? component, {
+    bool? hasMultipleTables,
+    int? startIndex,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #$write,
+              [component],
+              {#hasMultipleTables: hasMultipleTables, #startIndex: startIndex},
+            ),
+            returnValue: _FakeGenerationContext_25(
+              this,
+              Invocation.method(
+                #$write,
+                [component],
+                {
+                  #hasMultipleTables: hasMultipleTables,
+                  #startIndex: startIndex,
+                },
+              ),
+            ),
+          )
+          as _i3.GenerationContext);
+
+  @override
+  _i3.GenerationContext $writeInsertable(
+    _i3.TableInfo<_i3.Table, dynamic>? table,
+    _i3.Insertable<dynamic>? insertable, {
+    int? startIndex,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #$writeInsertable,
+              [table, insertable],
+              {#startIndex: startIndex},
+            ),
+            returnValue: _FakeGenerationContext_25(
+              this,
+              Invocation.method(
+                #$writeInsertable,
+                [table, insertable],
+                {#startIndex: startIndex},
+              ),
+            ),
+          )
+          as _i3.GenerationContext);
+
+  @override
+  String $expandVar(int? start, int? amount) =>
+      (super.noSuchMethod(
+            Invocation.method(#$expandVar, [start, amount]),
+            returnValue: _i13.dummyValue<String>(
+              this,
+              Invocation.method(#$expandVar, [start, amount]),
+            ),
+          )
+          as String);
+}
+
+/// A class which mocks [SyncService].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockSyncService extends _i1.Mock implements _i14.SyncService {
+  MockSyncService() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i6.Future<void> upsertTransaction(
+    String? userId,
+    String? transactionId,
+    Map<String, dynamic>? data,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#upsertTransaction, [
+              userId,
+              transactionId,
+              data,
+            ]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> deleteTransaction(String? userId, String? transactionId) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteTransaction, [userId, transactionId]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> upsertCategory(
+    String? userId,
+    String? categoryId,
+    Map<String, dynamic>? data,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#upsertCategory, [userId, categoryId, data]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> deleteCategory(String? userId, String? categoryId) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteCategory, [userId, categoryId]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> upsertWallet(
+    String? userId,
+    String? walletId,
+    Map<String, dynamic>? data,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#upsertWallet, [userId, walletId, data]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> deleteWallet(String? userId, String? walletId) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteWallet, [userId, walletId]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> upsertBudget(
+    String? userId,
+    String? budgetId,
+    Map<String, dynamic>? data,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#upsertBudget, [userId, budgetId, data]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> deleteBudget(String? userId, String? budgetId) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteBudget, [userId, budgetId]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> upsertInvestment(
+    String? userId,
+    String? snapshotId,
+    Map<String, dynamic>? data,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#upsertInvestment, [userId, snapshotId, data]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> deleteInvestment(String? userId, String? snapshotId) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteInvestment, [userId, snapshotId]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<List<Map<String, dynamic>>> fetchAllTransactions(String? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchAllTransactions, [userId]),
+            returnValue: _i6.Future<List<Map<String, dynamic>>>.value(
+              <Map<String, dynamic>>[],
+            ),
+          )
+          as _i6.Future<List<Map<String, dynamic>>>);
+
+  @override
+  _i6.Future<List<Map<String, dynamic>>> fetchAllCategories(String? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchAllCategories, [userId]),
+            returnValue: _i6.Future<List<Map<String, dynamic>>>.value(
+              <Map<String, dynamic>>[],
+            ),
+          )
+          as _i6.Future<List<Map<String, dynamic>>>);
+
+  @override
+  _i6.Future<List<Map<String, dynamic>>> fetchAllWallets(String? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchAllWallets, [userId]),
+            returnValue: _i6.Future<List<Map<String, dynamic>>>.value(
+              <Map<String, dynamic>>[],
+            ),
+          )
+          as _i6.Future<List<Map<String, dynamic>>>);
+
+  @override
+  _i6.Future<List<Map<String, dynamic>>> fetchAllBudgets(String? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchAllBudgets, [userId]),
+            returnValue: _i6.Future<List<Map<String, dynamic>>>.value(
+              <Map<String, dynamic>>[],
+            ),
+          )
+          as _i6.Future<List<Map<String, dynamic>>>);
+
+  @override
+  _i6.Future<List<Map<String, dynamic>>> fetchAllInvestments(String? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchAllInvestments, [userId]),
+            returnValue: _i6.Future<List<Map<String, dynamic>>>.value(
+              <Map<String, dynamic>>[],
+            ),
+          )
+          as _i6.Future<List<Map<String, dynamic>>>);
+
+  @override
+  _i6.Future<void> upsertSetting(
+    String? userId,
+    String? key,
+    Map<String, dynamic>? data,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#upsertSetting, [userId, key, data]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> deleteSetting(String? userId, String? key) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteSetting, [userId, key]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<List<Map<String, dynamic>>> fetchAllSettings(String? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchAllSettings, [userId]),
+            returnValue: _i6.Future<List<Map<String, dynamic>>>.value(
+              <Map<String, dynamic>>[],
+            ),
+          )
+          as _i6.Future<List<Map<String, dynamic>>>);
 }
