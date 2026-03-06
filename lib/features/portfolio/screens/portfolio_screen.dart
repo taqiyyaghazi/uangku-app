@@ -13,6 +13,7 @@ import 'package:uangku/features/portfolio/logic/portfolio_providers.dart';
 import 'package:uangku/features/portfolio/widgets/allocation_donut_chart.dart';
 import 'package:uangku/features/portfolio/widgets/asset_update_sheet.dart';
 import 'package:uangku/features/portfolio/widgets/growth_line_chart.dart';
+import 'package:uangku/features/sync/widgets/sync_status_indicator.dart';
 import 'package:uangku/shared/utils/currency_formatter.dart';
 
 /// The portfolio screen showing asset allocation, net worth growth,
@@ -26,7 +27,14 @@ class PortfolioScreen extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Portfolio'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Portfolio'),
+        centerTitle: true,
+        actions: [
+          const SyncStatusIndicator(isLight: true),
+          const SizedBox(width: 16),
+        ],
+      ),
       body: walletsAsync.when(
         data: (wallets) {
           final investmentWallets = wallets

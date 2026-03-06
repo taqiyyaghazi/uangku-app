@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/features/auth/widgets/user_avatar_button.dart';
+import 'package:uangku/features/sync/widgets/sync_status_indicator.dart';
 import 'package:uangku/shared/utils/currency_formatter.dart';
 
 /// Dashboard header displaying the user's total balance across all wallets.
@@ -45,7 +46,13 @@ class DashboardHeader extends StatelessWidget {
                     letterSpacing: 0.5,
                   ),
                 ),
-                const UserAvatarButton(),
+                Row(
+                  children: [
+                    const SyncStatusIndicator(),
+                    const SizedBox(width: 16),
+                    const UserAvatarButton(),
+                  ],
+                ),
               ],
             ),
             const SizedBox(height: 8),

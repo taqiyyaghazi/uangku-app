@@ -6,6 +6,7 @@ import 'package:uangku/features/insights/providers/insights_provider.dart';
 import 'package:uangku/features/insights/widgets/daily_spending_line_chart.dart';
 import 'package:uangku/features/insights/widgets/monthly_comparison_card.dart';
 import 'package:uangku/features/insights/widgets/spending_pie_chart.dart';
+import 'package:uangku/features/sync/widgets/sync_status_indicator.dart';
 
 class InsightsScreen extends ConsumerWidget {
   const InsightsScreen({super.key});
@@ -41,6 +42,7 @@ class InsightsScreen extends ConsumerWidget {
         elevation: 0,
         centerTitle: false,
         actions: [
+          const SyncStatusIndicator(isLight: true),
           // Export to CSV
           IconButton(
             icon: exportState == ExportState.loading
