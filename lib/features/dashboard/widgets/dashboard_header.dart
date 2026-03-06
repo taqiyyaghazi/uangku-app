@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/features/auth/widgets/user_avatar_button.dart';
+import 'package:uangku/features/category/screens/category_list_screen.dart';
 import 'package:uangku/features/sync/widgets/sync_status_indicator.dart';
 import 'package:uangku/shared/utils/currency_formatter.dart';
 
@@ -48,6 +49,18 @@ class DashboardHeader extends StatelessWidget {
                 ),
                 Row(
                   children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const CategoryListScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.category, color: Colors.white),
+                      tooltip: 'Manage Categories',
+                    ),
+                    const SizedBox(width: 8),
                     const SyncStatusIndicator(),
                     const SizedBox(width: 16),
                     const UserAvatarButton(),
