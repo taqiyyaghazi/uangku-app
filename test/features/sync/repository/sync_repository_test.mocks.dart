@@ -100,4 +100,34 @@ class MockSyncService extends _i1.Mock implements _i2.SyncService {
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
           as _i3.Future<void>);
+
+  @override
+  _i3.Future<List<Map<String, dynamic>>> fetchAllTransactions(String? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchAllTransactions, [userId]),
+            returnValue: _i3.Future<List<Map<String, dynamic>>>.value(
+              <Map<String, dynamic>>[],
+            ),
+          )
+          as _i3.Future<List<Map<String, dynamic>>>);
+
+  @override
+  _i3.Future<List<Map<String, dynamic>>> fetchAllCategories(String? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchAllCategories, [userId]),
+            returnValue: _i3.Future<List<Map<String, dynamic>>>.value(
+              <Map<String, dynamic>>[],
+            ),
+          )
+          as _i3.Future<List<Map<String, dynamic>>>);
+
+  @override
+  _i3.Future<List<Map<String, dynamic>>> fetchAllWallets(String? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchAllWallets, [userId]),
+            returnValue: _i3.Future<List<Map<String, dynamic>>>.value(
+              <Map<String, dynamic>>[],
+            ),
+          )
+          as _i3.Future<List<Map<String, dynamic>>>);
 }

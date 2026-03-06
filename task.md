@@ -26,4 +26,4 @@
 ### Phase 5: Ship
 
 - [x] Create walkthrough.md
-- [ ] Git commit with conventional format
+- [x] Git commit with conventional format

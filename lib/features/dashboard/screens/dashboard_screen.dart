@@ -9,6 +9,7 @@ import 'package:uangku/features/dashboard/widgets/dashboard_header.dart';
 import 'package:uangku/features/dashboard/widgets/recent_activity_section.dart';
 import 'package:uangku/features/dashboard/widgets/wallet_form_sheet.dart';
 import 'package:uangku/features/dashboard/widgets/wallet_grid.dart';
+import 'package:uangku/features/sync/state/sync_status_provider.dart';
 import 'package:uangku/features/transaction/widgets/quick_entry_sheet.dart';
 
 /// The main dashboard screen displaying the wallet grid and total balance.
@@ -22,29 +23,93 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final walletsAsync = ref.watch(walletsProvider);
+    final syncStatus = ref.watch(syncStatusProvider);
+
+    // Trigger restoration on first load if local DB is empty.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (context.mounted) {
+        ref.read(syncStatusProvider.notifier).restoreDataIfNeeded();
+      }
+    });
+
+    // Listen for sync completion or error to show feedback.
+    ref.listen(syncStatusProvider, (previous, next) {
+      if (next.status == SyncStatus.completed) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Welcome back! Your data has been restored.'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        ref.read(syncStatusProvider.notifier).reset();
+      } else if (next.status == SyncStatus.error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.message ?? 'Failed to restore data'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        ref.read(syncStatusProvider.notifier).reset();
+      }
+    });
 
     return Scaffold(
-      body: walletsAsync.when(
-        data: (wallets) => _buildContent(context, ref, wallets),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 48, color: Colors.red),
-              const SizedBox(height: 16),
-              Text(
-                'Failed to load wallets',
-                style: Theme.of(context).textTheme.titleMedium,
+      body: Stack(
+        children: [
+          walletsAsync.when(
+            data: (wallets) => _buildContent(context, ref, wallets),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stack) => Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Failed to load wallets',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () => ref.invalidate(walletsProvider),
+                    child: const Text('Retry'),
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-              TextButton(
-                onPressed: () => ref.invalidate(walletsProvider),
-                child: const Text('Retry'),
-              ),
-            ],
+            ),
           ),
-        ),
+
+          // --- Sync Loading Overlay ---
+          if (syncStatus.status == SyncStatus.syncing)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withValues(alpha: 0.7),
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const CircularProgressIndicator(color: Colors.white),
+                      const SizedBox(height: 24),
+                      Text(
+                        syncStatus.message ?? 'Restoring your data...',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'This will only take a moment',
+                        style: TextStyle(color: Colors.white70, fontSize: 13),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => QuickEntrySheet.show(context),

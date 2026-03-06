@@ -101,4 +101,39 @@ class SyncService {
       _monitoring.logError('SyncService.deleteWallet failure', e, st);
     }
   }
+
+  // --- Bulk Fetching (Restoration) ---
+
+  /// Fetches all transactions for a user from Firestore.
+  Future<List<Map<String, dynamic>>> fetchAllTransactions(String userId) async {
+    try {
+      final snapshot = await _userCollection(userId, 'transactions').get();
+      return snapshot.docs.map((doc) => doc.data()).toList();
+    } catch (e, st) {
+      _monitoring.logError('SyncService.fetchAllTransactions failure', e, st);
+      return [];
+    }
+  }
+
+  /// Fetches all categories for a user from Firestore.
+  Future<List<Map<String, dynamic>>> fetchAllCategories(String userId) async {
+    try {
+      final snapshot = await _userCollection(userId, 'categories').get();
+      return snapshot.docs.map((doc) => doc.data()).toList();
+    } catch (e, st) {
+      _monitoring.logError('SyncService.fetchAllCategories failure', e, st);
+      return [];
+    }
+  }
+
+  /// Fetches all wallets for a user from Firestore.
+  Future<List<Map<String, dynamic>>> fetchAllWallets(String userId) async {
+    try {
+      final snapshot = await _userCollection(userId, 'wallets').get();
+      return snapshot.docs.map((doc) => doc.data()).toList();
+    } catch (e, st) {
+      _monitoring.logError('SyncService.fetchAllWallets failure', e, st);
+      return [];
+    }
+  }
 }

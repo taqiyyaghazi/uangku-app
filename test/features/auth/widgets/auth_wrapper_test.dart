@@ -9,6 +9,7 @@ import 'package:uangku/features/auth/screens/login_screen.dart';
 import 'package:uangku/features/auth/state/auth_provider.dart';
 import 'package:uangku/features/auth/widgets/auth_wrapper.dart';
 import 'package:uangku/features/main_shell.dart';
+import 'package:uangku/features/sync/state/sync_status_provider.dart';
 
 void main() {
   late AppDatabase database;
@@ -66,6 +67,7 @@ void main() {
         overrides: [
           authStateProvider.overrideWith((ref) => Stream.value(user)),
           databaseProvider.overrideWithValue(database),
+          syncStatusProvider.overrideWith(_MockSyncStatusNotifier.new),
         ],
         child: const MaterialApp(home: AuthWrapper()),
       ),
@@ -97,4 +99,17 @@ void main() {
 
     expect(find.byKey(const ValueKey('error')), findsOneWidget);
   });
+}
+
+/// A no-op [SyncStatusNotifier] for testing to avoid triggering cloud sync.
+class _MockSyncStatusNotifier extends SyncStatusNotifier {
+  _MockSyncStatusNotifier() : super();
+
+  @override
+  SyncStatusState build() => SyncStatusState.idle();
+
+  @override
+  Future<void> restoreDataIfNeeded() async {
+    // No-op for tests
+  }
 }

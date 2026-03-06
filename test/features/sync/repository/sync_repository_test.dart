@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart' as firestore;
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,6 +20,7 @@ void main() {
   String? userId = 'user-123';
 
   setUp(() {
+    userId = 'user-123';
     db = AppDatabase.forTesting(NativeDatabase.memory());
     mockSync = MockSyncService();
     syncRepository = SyncRepository(db, mockSync, () => userId);
@@ -114,6 +116,70 @@ void main() {
       await syncRepository.syncWallet(1);
 
       verifyNever(mockSync.upsertWallet(any, any, any));
+    });
+
+    test('syncFromCloud fetches all and performs batch insert', () async {
+      // 1. Mock responses
+      final now = DateTime.now();
+      final timestamp = firestore.Timestamp.fromDate(now);
+
+      final catData = {
+        'id': 1,
+        'name': 'Food',
+        'type': 'expense',
+        'iconCode': 'icon',
+        'createdAt': timestamp,
+        'updatedAt': timestamp,
+      };
+      final walletData = {
+        'id': 1,
+        'name': 'Cash',
+        'balance': 100.0,
+        'type': 'cash',
+        'colorHex': '#000000',
+        'icon': 'icon',
+        'createdAt': timestamp,
+        'updatedAt': timestamp,
+      };
+      final txData = {
+        'id': 1,
+        'walletId': 1,
+        'amount': 50.0,
+        'type': 'expense',
+        'categoryId': 1,
+        'note': 'Coffee',
+        'date': timestamp,
+        'createdAt': timestamp,
+        'updatedAt': timestamp,
+      };
+
+      when(
+        mockSync.fetchAllCategories('user-123'),
+      ).thenAnswer((_) async => [catData]);
+      when(
+        mockSync.fetchAllWallets('user-123'),
+      ).thenAnswer((_) async => [walletData]);
+      when(
+        mockSync.fetchAllTransactions('user-123'),
+      ).thenAnswer((_) async => [txData]);
+
+      // 2. Clear local DB categories
+      await db.delete(db.categories).go();
+
+      // 3. Sync
+      await syncRepository.syncFromCloud();
+
+      // 3. Verify local DB state
+      final cats = await db.select(db.categories).get();
+      final wallets = await db.select(db.wallets).get();
+      final txs = await db.select(db.transactions).get();
+
+      expect(cats.length, 1);
+      expect(cats.first.name, 'Food');
+      expect(wallets.length, 1);
+      expect(wallets.first.name, 'Cash');
+      expect(txs.length, 1);
+      expect(txs.first.note, 'Coffee');
     });
   });
 }
