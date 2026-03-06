@@ -8,7 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:uangku/core/constants/app_constants.dart';
 import 'package:uangku/core/services/monitoring_service.dart';
 import 'package:uangku/core/theme/app_theme.dart';
-import 'package:uangku/features/main_shell.dart';
+import 'package:uangku/features/auth/widgets/auth_wrapper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,7 +65,7 @@ class UangkuApp extends ConsumerWidget {
         titleTextStyle: darkTitleStyle,
       ),
       themeMode: ThemeMode.system,
-      home: const MainShell(),
+      home: const AuthWrapper(),
       navigatorObservers: [ref.watch(monitoringServiceProvider).observer],
     );
   }

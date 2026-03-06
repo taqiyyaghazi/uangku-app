@@ -66,6 +66,7 @@ class AppDatabase extends _$AppDatabase {
           await m.addColumn(transactions, transactions.toWalletId);
         }
         if (from < 5) {
+          // ignore: experimental_member_use
           await m.alterTable(TableMigration(transactions));
         }
       },

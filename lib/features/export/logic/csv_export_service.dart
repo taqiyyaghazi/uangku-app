@@ -35,7 +35,7 @@ class CsvExportService {
       ...transactions.map((t) => _transactionToRow(t, dateFormatter)),
     ];
 
-    return const CsvEncoder().convert(rows);
+    return const ListToCsvConverter().convert(rows);
   }
 
   /// Generates the dynamic file name for the export.

@@ -68,6 +68,36 @@ class MonitoringService {
   Future<void> log(String message) async {
     await _crashlytics.log(message);
   }
+
+  // --- CONVENIENCE LOGGING ---
+
+  /// Logs an info-level message with optional structured context.
+  ///
+  /// Prints to debug console and records in Crashlytics breadcrumbs.
+  void logInfo(String message, [Map<String, Object>? context]) {
+    final formatted = context != null ? '$message | $context' : message;
+    if (kDebugMode) {
+      debugPrint('[INFO] $formatted');
+    }
+    _crashlytics.log(formatted);
+  }
+
+  /// Logs an error with full context, exception, and stack trace.
+  ///
+  /// Prints to debug console and records a non-fatal error in Crashlytics.
+  void logError(
+    String message,
+    dynamic exception,
+    StackTrace stack, [
+    Map<String, Object>? context,
+  ]) {
+    final formatted = context != null ? '$message | $context' : message;
+    if (kDebugMode) {
+      debugPrint('[ERROR] $formatted\n$exception');
+    }
+    _crashlytics.log(formatted);
+    _crashlytics.recordError(exception, stack, reason: message);
+  }
 }
 
 /// Provider for [MonitoringService].

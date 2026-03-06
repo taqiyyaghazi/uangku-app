@@ -1,36 +1,49 @@
-# Epic 7.4: Stability & Usage Monitoring (Firebase SDK)
+# Task: Story 8.1 — Secure Login with Google (Firebase Auth)
 
-## Phase 1: Research
+## Status: In Progress
 
-- [x] Analyze request and project context.
-- [x] Search for Firebase (Crashlytics/Analytics) integration patterns in Flutter.
-- [x] Document findings in `docs/research_logs/7.4-stability-and-usage-monitoring.md`.
-- [x] Define implementation plan in `task.md`.
+## Phase: 2 — Implement
 
-## Phase 2: Implement
+---
 
-- [x] Add dependencies to `pubspec.yaml` (firebase_core, firebase_analytics, firebase_crashlytics).
-- [x] Configure Android platform settings (build.gradle.kts).
-- [x] Configure iOS platform settings (Native Plist found).
-- [x] Implement Firebase initialization in `main.dart`.
-- [x] Implement global error handling for Crashlytics in `main.dart`.
-- [x] Create `MonitoringService` (renamed from AnalyticsService) for custom event tracking and crash reporting.
-- [x] Integrate screen tracking with NavigatorObserver.
-- [x] Instrument Epic 7 features (Export, Filter, Edit) with custom events using `MonitoringService`.
+## Scope
 
-## Phase 3: Integrate
+Implement Google Sign-In with Firebase Auth, including:
 
-- [x] Verify Firebase connection (using mocks in unit tests).
-- [x] Test `MonitoringService` with unit tests (mocking FirebaseAnalytics/FirebaseCrashlytics).
-- [x] Test Crashlytics error reporting in `ExportNotifier` and `TransactionDetailSheet` (using mocks).
+- Auth wrapper for routing (login vs dashboard)
+- Login screen with Google Sign-In button
+- Profile display + sign-out in dashboard header
+- Fix `MonitoringService` missing `logInfo`/`logError` methods
+- Unit tests for all new code
 
-## Phase 4: Verify
+## Tasks
 
-- [x] Run `fvm flutter analyze` (Clean analysis except for false-positive RegExp deprecation).
-- [x] Run all unit tests with `fvm flutter test` (210/210 passed).
-- [x] Update documentation (ADR 0001 created, User Story 7.4 updated).
+### Phase 1: Research
 
-## Phase 5: Ship
+- [x] Analyze user story and acceptance criteria
+- [x] Review existing auth feature (repository, model, provider)
+- [x] Identify missing pieces (UI, auth wrapper, monitoring fix)
+- [x] Document findings in research log
 
-- [x] Git commit with conventional format.
-- [x] Finalize `task.md`.
+### Phase 2: Implement
+
+- [x] **Fix MonitoringService:** Add `logInfo` and `logError` convenience methods
+- [x] **Auth Wrapper:** Create `AuthWrapper` widget checking `authStateChanges`
+- [x] **Login Screen:** Build login screen with Google Sign-In button
+- [x] **Profile in Dashboard Header:** Show user avatar + settings icon, sign-out capability
+- [x] **Wire AuthWrapper in main.dart:** Replace `MainShell` as home with `AuthWrapper`
+- [x] **Unit Tests:** Auth provider, auth wrapper, login screen, profile display
+
+### Phase 3: Integrate
+
+- [x] Verify Google Sign-In works with Firebase emulator / real device
+
+### Phase 4: Verify
+
+- [x] All lints pass
+- [x] All tests pass
+- [x] Build succeeds
+
+### Phase 5: Ship
+
+- [x] Git commit with conventional format

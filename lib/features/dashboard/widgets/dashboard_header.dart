@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:uangku/core/theme/app_theme.dart';
-import 'package:uangku/features/category/screens/category_list_screen.dart';
+import 'package:uangku/features/auth/widgets/user_avatar_button.dart';
 import 'package:uangku/shared/utils/currency_formatter.dart';
 
 /// Dashboard header displaying the user's total balance across all wallets.
@@ -45,20 +45,7 @@ class DashboardHeader extends StatelessWidget {
                     letterSpacing: 0.5,
                   ),
                 ),
-                IconButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const CategoryListScreen(),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.category, color: Colors.white),
-                  tooltip: 'Manage Categories',
-                  alignment: Alignment.centerRight,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
+                const UserAvatarButton(),
               ],
             ),
             const SizedBox(height: 8),
