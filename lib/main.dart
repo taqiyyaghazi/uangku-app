@@ -5,16 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:uangku/core/config/app_config.dart';
 import 'package:uangku/core/constants/app_constants.dart';
 import 'package:uangku/core/services/monitoring_service.dart';
 import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/features/auth/widgets/auth_wrapper.dart';
 
-void main() async {
+void mainRunner(Environment env, FirebaseOptions? firebaseOptions) async {
   WidgetsFlutterBinding.ensureInitialized();
+  AppConfig.environment = env;
 
-  // Initialize Firebase (Assuming native configuration is already present).
-  await Firebase.initializeApp();
+  // Initialize Firebase with flavor-specific options.
+  await Firebase.initializeApp(options: firebaseOptions);
 
   // Pass all uncaught errors to Crashlytics.
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;

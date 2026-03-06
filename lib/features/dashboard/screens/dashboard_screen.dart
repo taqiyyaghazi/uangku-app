@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:uangku/core/config/app_config.dart';
 import 'package:uangku/core/constants/app_constants.dart';
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/data/database.dart';
@@ -79,6 +80,31 @@ class DashboardScreen extends ConsumerWidget {
               ),
             ),
           ),
+
+          // --- Dev Environment Banner ---
+          if (AppConfig.isDev)
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 10,
+              right: -30,
+              child: Transform.rotate(
+                angle: 0.785, // 45 degrees
+                child: Container(
+                  width: 120,
+                  color: Colors.red.withValues(alpha: 0.8),
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: const Center(
+                    child: Text(
+                      'DEV',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
 
           // --- Sync Loading Overlay ---
           if (syncStatus.status == SyncStatus.syncing)
