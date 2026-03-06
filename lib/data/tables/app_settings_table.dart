@@ -8,6 +8,8 @@ class AppSettings extends Table {
   /// The double value associated with this setting.
   RealColumn get value => real()();
 
+  DateTimeColumn get updatedAt => dateTime().nullable()();
+
   @override
   Set<Column> get primaryKey => {key};
 }

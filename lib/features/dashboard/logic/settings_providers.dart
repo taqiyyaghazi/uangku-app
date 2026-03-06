@@ -1,12 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:uangku/core/di/providers.dart';
+import 'package:uangku/core/services/monitoring_service.dart';
 import 'package:uangku/data/repositories/settings_repository.dart';
 
 /// Provider for the [SettingsRepository].
 final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
   final db = ref.watch(databaseProvider);
-  return SettingsRepository(db);
+  final monitoring = ref.watch(monitoringServiceProvider);
+  final syncRepo = ref.watch(syncRepositoryProvider);
+  return SettingsRepository(db, monitoring, syncRepo);
 });
 
 /// Provides a stream of the user's configured monthly budget.

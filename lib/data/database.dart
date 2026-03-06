@@ -46,7 +46,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration {
@@ -63,12 +63,6 @@ class AppDatabase extends _$AppDatabase {
           await m.createTable(categories);
           await m.addColumn(transactions, transactions.categoryId);
           await _seedDefaultCategories(this);
-
-          // We aren't doing a data migration of old string 'category' to 'categoryId'
-          // since this is a local project and likely early dev.
-          // We can just seed categories. The old transactions might have a null categoryId,
-          // so we need to be careful. Drift will add the column.
-          // In SQLite, adding a non-null column without default is tricky, but drift handles it.
         }
         if (from < 4) {
           await m.addColumn(transactions, transactions.toWalletId);
@@ -83,6 +77,9 @@ class AppDatabase extends _$AppDatabase {
         }
         if (from < 7) {
           await m.createTable(budgets);
+        }
+        if (from < 8) {
+          await m.addColumn(appSettings, appSettings.updatedAt);
         }
       },
       beforeOpen: (details) async {

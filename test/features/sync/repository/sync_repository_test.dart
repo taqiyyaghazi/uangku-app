@@ -174,6 +174,7 @@ void main() {
       when(
         mockSync.fetchAllInvestments('user-123'),
       ).thenAnswer((_) async => []);
+      when(mockSync.fetchAllSettings('user-123')).thenAnswer((_) async => []);
 
       // 2. Clear local DB categories
       await db.delete(db.categories).go();

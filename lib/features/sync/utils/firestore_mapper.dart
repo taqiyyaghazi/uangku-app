@@ -130,4 +130,22 @@ class FirestoreMapper {
       snapshotDate: (data['snapshotDate'] as firestore.Timestamp).toDate(),
     );
   }
+
+  static Map<String, dynamic> settingToFirestore(AppSetting setting) {
+    return {
+      'key': setting.key,
+      'value': setting.value,
+      'updatedAt': setting.updatedAt != null
+          ? firestore.Timestamp.fromDate(setting.updatedAt!)
+          : firestore.FieldValue.serverTimestamp(),
+    };
+  }
+
+  static AppSetting settingFromFirestore(Map<String, dynamic> data) {
+    return AppSetting(
+      key: data['key'] as String,
+      value: (data['value'] as num).toDouble(),
+      updatedAt: (data['updatedAt'] as firestore.Timestamp?)?.toDate(),
+    );
+  }
 }

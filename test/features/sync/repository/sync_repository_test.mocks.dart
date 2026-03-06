@@ -202,6 +202,38 @@ class MockSyncService extends _i1.Mock implements _i3.SyncService {
             ),
           )
           as _i4.Future<List<Map<String, dynamic>>>);
+
+  @override
+  _i4.Future<void> upsertSetting(
+    String? userId,
+    String? key,
+    Map<String, dynamic>? data,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#upsertSetting, [userId, key, data]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> deleteSetting(String? userId, String? key) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteSetting, [userId, key]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<List<Map<String, dynamic>>> fetchAllSettings(String? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchAllSettings, [userId]),
+            returnValue: _i4.Future<List<Map<String, dynamic>>>.value(
+              <Map<String, dynamic>>[],
+            ),
+          )
+          as _i4.Future<List<Map<String, dynamic>>>);
 }
 
 /// A class which mocks [MonitoringService].

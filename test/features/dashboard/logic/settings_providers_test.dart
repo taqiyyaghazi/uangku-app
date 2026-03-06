@@ -1,24 +1,50 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:uangku/core/di/providers.dart';
+import 'package:uangku/core/services/monitoring_service.dart';
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/repositories/settings_repository.dart';
 import 'package:uangku/features/dashboard/logic/settings_providers.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:mockito/mockito.dart';
+
+class MockAnalytics extends Mock implements FirebaseAnalytics {}
+
+class MockCrashlytics extends Mock implements FirebaseCrashlytics {}
+
+class MockMonitoringService extends MonitoringService {
+  MockMonitoringService() : super(MockAnalytics(), MockCrashlytics());
+
+  @override
+  void logInfo(String message, [Map<String, dynamic>? extra]) {}
+
+  @override
+  void logError(
+    String message,
+    dynamic error, [
+    StackTrace? stackTrace,
+    Map<String, dynamic>? extra,
+  ]) {}
+}
 
 void main() {
   late AppDatabase db;
   late SettingsRepository repository;
   late ProviderContainer container;
+  late MockMonitoringService monitoring;
 
   setUp(() {
     db = AppDatabase.forTesting(NativeDatabase.memory());
-    repository = SettingsRepository(db);
+    monitoring = MockMonitoringService();
+    // In actual tests, we might want to mock syncRepo too if needed
+    repository = SettingsRepository(db, monitoring);
 
     container = ProviderContainer(
       overrides: [
         databaseProvider.overrideWithValue(db),
+        monitoringServiceProvider.overrideWithValue(monitoring),
         settingsRepositoryProvider.overrideWithValue(repository),
       ],
     );

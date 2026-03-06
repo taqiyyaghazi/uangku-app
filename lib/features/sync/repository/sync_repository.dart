@@ -20,6 +20,9 @@ abstract class SyncRepository {
   Future<void> syncInvestment(int snapshotId);
   Future<void> deleteInvestment(int snapshotId);
   Future<void> syncFromCloud();
+
+  Future<void> syncSetting(String key);
+  Future<void> deleteSetting(String key);
 }
 
 /// Firestore-backed implementation of [SyncRepository].
@@ -238,6 +241,42 @@ class FirestoreSyncRepository implements SyncRepository {
   }
 
   @override
+  Future<void> syncSetting(String key) async {
+    final uid = _getUserId();
+    if (uid == null) return;
+
+    try {
+      final setting = await (_db.select(
+        _db.appSettings,
+      )..where((t) => t.key.equals(key))).getSingleOrNull();
+
+      if (setting != null) {
+        await _sync.upsertSetting(
+          uid,
+          key,
+          FirestoreMapper.settingToFirestore(setting),
+        );
+      }
+    } catch (e, st) {
+      _monitoring.logError('Failed to sync setting $key', e, st, {'key': key});
+    }
+  }
+
+  @override
+  Future<void> deleteSetting(String key) async {
+    final uid = _getUserId();
+    if (uid == null) return;
+
+    try {
+      await _sync.deleteSetting(uid, key);
+    } catch (e, st) {
+      _monitoring.logError('Failed to delete setting $key', e, st, {
+        'key': key,
+      });
+    }
+  }
+
+  @override
   Future<void> syncFromCloud() async {
     final uid = _getUserId();
     if (uid == null) return;
@@ -249,12 +288,14 @@ class FirestoreSyncRepository implements SyncRepository {
       final transactionsData = await _sync.fetchAllTransactions(uid);
       final budgetsData = await _sync.fetchAllBudgets(uid);
       final investmentsData = await _sync.fetchAllInvestments(uid);
+      final settingsData = await _sync.fetchAllSettings(uid);
 
       if (categoriesData.isEmpty &&
           walletsData.isEmpty &&
           transactionsData.isEmpty &&
           budgetsData.isEmpty &&
-          investmentsData.isEmpty) {
+          investmentsData.isEmpty &&
+          settingsData.isEmpty) {
         return;
       }
 
@@ -271,6 +312,9 @@ class FirestoreSyncRepository implements SyncRepository {
       final budgets = budgetsData.map(FirestoreMapper.budgetFromValue).toList();
       final investments = investmentsData
           .map(FirestoreMapper.investmentFromFirestore)
+          .toList();
+      final settings = settingsData
+          .map(FirestoreMapper.settingFromFirestore)
           .toList();
 
       // 3. Sequential Batch Insert
@@ -291,6 +335,12 @@ class FirestoreSyncRepository implements SyncRepository {
           investments,
           mode: InsertMode.insertOrReplace,
         );
+        // settings last
+        b.insertAll(
+          _db.appSettings,
+          settings,
+          mode: InsertMode.insertOrReplace,
+        );
         // Finally Transactions
         b.insertAll(
           _db.transactions,
@@ -305,6 +355,7 @@ class FirestoreSyncRepository implements SyncRepository {
         'wallets': wallets.length,
         'budgets': budgets.length,
         'investments': investments.length,
+        'settings': settings.length,
       });
     } catch (e, st) {
       _monitoring.logError('Critical failure during cloud restoration', e, st);

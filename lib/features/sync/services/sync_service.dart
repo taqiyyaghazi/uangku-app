@@ -212,4 +212,40 @@ class SyncService {
       rethrow;
     }
   }
+
+  /// Upserts a setting to Firestore.
+  Future<void> upsertSetting(
+    String userId,
+    String key,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      await _userCollection(
+        userId,
+        'settings',
+      ).doc(key).set(data, SetOptions(merge: true));
+    } catch (e, st) {
+      _monitoring.logError('SyncService.upsertSetting failure', e, st);
+    }
+  }
+
+  /// Deletes a setting from Firestore.
+  Future<void> deleteSetting(String userId, String key) async {
+    try {
+      await _userCollection(userId, 'settings').doc(key).delete();
+    } catch (e, st) {
+      _monitoring.logError('SyncService.deleteSetting failure', e, st);
+    }
+  }
+
+  /// Fetches all settings for a user from Firestore.
+  Future<List<Map<String, dynamic>>> fetchAllSettings(String userId) async {
+    try {
+      final snapshot = await _userCollection(userId, 'settings').get();
+      return snapshot.docs.map((doc) => doc.data()).toList();
+    } catch (e, st) {
+      _monitoring.logError('SyncService.fetchAllSettings failure', e, st);
+      rethrow;
+    }
+  }
 }

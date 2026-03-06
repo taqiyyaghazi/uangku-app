@@ -141,6 +141,24 @@ class MockSyncRepository extends _i1.Mock implements _i3.SyncRepository {
             returnValueForMissingStub: _i4.Future<void>.value(),
           )
           as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> syncSetting(String? key) =>
+      (super.noSuchMethod(
+            Invocation.method(#syncSetting, [key]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> deleteSetting(String? key) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteSetting, [key]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
 }
 
 /// A class which mocks [WalletRepository].
