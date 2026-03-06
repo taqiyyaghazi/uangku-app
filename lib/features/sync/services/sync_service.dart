@@ -36,6 +36,7 @@ class SyncService {
       ).doc(transactionId).set(data, SetOptions(merge: true));
     } catch (e, st) {
       _monitoring.logError('SyncService.upsertTransaction failure', e, st);
+      rethrow;
     }
   }
 
@@ -45,6 +46,7 @@ class SyncService {
       await _userCollection(userId, 'transactions').doc(transactionId).delete();
     } catch (e, st) {
       _monitoring.logError('SyncService.deleteTransaction failure', e, st);
+      rethrow;
     }
   }
 
@@ -63,6 +65,7 @@ class SyncService {
       ).doc(categoryId).set(data, SetOptions(merge: true));
     } catch (e, st) {
       _monitoring.logError('SyncService.upsertCategory failure', e, st);
+      rethrow;
     }
   }
 
@@ -72,6 +75,7 @@ class SyncService {
       await _userCollection(userId, 'categories').doc(categoryId).delete();
     } catch (e, st) {
       _monitoring.logError('SyncService.deleteCategory failure', e, st);
+      rethrow;
     }
   }
 
@@ -90,6 +94,7 @@ class SyncService {
       ).doc(walletId).set(data, SetOptions(merge: true));
     } catch (e, st) {
       _monitoring.logError('SyncService.upsertWallet failure', e, st);
+      rethrow;
     }
   }
 
@@ -99,6 +104,7 @@ class SyncService {
       await _userCollection(userId, 'wallets').doc(walletId).delete();
     } catch (e, st) {
       _monitoring.logError('SyncService.deleteWallet failure', e, st);
+      rethrow;
     }
   }
 
@@ -117,6 +123,7 @@ class SyncService {
       ).doc(budgetId).set(data, SetOptions(merge: true));
     } catch (e, st) {
       _monitoring.logError('SyncService.upsertBudget failure', e, st);
+      rethrow;
     }
   }
 
@@ -126,6 +133,7 @@ class SyncService {
       await _userCollection(userId, 'budgets').doc(budgetId).delete();
     } catch (e, st) {
       _monitoring.logError('SyncService.deleteBudget failure', e, st);
+      rethrow;
     }
   }
 
@@ -144,6 +152,7 @@ class SyncService {
       ).doc(snapshotId).set(data, SetOptions(merge: true));
     } catch (e, st) {
       _monitoring.logError('SyncService.upsertInvestment failure', e, st);
+      rethrow;
     }
   }
 
@@ -153,6 +162,7 @@ class SyncService {
       await _userCollection(userId, 'investments').doc(snapshotId).delete();
     } catch (e, st) {
       _monitoring.logError('SyncService.deleteInvestment failure', e, st);
+      rethrow;
     }
   }
 
@@ -226,6 +236,7 @@ class SyncService {
       ).doc(key).set(data, SetOptions(merge: true));
     } catch (e, st) {
       _monitoring.logError('SyncService.upsertSetting failure', e, st);
+      rethrow;
     }
   }
 
@@ -235,6 +246,7 @@ class SyncService {
       await _userCollection(userId, 'settings').doc(key).delete();
     } catch (e, st) {
       _monitoring.logError('SyncService.deleteSetting failure', e, st);
+      rethrow;
     }
   }
 

@@ -100,7 +100,7 @@ class FirestoreMapper {
   }
 
   /// Converts a Firestore Map to a [Budget].
-  static Budget budgetFromValue(Map<String, dynamic> data) {
+  static Budget budgetFromFirestore(Map<String, dynamic> data) {
     return Budget(
       categoryId: data['categoryId'] as int,
       limitAmount: (data['limitAmount'] as num).toDouble(),

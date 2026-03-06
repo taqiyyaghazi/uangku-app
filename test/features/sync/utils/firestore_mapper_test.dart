@@ -128,15 +128,15 @@ void main() {
       expect(map['updatedAt'], isA<firestore.Timestamp>());
     });
 
-    test('budgetFromValue maps correctly', () {
-      final data = {
+    test('budgetFromFirestore maps correctly', () {
+      final firestoreData = {
         'categoryId': 5,
         'limitAmount': 1000.0,
         'periodMonth': '2026-03',
         'updatedAt': firestore.Timestamp.fromDate(now),
       };
 
-      final budget = FirestoreMapper.budgetFromValue(data);
+      final budget = FirestoreMapper.budgetFromFirestore(firestoreData);
 
       expect(budget.categoryId, 5);
       expect(budget.limitAmount, 1000.0);

@@ -46,6 +46,7 @@ class FirestoreSyncRepository implements SyncRepository {
     if (uid == null) return;
 
     try {
+      _monitoring.logInfo('Starting sync for transaction $transactionId');
       final tx = await (_db.select(
         _db.transactions,
       )..where((t) => t.id.equals(transactionId))).getSingleOrNull();
@@ -56,6 +57,7 @@ class FirestoreSyncRepository implements SyncRepository {
           tx.id.toString(),
           FirestoreMapper.transactionToFirestore(tx),
         );
+        _monitoring.logInfo('Successfully synced transaction $transactionId');
       }
     } catch (e, st) {
       _monitoring.logError('Failed to sync transaction $transactionId', e, st, {
@@ -70,7 +72,9 @@ class FirestoreSyncRepository implements SyncRepository {
     if (uid == null) return;
 
     try {
+      _monitoring.logInfo('Starting delete for transaction $transactionId');
       await _sync.deleteTransaction(uid, transactionId.toString());
+      _monitoring.logInfo('Successfully deleted transaction $transactionId');
     } catch (e, st) {
       _monitoring.logError(
         'Failed to delete transaction $transactionId',
@@ -87,6 +91,7 @@ class FirestoreSyncRepository implements SyncRepository {
     if (uid == null) return;
 
     try {
+      _monitoring.logInfo('Starting sync for category $categoryId');
       final category = await (_db.select(
         _db.categories,
       )..where((c) => c.id.equals(categoryId))).getSingleOrNull();
@@ -97,6 +102,7 @@ class FirestoreSyncRepository implements SyncRepository {
           category.id.toString(),
           FirestoreMapper.categoryToFirestore(category),
         );
+        _monitoring.logInfo('Successfully synced category $categoryId');
       }
     } catch (e, st) {
       _monitoring.logError('Failed to sync category $categoryId', e, st, {
@@ -111,7 +117,9 @@ class FirestoreSyncRepository implements SyncRepository {
     if (uid == null) return;
 
     try {
+      _monitoring.logInfo('Starting delete for category $categoryId');
       await _sync.deleteCategory(uid, categoryId.toString());
+      _monitoring.logInfo('Successfully deleted category $categoryId');
     } catch (e, st) {
       _monitoring.logError('Failed to delete category $categoryId', e, st, {
         'categoryId': categoryId,
@@ -125,6 +133,7 @@ class FirestoreSyncRepository implements SyncRepository {
     if (uid == null) return;
 
     try {
+      _monitoring.logInfo('Starting sync for wallet $walletId');
       final wallet = await (_db.select(
         _db.wallets,
       )..where((w) => w.id.equals(walletId))).getSingleOrNull();
@@ -135,6 +144,7 @@ class FirestoreSyncRepository implements SyncRepository {
           wallet.id.toString(),
           FirestoreMapper.walletToFirestore(wallet),
         );
+        _monitoring.logInfo('Successfully synced wallet $walletId');
       }
     } catch (e, st) {
       _monitoring.logError('Failed to sync wallet $walletId', e, st, {
@@ -149,7 +159,9 @@ class FirestoreSyncRepository implements SyncRepository {
     if (uid == null) return;
 
     try {
+      _monitoring.logInfo('Starting delete for wallet $walletId');
       await _sync.deleteWallet(uid, walletId.toString());
+      _monitoring.logInfo('Successfully deleted wallet $walletId');
     } catch (e, st) {
       _monitoring.logError('Failed to delete wallet $walletId', e, st, {
         'walletId': walletId,
@@ -163,6 +175,9 @@ class FirestoreSyncRepository implements SyncRepository {
     if (uid == null) return;
 
     try {
+      _monitoring.logInfo(
+        'Starting sync for budget $categoryId - $periodMonth',
+      );
       final budget =
           await (_db.select(_db.budgets)..where(
                 (t) =>
@@ -177,6 +192,9 @@ class FirestoreSyncRepository implements SyncRepository {
           uid,
           budgetId,
           FirestoreMapper.budgetToFirestore(budget),
+        );
+        _monitoring.logInfo(
+          'Successfully synced budget $categoryId - $periodMonth',
         );
       }
     } catch (e, st) {
@@ -193,8 +211,14 @@ class FirestoreSyncRepository implements SyncRepository {
     if (uid == null) return;
 
     try {
+      _monitoring.logInfo(
+        'Starting delete for budget $categoryId - $periodMonth',
+      );
       final budgetId = '${categoryId}_$periodMonth';
       await _sync.deleteBudget(uid, budgetId);
+      _monitoring.logInfo(
+        'Successfully deleted budget $categoryId - $periodMonth',
+      );
     } catch (e, st) {
       _monitoring.logError('Failed to delete budget $categoryId', e, st, {
         'categoryId': categoryId,
@@ -212,6 +236,7 @@ class FirestoreSyncRepository implements SyncRepository {
     if (uid == null) return;
 
     try {
+      _monitoring.logInfo('Starting sync for investment $snapshotId');
       final item =
           snapshot ??
           await (_db.select(
@@ -224,6 +249,7 @@ class FirestoreSyncRepository implements SyncRepository {
           item.id.toString(),
           FirestoreMapper.investmentToFirestore(item),
         );
+        _monitoring.logInfo('Successfully synced investment $snapshotId');
       }
     } catch (e, st) {
       _monitoring.logError('Failed to sync investment $snapshotId', e, st, {
@@ -238,7 +264,9 @@ class FirestoreSyncRepository implements SyncRepository {
     if (uid == null) return;
 
     try {
+      _monitoring.logInfo('Starting delete for investment $snapshotId');
       await _sync.deleteInvestment(uid, snapshotId.toString());
+      _monitoring.logInfo('Successfully deleted investment $snapshotId');
     } catch (e, st) {
       _monitoring.logError('Failed to delete investment $snapshotId', e, st, {
         'snapshotId': snapshotId,
@@ -252,6 +280,7 @@ class FirestoreSyncRepository implements SyncRepository {
     if (uid == null) return;
 
     try {
+      _monitoring.logInfo('Starting sync for setting $key');
       final setting = await (_db.select(
         _db.appSettings,
       )..where((t) => t.key.equals(key))).getSingleOrNull();
@@ -262,6 +291,7 @@ class FirestoreSyncRepository implements SyncRepository {
           key,
           FirestoreMapper.settingToFirestore(setting),
         );
+        _monitoring.logInfo('Successfully synced setting $key');
       }
     } catch (e, st) {
       _monitoring.logError('Failed to sync setting $key', e, st, {'key': key});
@@ -274,7 +304,9 @@ class FirestoreSyncRepository implements SyncRepository {
     if (uid == null) return;
 
     try {
+      _monitoring.logInfo('Starting delete for setting $key');
       await _sync.deleteSetting(uid, key);
+      _monitoring.logInfo('Successfully deleted setting $key');
     } catch (e, st) {
       _monitoring.logError('Failed to delete setting $key', e, st, {
         'key': key,
@@ -315,7 +347,9 @@ class FirestoreSyncRepository implements SyncRepository {
       final transactions = transactionsData
           .map(FirestoreMapper.transactionFromFirestore)
           .toList();
-      final budgets = budgetsData.map(FirestoreMapper.budgetFromValue).toList();
+      final budgets = budgetsData
+          .map(FirestoreMapper.budgetFromFirestore)
+          .toList();
       final investments = investmentsData
           .map(FirestoreMapper.investmentFromFirestore)
           .toList();
