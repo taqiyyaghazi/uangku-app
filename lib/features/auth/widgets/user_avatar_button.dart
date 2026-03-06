@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:uangku/features/auth/models/user_profile.dart';
 import 'package:uangku/features/auth/state/auth_provider.dart';
+import 'package:uangku/features/sync/state/sync_status_provider.dart';
 
 /// Displays the authenticated user's avatar in the dashboard header.
 ///
@@ -142,6 +143,8 @@ class _ProfileSheet extends StatelessWidget {
                   Navigator.of(context).pop(); // Close the sheet first.
                   final repo = ref.read(authRepositoryProvider);
                   await repo.signOut();
+                  // Reset sync status to allow restoration for the next user.
+                  ref.read(syncStatusProvider.notifier).fullReset();
                 },
                 icon: const Icon(Icons.logout),
                 label: const Text('Sign Out'),

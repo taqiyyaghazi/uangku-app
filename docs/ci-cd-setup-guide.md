@@ -23,10 +23,9 @@ Sistem otomatisasi membutuhkan akses khusus ke layanan Google dan tanda tangan d
 
 1. Siapkan file `upload-keystore.jks` Anda.
 2. Ubah file tersebut menjadi teks Base64 agar bisa disimpan di GitHub:
-* **Windows:** `[Convert]::ToBase64String([IO.File]::ReadAllBytes("upload-keystore.jks")) | clip`
-* **macOS/Linux:** `base64 -i upload-keystore.jks | pbcopy`
 
-
+- **Windows:** `[Convert]::ToBase64String([IO.File]::ReadAllBytes("upload-keystore.jks")) | clip`
+- **macOS/Linux:** `base64 -i upload-keystore.jks | pbcopy`
 
 ---
 
@@ -34,14 +33,14 @@ Sistem otomatisasi membutuhkan akses khusus ke layanan Google dan tanda tangan d
 
 Masukkan variabel berikut ke dalam **GitHub Repository > Settings > Secrets and variables > Actions**:
 
-| Nama Secret | Deskripsi | Sumber |
-| --- | --- | --- |
-| `APP_ID` | ID Unik Aplikasi Android | Firebase Project Settings |
-| `FIREBASE_SERVICE_CREDENTIALS` | Isi lengkap file JSON dari Langkah 1.A | Google Cloud Key |
-| `KEYSTORE_BASE64` | Teks Base64 dari Langkah 1.B | Hasil Konversi Base64 |
-| `KEYSTORE_PASSWORD` | Password untuk file .jks | Password yang Anda buat |
-| `KEY_ALIAS` | Nama alias kunci | Biasanya `upload` |
-| `KEY_PASSWORD` | Password untuk alias kunci | Biasanya sama dengan pass keystore |
+| Nama Secret                    | Deskripsi                              | Sumber                             |
+| ------------------------------ | -------------------------------------- | ---------------------------------- |
+| `APP_ID`                       | ID Unik Aplikasi Android               | Firebase Project Settings          |
+| `FIREBASE_SERVICE_CREDENTIALS` | Isi lengkap file JSON dari Langkah 1.A | Google Cloud Key                   |
+| `KEYSTORE_BASE64`              | Teks Base64 dari Langkah 1.B           | Hasil Konversi Base64              |
+| `KEYSTORE_PASSWORD`            | Password untuk file .jks               | Password yang Anda buat            |
+| `KEY_ALIAS`                    | Nama alias kunci                       | Biasanya `upload`                  |
+| `KEY_PASSWORD`                 | Password untuk alias kunci             | Biasanya sama dengan pass keystore |
 
 ---
 
@@ -49,8 +48,9 @@ Masukkan variabel berikut ke dalam **GitHub Repository > Settings > Secrets and 
 
 Pastikan file berikut sudah ada di dalam repository Git Anda:
 
-1. `android/app/google-services.json` (Commit secara normal).
-2. `android/app/build.gradle` (Sudah dikonfigurasi menggunakan `key.properties`).
+1. `android/app/src/prod/google-services.json` (Untuk Production).
+2. `android/app/src/dev/google-services.json` (Untuk Development).
+3. `android/app/build.gradle.kts` (Sudah dikonfigurasi dengan `productFlavors`).
 
 ---
 
@@ -64,7 +64,7 @@ name: Deploy Signed APK to Firebase
 on:
   push:
     branches:
-      - main  # Trigger otomatis saat push ke branch main
+      - main # Trigger otomatis saat push ke branch main
 
 jobs:
   build_and_deploy:
@@ -100,18 +100,26 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
-      # Langkah 3: Build APK Release (Signed & Obfuscated)
+      # Langkah 3: Build APK Release (Signed & Obfuscated) - Menggunakan flavor prod
       - name: Build Signed APK
-        run: flutter build apk --release --obfuscate --split-debug-info=build/app/outputs/symbols
+        run: flutter build apk --flavor prod -t lib/main_prod.dart --release --obfuscate --split-debug-info=build/app/outputs/symbols
 
-      # Langkah 4: Kirim ke Firebase App Distribution
+      # Langkah 4: Get Last Commit Message
+      - name: Get Last Commit Message
+        run: |
+          git log -1 --pretty=format:"%s" > release-notes.txt
+
+      # Langkah 5: Kirim ke Firebase App Distribution
       - name: Upload to Firebase
         uses: w9jds/firebase-action@master
         with:
-          args: appdistribution:distribute build/app/outputs/flutter-apk/app-release.apk --app ${{ secrets.APP_ID }} --groups "testers"
+          args: >
+            appdistribution:distribute build/app/outputs/flutter-apk/app-prod-release.apk 
+            --app ${{ secrets.APP_ID }} 
+            --groups "testers" 
+            --release-notes-file release-notes.txt
         env:
           GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_CREDENTIALS }}
-
 ```
 
 ---

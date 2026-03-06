@@ -24,6 +24,14 @@ class FakeGoogleSignIn extends Fake implements GoogleSignIn {
   late Future<GoogleSignInAccount?> Function() onSignOut;
 
   @override
+  Future<void> initialize({
+    String? clientId,
+    String? serverClientId,
+    String? nonce,
+    String? hostedDomain,
+  }) async {}
+
+  @override
   Future<GoogleSignInAccount> authenticate({
     List<String> scopeHint = const [],
   }) => onAuthenticate();
@@ -35,6 +43,10 @@ class FakeGoogleSignIn extends Fake implements GoogleSignIn {
 // ignore: must_be_immutable
 class FakeGoogleSignInAccount extends Fake implements GoogleSignInAccount {
   late GoogleSignInAuthentication Function() onAuthentication;
+
+  @override
+  String get email => 'test@example.com';
+
   @override
   GoogleSignInAuthentication get authentication => onAuthentication();
 }

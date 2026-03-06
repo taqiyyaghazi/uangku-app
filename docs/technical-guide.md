@@ -36,46 +36,67 @@ Karena Anda sudah punya data di HP, setiap kali Anda mengubah **Struktur Tabel**
 
 ---
 
-## 🚀 Panduan Build & Release
+---
+
+## 🚀 Panduan Build & Release (Flavors Mode)
+
+Sejak **v1.2.0**, Uangku menggunakan **Flutter Flavors** untuk memisahkan data Testing (Dev) dan data Asli (Prod).
 
 ### 1. Persiapan Akhir (Pre-Flight Check)
 
 Sebelum memencet tombol "Build", pastikan dua hal ini:
 
-- **Bersihkan Project:** Jalankan `flutter clean` di terminal untuk menghapus cache lama.
-- **Update Versi:** Pastikan di `pubspec.yaml`, versinya sudah sesuai, misal `version: 1.0.0+1`.
+- **Bersihkan Project:** Jalankan `flutter clean` di terminal.
+- **Update Versi:** Pastikan di `pubspec.yaml`, versinya sudah sesuai.
 
 ---
 
 ### 2. Membuat File APK (Untuk Instalasi Langsung)
 
-APK (_Android Package_) adalah file yang bisa Anda kirim lewat WhatsApp atau Telegram ke teman, dan mereka bisa langsung menginstalnya.
+Karena sekarang ada Flavor, Anda harus menentukan mau build versi yang mana.
 
-**Command:**
+**Command Build DEV (Testing):**
 
 ```bash
-flutter build apk --split-per-abi
+flutter build apk --flavor dev -t lib/main_dev.dart
 ```
 
-**Kenapa pakai `--split-per-abi`?**
-Secara default, Flutter membuat satu APK raksasa (Fat APK). Dengan perintah ini, Flutter akan menghasilkan 3 file APK yang berbeda sesuai arsitektur prosesor HP (v7, v8, x86).
+**Command Build PROD (Production):**
 
-- **Hasilnya:** Ukuran file lebih kecil (biasanya berkurang 50%!).
-- **Lokasi file:** `build/app/outputs/flutter-apk/app-release-arm64-v8a-release.apk` (Ini yang biasanya dipakai untuk HP Android modern).
+```bash
+flutter build apk --flavor prod -t lib/main_prod.dart --split-per-abi
+```
+
+- **Lokasi file PROD:** `build/app/outputs/flutter-apk/app-prod-release-arm64-v8a-release.apk`.
+- **Lokasi file DEV:** `build/app/outputs/flutter-apk/app-dev-debug.apk`.
 
 ---
 
 ### 3. Membuat App Bundle / AAB (Untuk Play Store)
 
-Jika Anda berencana mengunggah **Uangku** ke Google Play Store, Google tidak menerima APK lagi. Anda wajib menggunakan **AAB**.
+Wajib menggunakan flavor `prod` untuk rilis publik.
 
 **Command:**
 
 ```bash
-flutter build appbundle
+flutter build appbundle --flavor prod -t lib/main_prod.dart
 ```
 
-- **Lokasi file:** `build/app/outputs/bundle/release/app-release.aab`.
+- **Lokasi file:** `build/app/outputs/bundle/prodRelease/app-prod-release.aab`.
+
+---
+
+## ☁️ Panduan Cloud Sync & Recovery
+
+Uangku mendukung **Instant Recovery** menggunakan Google Sign-In.
+
+> [!IMPORTANT]
+> Untuk setup pertama kali atau jika ganti laptop, ikuti: [Panduan Setup Google Sign-In](./google-signin-setup.md).
+
+1. Pastikan Anda login dengan akun Google yang sama.
+2. Saat pertama kali masuk Dashboard, aplikasi akan otomatis mendeteksi database kosong.
+3. Tunggu hingga overlay **"Restoring your data..."** selesai.
+4. **Penting:** Semua data kategori kustom, wallet, dan transaksi akan ditarik otomatis dari Firestore.
 
 ---
 

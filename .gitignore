@@ -42,3 +42,7 @@ brain/
 # Android Signing
 *.jks
 key.properties
+
+# Firebase Configurations (Flavor specific)
+android/app/src/dev/google-services.json
+android/app/src/prod/google-services.json

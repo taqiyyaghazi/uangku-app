@@ -1,29 +1,25 @@
-# Story 8.2: Database Mapping to Firestore (Cloud Sync)
+# Story 8.3: Fix Google Sign-In and Infinite Sync Loop
 
 ## Completed Tasks
 
 ### Phase 2: Implement
 
-- [x] **Schema Updates:** Add `updatedAt` to `Transactions` and `Categories` tables
-- [x] **Code Generation:** Run Drift build runner for updated schema (`v6`)
-- [x] **Data Mapping:** Create `FirestoreMapper` to convert Drift models to/from Firestore Maps
-- [x] **Sync Service:** Create `SyncService` for direct Firestore collection interactions
-- [x] **Sync Repository:** Implement `SyncRepository` combining `DriftDatabase` + `SyncService`
-- [x] **Feature Integration:** Integrated `SyncRepository` into all Drift repositories
-- [x] **Dependency Injection:** Updated `providers.dart` to wire up the sync layer
+- [x] **Config Updates:** Add `serverClientId` to `AppConfig` from environment variables
+- [x] **Auth Fixed:** Implement `GoogleSignIn.initialize()` in `AuthRepositoryImpl`
+- [x] **Loop Prevention:** Add `hasAttemptedRestoration` flag to `SyncStatusNotifier`
+- [x] **UI Handlers:** Reset sync status on logout/login to support multi-user scenarios
 
 ### Phase 3: Integrate
 
-- [x] Write and verify unit tests for `SyncRepository` and `FirestoreMapper`
-- [x] Fix regressions in existing tests due to schema changes
+- [x] Fix unit tests for `AuthRepositoryImpl` to include missing mock properties
+- [x] Verify that local and cloud DB empty states do not cause infinite loops
 
 ### Phase 4: Verify
 
 - [x] All lints pass
-- [x] All tests pass (232 tests)
-- [x] Build succeeds
+- [x] All tests pass (238 tests)
+- [x] Full codebase audit complete
 
 ### Phase 5: Ship
 
-- [x] Create walkthrough.md
 - [x] Git commit with conventional format

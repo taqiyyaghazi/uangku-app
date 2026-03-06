@@ -36,12 +36,21 @@ jobs:
           echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
           echo "storeFile=upload-keystore.jks" >> android/key.properties
 
+      # Langkah 2b: Berikan google-services.json (PROD) untuk build
+      - name: Decode Google Services Config
+        run: |
+          mkdir -p android/app/src/prod
+          echo "${{ secrets.GOOGLE_SERVICES_PROD_BASE64 }}" | base64 --decode > android/app/src/prod/google-services.json
+
       - name: Install Dependencies
         run: flutter pub get
 
-      # Langkah 3: Build APK Release (Signed & Obfuscated)
+      # Langkah 3: Build APK Release (Signed & Obfuscated) - Menggunakan flavor prod
       - name: Build Signed APK
-        run: flutter build apk --release --obfuscate --split-debug-info=build/app/outputs/symbols
+        run: |
+          flutter build apk --flavor prod -t lib/main_prod.dart --release --obfuscate \
+          --split-debug-info=build/app/outputs/symbols \
+          --dart-define=GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}"
 
       # Langkah 4: Get Last Commit Message
       - name: Get Last Commit Message
@@ -53,7 +62,7 @@ jobs:
         uses: w9jds/firebase-action@master
         with:
           args: >
-            appdistribution:distribute build/app/outputs/flutter-apk/app-release.apk 
+            appdistribution:distribute build/app/outputs/flutter-apk/app-prod-release.apk 
             --app ${{ secrets.APP_ID }} 
             --groups "testers" 
             --release-notes-file release-notes.txt
