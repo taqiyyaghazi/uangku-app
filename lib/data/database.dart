@@ -38,7 +38,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 5; // Update to 5 manually here for migration.
+  int get schemaVersion => 6; // Update to 6 manually here for migration.
 
   @override
   MigrationStrategy get migration {
@@ -68,6 +68,10 @@ class AppDatabase extends _$AppDatabase {
         if (from < 5) {
           // ignore: experimental_member_use
           await m.alterTable(TableMigration(transactions));
+        }
+        if (from < 6) {
+          await m.addColumn(transactions, transactions.updatedAt);
+          await m.addColumn(categories, categories.updatedAt);
         }
       },
       beforeOpen: (details) async {

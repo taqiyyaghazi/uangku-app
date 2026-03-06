@@ -16,4 +16,6 @@ class Categories extends Table {
   TextColumn get type => textEnum<TransactionType>()();
 
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }

@@ -148,6 +148,7 @@ void main() {
       note: 'Lunch KFC',
       date: DateTime(2026, 3, 10), // March 2026
       createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
     ),
     category: Category(
       id: 1,
@@ -155,6 +156,7 @@ void main() {
       iconCode: 'fastfood',
       type: TransactionType.expense,
       createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
     ),
   );
 
@@ -168,6 +170,7 @@ void main() {
       note: 'Gojek Home',
       date: DateTime(2026, 2, 28), // February 2026
       createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
     ),
     category: Category(
       id: 2,
@@ -175,6 +178,7 @@ void main() {
       iconCode: 'directions_car',
       type: TransactionType.expense,
       createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
     ),
   );
 

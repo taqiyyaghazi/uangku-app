@@ -29,4 +29,6 @@ class Transactions extends Table {
   DateTimeColumn get date => dateTime()();
 
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }

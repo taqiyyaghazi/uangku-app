@@ -30,6 +30,7 @@ void main() {
         date: date ?? now,
         note: note,
         createdAt: now,
+        updatedAt: now,
       ),
       category: Category(
         id: 1,
@@ -37,6 +38,7 @@ void main() {
         iconCode: 'fastfood',
         type: type,
         createdAt: now,
+        updatedAt: now,
       ),
     );
   }

@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'package:drift/drift.dart';
 
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/repositories/wallet_repository.dart';
+import 'package:uangku/features/sync/repository/sync_repository.dart';
 
 /// Drift (SQLite) implementation of [WalletRepository].
 ///
@@ -9,8 +11,9 @@ import 'package:uangku/data/repositories/wallet_repository.dart';
 /// For tests, use a mock implementation instead.
 class DriftWalletRepository implements WalletRepository {
   final AppDatabase _db;
+  final SyncRepository? _syncRepo;
 
-  DriftWalletRepository(this._db);
+  DriftWalletRepository(this._db, [this._syncRepo]);
 
   @override
   Stream<List<Wallet>> watchAllWallets() {
@@ -20,8 +23,10 @@ class DriftWalletRepository implements WalletRepository {
   }
 
   @override
-  Future<int> createWallet(WalletsCompanion wallet) {
-    return _db.into(_db.wallets).insert(wallet);
+  Future<int> createWallet(WalletsCompanion wallet) async {
+    final id = await _db.into(_db.wallets).insert(wallet);
+    unawaited(_syncRepo?.syncWallet(id));
+    return id;
   }
 
   @override
@@ -32,6 +37,9 @@ class DriftWalletRepository implements WalletRepository {
     final rowsAffected = await (_db.update(
       _db.wallets,
     )..where((t) => t.id.equals(wallet.id.value))).write(wallet);
+
+    unawaited(_syncRepo?.syncWallet(wallet.id.value));
+
     return rowsAffected > 0;
   }
 
@@ -40,6 +48,9 @@ class DriftWalletRepository implements WalletRepository {
     final rowsAffected = await (_db.delete(
       _db.wallets,
     )..where((t) => t.id.equals(id))).go();
+
+    unawaited(_syncRepo?.deleteWallet(id));
+
     return rowsAffected > 0;
   }
 

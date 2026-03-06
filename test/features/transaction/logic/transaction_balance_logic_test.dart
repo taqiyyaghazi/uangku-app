@@ -20,6 +20,7 @@ void main() {
       note: '',
       date: now,
       createdAt: now,
+      updatedAt: now,
     );
   }
 

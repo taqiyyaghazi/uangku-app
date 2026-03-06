@@ -109,6 +109,7 @@ class FakeCategoryRepository implements CategoryRepository {
           iconCode: 'fastfood',
           type: TransactionType.expense,
           createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
         ),
       ]);
     } else if (type == TransactionType.income) {
@@ -119,6 +120,7 @@ class FakeCategoryRepository implements CategoryRepository {
           iconCode: 'attach_money',
           type: TransactionType.income,
           createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
         ),
       ]);
     }
@@ -151,6 +153,7 @@ void main() {
       note: 'Lunch',
       date: now,
       createdAt: now,
+      updatedAt: now,
     ),
     category: Category(
       id: 1,
@@ -158,6 +161,7 @@ void main() {
       iconCode: 'fastfood',
       type: TransactionType.expense,
       createdAt: now,
+      updatedAt: now,
     ),
   );
 

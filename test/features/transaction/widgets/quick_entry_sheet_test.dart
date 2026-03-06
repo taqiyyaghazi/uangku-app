@@ -128,6 +128,7 @@ class FakeCategoryRepository implements CategoryRepository {
           iconCode: 'fastfood',
           type: TransactionType.expense,
           createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
         ),
       ]);
     } else if (type == TransactionType.income) {
@@ -138,6 +139,7 @@ class FakeCategoryRepository implements CategoryRepository {
           iconCode: 'attach_money',
           type: TransactionType.income,
           createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
         ),
       ]);
     }

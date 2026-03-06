@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uangku/core/constants/app_constants.dart';
+import 'package:uangku/core/services/monitoring_service.dart';
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/daos/drift_investment_repository.dart';
 import 'package:uangku/data/daos/drift_wallet_repository.dart';
@@ -12,9 +13,12 @@ import 'package:uangku/data/repositories/transaction_repository.dart';
 import 'package:uangku/data/repositories/category_repository_impl.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
+import 'package:uangku/features/auth/state/auth_provider.dart';
 import 'package:uangku/features/dashboard/logic/budget_service.dart';
 import 'package:uangku/features/dashboard/logic/settings_providers.dart';
 import 'package:uangku/features/dashboard/models/budget_state.dart';
+import 'package:uangku/features/sync/repository/sync_repository.dart';
+import 'package:uangku/features/sync/services/sync_service.dart';
 
 /// Provides the singleton [AppDatabase] instance across the app.
 ///
@@ -29,12 +33,36 @@ final databaseProvider = Provider<AppDatabase>((ref) {
   return db;
 });
 
-/// Provides the [WalletRepository] backed by Drift.
+/// Provides the [FirebaseFirestore] instance.
+final firestoreProvider = Provider<FirebaseFirestore>((ref) {
+  return FirebaseFirestore.instance;
+});
+
+/// Provides the [SyncService] for Firestore operations.
+final syncServiceProvider = Provider<SyncService>((ref) {
+  final firestore = ref.watch(firestoreProvider);
+  final monitoring = ref.watch(monitoringServiceProvider);
+  return SyncService(firestore, monitoring);
+});
+
+/// Provides the [SyncRepository] to coordinate local and cloud data.
+final syncRepositoryProvider = Provider<SyncRepository>((ref) {
+  final db = ref.watch(databaseProvider);
+  final syncService = ref.watch(syncServiceProvider);
+  return SyncRepository(
+    db,
+    syncService,
+    () => ref.read(authStateProvider).value?.id,
+  );
+});
+
+/// Provides the [WalletRepository] backed by Drift + Sync.
 ///
 /// Override this in tests with a mock implementation.
 final walletRepositoryProvider = Provider<WalletRepository>((ref) {
   final db = ref.watch(databaseProvider);
-  return DriftWalletRepository(db);
+  final syncRepo = ref.watch(syncRepositoryProvider);
+  return DriftWalletRepository(db, syncRepo);
 });
 
 /// Provides a reactive stream of all wallets.
@@ -43,18 +71,20 @@ final walletsProvider = StreamProvider<List<Wallet>>((ref) {
   return repo.watchAllWallets();
 });
 
-/// Provides the [TransactionRepository] backed by Drift.
+/// Provides the [TransactionRepository] backed by Drift + Sync.
 ///
 /// Override this in tests with a mock implementation.
 final transactionRepositoryProvider = Provider<TransactionRepository>((ref) {
   final db = ref.watch(databaseProvider);
-  return DriftTransactionRepository(db);
+  final syncRepo = ref.watch(syncRepositoryProvider);
+  return DriftTransactionRepository(db, syncRepo);
 });
 
-/// Provides the [CategoryRepository] backed by Drift.
+/// Provides the [CategoryRepository] backed by Drift + Sync.
 final categoryRepositoryProvider = Provider<CategoryRepository>((ref) {
   final db = ref.watch(databaseProvider);
-  return CategoryRepositoryImpl(db);
+  final syncRepo = ref.watch(syncRepositoryProvider);
+  return CategoryRepositoryImpl(db, syncRepo);
 });
 
 /// Provides a reactive stream of categories filtered by type.
@@ -64,12 +94,13 @@ final categoriesByTypeProvider =
       return repo.watchCategoriesByType(type);
     });
 
-/// Provides the [InvestmentRepository] backed by Drift.
+/// Provides the [InvestmentRepository] backed by Drift + Sync.
 ///
 /// Override this in tests with a mock implementation.
 final investmentRepositoryProvider = Provider<InvestmentRepository>((ref) {
   final db = ref.watch(databaseProvider);
-  return DriftInvestmentRepository(db);
+  final syncRepo = ref.watch(syncRepositoryProvider);
+  return DriftInvestmentRepository(db, syncRepo);
 });
 
 /// Provides a reactive stream of snapshots for a specific investment wallet.

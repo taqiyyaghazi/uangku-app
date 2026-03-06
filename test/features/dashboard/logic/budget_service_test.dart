@@ -19,6 +19,7 @@ Transaction _tx({
     note: '',
     date: date,
     createdAt: date,
+    updatedAt: date,
   );
 }
 

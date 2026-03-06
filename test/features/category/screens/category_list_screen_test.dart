@@ -20,6 +20,7 @@ class FakeCategoryRepository implements CategoryRepository {
           iconCode: '👍',
           type: type,
           createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
         ),
       ]);
 

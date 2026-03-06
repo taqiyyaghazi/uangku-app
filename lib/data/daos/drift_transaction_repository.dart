@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:drift/drift.dart';
 
 import 'package:uangku/data/database.dart';
@@ -11,13 +12,16 @@ import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/features/insights/logic/daily_spending_helper.dart';
 import 'dart:developer' as developer;
 
+import 'package:uangku/features/sync/repository/sync_repository.dart';
+
 /// Drift (SQLite) implementation of [TransactionRepository].
 ///
 /// This is the production adapter — it performs real database I/O.
 class DriftTransactionRepository implements TransactionRepository {
   final AppDatabase _db;
+  final SyncRepository? _syncRepo;
 
-  DriftTransactionRepository(this._db);
+  DriftTransactionRepository(this._db, [this._syncRepo]);
 
   @override
   Stream<List<TransactionWithCategory>> watchTransactionsByWallet(
@@ -246,6 +250,10 @@ class DriftTransactionRepository implements TransactionRepository {
         'Successfully created transaction id: $id in ${DateTime.now().difference(startTime).inMilliseconds}ms',
         name: 'DriftTransactionRepository',
       );
+
+      // Sync to cloud
+      unawaited(_syncRepo?.syncTransaction(id));
+
       return id;
     } catch (e, st) {
       developer.log(
@@ -273,6 +281,10 @@ class DriftTransactionRepository implements TransactionRepository {
         'Successfully deleted transaction id: $id (rows affected: $rowsAffected) in ${DateTime.now().difference(startTime).inMilliseconds}ms',
         name: 'DriftTransactionRepository',
       );
+
+      // Sync to cloud
+      unawaited(_syncRepo?.deleteTransaction(id));
+
       return rowsAffected > 0;
     } catch (e, st) {
       developer.log(
@@ -321,6 +333,11 @@ class DriftTransactionRepository implements TransactionRepository {
         'Successfully inserted transaction and updated balance id: $id in ${DateTime.now().difference(startTime).inMilliseconds}ms',
         name: 'DriftTransactionRepository',
       );
+
+      // Sync to cloud
+      unawaited(_syncRepo?.syncTransaction(id));
+      unawaited(_syncRepo?.syncWallet(walletId));
+
       return id;
     } catch (e, st) {
       developer.log(
@@ -397,6 +414,12 @@ class DriftTransactionRepository implements TransactionRepository {
         'Successfully performed internal transfer id: $id in ${DateTime.now().difference(startTime).inMilliseconds}ms',
         name: 'DriftTransactionRepository',
       );
+
+      // Sync to cloud
+      unawaited(_syncRepo?.syncTransaction(id));
+      unawaited(_syncRepo?.syncWallet(fromWalletId));
+      unawaited(_syncRepo?.syncWallet(toWalletId));
+
       return id;
     } catch (e, st) {
       developer.log(
@@ -495,6 +518,10 @@ class DriftTransactionRepository implements TransactionRepository {
         'Successfully deleted transaction atomic id: ${transaction.id} in ${DateTime.now().difference(startTime).inMilliseconds}ms',
         name: 'DriftTransactionRepository',
       );
+
+      // Sync to cloud
+      unawaited(_syncRepo?.deleteTransaction(transaction.id));
+      unawaited(_syncRepo?.syncWallet(transaction.walletId));
     } catch (e, st) {
       developer.log(
         'Failed to delete transaction atomic id: ${transaction.id}',
@@ -543,6 +570,10 @@ class DriftTransactionRepository implements TransactionRepository {
         'Successfully updated transaction atomic id: $transactionId in ${DateTime.now().difference(startTime).inMilliseconds}ms',
         name: 'DriftTransactionRepository',
       );
+
+      // Sync to cloud
+      unawaited(_syncRepo?.syncTransaction(transactionId));
+      unawaited(_syncRepo?.syncWallet(walletId));
     } catch (e, st) {
       developer.log(
         'Failed to update transaction atomic id: $transactionId',

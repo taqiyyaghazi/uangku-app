@@ -1,14 +1,17 @@
+import 'dart:async';
 import 'dart:developer' as developer;
 
 import 'package:drift/drift.dart';
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/repositories/category_repository.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
+import 'package:uangku/features/sync/repository/sync_repository.dart';
 
 class CategoryRepositoryImpl implements CategoryRepository {
   final AppDatabase db;
+  final SyncRepository? _syncRepo;
 
-  CategoryRepositoryImpl(this.db);
+  CategoryRepositoryImpl(this.db, [this._syncRepo]);
 
   @override
   Stream<List<Category>> watchAllCategories() {
@@ -41,6 +44,9 @@ class CategoryRepositoryImpl implements CategoryRepository {
         name: 'CategoryRepositoryImpl.createCategory',
         error: {'duration': duration},
       );
+
+      unawaited(_syncRepo?.syncCategory(id));
+
       return id;
     } catch (e, st) {
       final duration = DateTime.now().difference(startTime).inMilliseconds;
@@ -69,6 +75,9 @@ class CategoryRepositoryImpl implements CategoryRepository {
         name: 'CategoryRepositoryImpl.updateCategory',
         error: {'duration': duration, 'success': success},
       );
+
+      unawaited(_syncRepo?.syncCategory(category.id));
+
       return success;
     } catch (e, st) {
       final duration = DateTime.now().difference(startTime).inMilliseconds;
@@ -104,6 +113,8 @@ class CategoryRepositoryImpl implements CategoryRepository {
         name: 'CategoryRepositoryImpl.deleteCategory',
         error: {'duration': duration},
       );
+
+      unawaited(_syncRepo?.deleteCategory(id));
     } catch (e, st) {
       final duration = DateTime.now().difference(startTime).inMilliseconds;
       developer.log(

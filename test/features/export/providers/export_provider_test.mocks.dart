@@ -121,6 +121,24 @@ class MockMonitoringService extends _i1.Mock implements _i3.MonitoringService {
             returnValueForMissingStub: _i4.Future<void>.value(),
           )
           as _i4.Future<void>);
+
+  @override
+  void logInfo(String? message, [Map<String, Object>? context]) =>
+      super.noSuchMethod(
+        Invocation.method(#logInfo, [message, context]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void logError(
+    String? message,
+    dynamic exception,
+    StackTrace? stack, [
+    Map<String, Object>? context,
+  ]) => super.noSuchMethod(
+    Invocation.method(#logError, [message, exception, stack, context]),
+    returnValueForMissingStub: null,
+  );
 }
 
 /// A class which mocks [TransactionRepository].

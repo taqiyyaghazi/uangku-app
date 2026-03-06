@@ -36,6 +36,7 @@ void main() {
         date: now,
         note: 'Lunch',
         createdAt: now,
+        updatedAt: now,
       ),
       category: Category(
         id: 1,
@@ -43,6 +44,7 @@ void main() {
         iconCode: 'fastfood',
         type: TransactionType.expense,
         createdAt: now,
+        updatedAt: now,
       ),
     ),
     TransactionWithCategory(
@@ -55,6 +57,7 @@ void main() {
         date: DateTime(2026, 3, 2, 9, 0),
         note: 'Monthly',
         createdAt: now,
+        updatedAt: now,
       ),
       category: Category(
         id: 3,
@@ -62,6 +65,7 @@ void main() {
         iconCode: 'attach_money',
         type: TransactionType.income,
         createdAt: now,
+        updatedAt: now,
       ),
     ),
   ];

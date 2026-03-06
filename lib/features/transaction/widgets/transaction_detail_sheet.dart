@@ -352,7 +352,7 @@ class _TransactionDetailSheetState
               .watchCategoriesByType(_type);
           return SizedBox(
             height: 36,
-            child: StreamBuilder(
+            child: StreamBuilder<List<Category>>(
               stream: categoriesAsync,
               builder: (context, snapshot) {
                 if (!snapshot.hasData) return const SizedBox.shrink();

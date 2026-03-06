@@ -48,6 +48,7 @@ void main() {
               note: 'test',
               date: DateTime.now(),
               createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
             ),
             categoryName: 'Food',
             walletName: 'Main',

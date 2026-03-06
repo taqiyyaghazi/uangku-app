@@ -16,6 +16,7 @@ void main() {
         date: DateTime(2026, 3, 10), // March 2026
         note: 'Lunch at KFC',
         createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       ),
       category: Category(
         id: 1,
@@ -23,6 +24,7 @@ void main() {
         iconCode: 'fastfood',
         type: TransactionType.expense,
         createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       ),
     );
     final t2 = TransactionWithCategory(
@@ -35,6 +37,7 @@ void main() {
         date: DateTime(2026, 3, 5), // March 2026
         note: 'Gojek',
         createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       ),
       category: Category(
         id: 2,
@@ -42,6 +45,7 @@ void main() {
         iconCode: 'directions_car',
         type: TransactionType.expense,
         createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       ),
     );
     final t3 = TransactionWithCategory(
@@ -54,6 +58,7 @@ void main() {
         date: DateTime(2026, 2, 25), // February 2026
         note: 'February Salary',
         createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       ),
       category: Category(
         id: 3,
@@ -61,6 +66,7 @@ void main() {
         iconCode: 'attach_money',
         type: TransactionType.income,
         createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       ),
     );
 
