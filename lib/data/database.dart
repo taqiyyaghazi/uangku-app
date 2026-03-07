@@ -72,14 +72,17 @@ class AppDatabase extends _$AppDatabase {
           await m.alterTable(TableMigration(transactions));
         }
         if (from < 6) {
-          await m.addColumn(transactions, transactions.updatedAt);
-          await m.addColumn(categories, categories.updatedAt);
+          // ignore: experimental_member_use
+          await m.alterTable(TableMigration(transactions));
+          // ignore: experimental_member_use
+          await m.alterTable(TableMigration(categories));
         }
         if (from < 7) {
           await m.createTable(budgets);
         }
         if (from < 8) {
-          await m.addColumn(appSettings, appSettings.updatedAt);
+          // ignore: experimental_member_use
+          await m.alterTable(TableMigration(appSettings));
         }
       },
       beforeOpen: (details) async {
