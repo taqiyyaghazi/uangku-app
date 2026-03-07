@@ -72,17 +72,24 @@ class AppDatabase extends _$AppDatabase {
           await m.alterTable(TableMigration(transactions));
         }
         if (from < 6) {
-          // ignore: experimental_member_use
-          await m.alterTable(TableMigration(transactions));
-          // ignore: experimental_member_use
-          await m.alterTable(TableMigration(categories));
+          await m.alterTable(
+            // ignore: experimental_member_use
+            TableMigration(transactions, newColumns: [transactions.updatedAt]),
+          );
+
+          await m.alterTable(
+            // ignore: experimental_member_use
+            TableMigration(categories, newColumns: [categories.updatedAt]),
+          );
         }
         if (from < 7) {
           await m.createTable(budgets);
         }
         if (from < 8) {
-          // ignore: experimental_member_use
-          await m.alterTable(TableMigration(appSettings));
+          await m.alterTable(
+            // ignore: experimental_member_use
+            TableMigration(appSettings, newColumns: [appSettings.updatedAt]),
+          );
         }
       },
       beforeOpen: (details) async {
