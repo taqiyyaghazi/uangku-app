@@ -1,12 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/core/services/monitoring_service.dart';
+import 'package:uangku/core/theme/app_theme.dart';
+import 'package:uangku/data/database.dart';
 import 'package:uangku/features/transaction/logic/transaction_grouping_logic.dart';
 import 'package:uangku/features/dashboard/widgets/transaction_item.dart';
 import 'package:uangku/features/transaction/screens/multi_sliver_widget.dart';
+import 'package:uangku/features/transaction/widgets/quick_entry_sheet.dart';
 import 'package:uangku/features/transaction/widgets/transaction_detail_sheet.dart';
+import 'package:uangku/shared/utils/currency_formatter.dart';
+import 'package:uangku/shared/utils/wallet_icon_mapper.dart';
+import 'package:uangku/shared/widgets/searchable_picker_sheet.dart';
 
 /// Screen showcasing the full transaction history, grouped by month/year.
 class TransactionsArchiveScreen extends ConsumerStatefulWidget {
@@ -20,6 +27,76 @@ class TransactionsArchiveScreen extends ConsumerStatefulWidget {
 class _TransactionsArchiveScreenState
     extends ConsumerState<TransactionsArchiveScreen> {
   String _searchQuery = '';
+  final ScrollController _scrollController = ScrollController();
+  bool _showFab = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.userScrollDirection ==
+        ScrollDirection.reverse) {
+      if (_showFab) setState(() => _showFab = false);
+    } else if (_scrollController.position.userScrollDirection ==
+        ScrollDirection.forward) {
+      if (!_showFab) setState(() => _showFab = true);
+    }
+  }
+
+  Future<void> _showWalletFilterPicker(
+    BuildContext context,
+    List<Wallet> wallets,
+    int? selectedWalletId,
+  ) async {
+    final List<PickerItem<int>> items = [
+      const PickerItem<int>(
+        id: 0, // 0 for All Wallets
+        name: 'All Wallets',
+        icon: Icons.account_balance_wallet_outlined,
+        color: OceanFlowColors.primary,
+      ),
+      ...wallets.map(
+        (w) => PickerItem<int>(
+          id: w.id,
+          name: w.name,
+          icon: WalletIconMapper.getIcon(w.icon),
+          color: OceanFlowColors.primary,
+          subtitle: CurrencyFormatter.format(w.balance),
+        ),
+      ),
+    ];
+
+    final result = await SearchablePickerSheet.show<int>(
+      context,
+      title: 'Filter by Wallet',
+      items: items,
+      selectedId: selectedWalletId ?? 0,
+      searchPlaceholder: 'Search wallet name...',
+    );
+
+    if (result != null) {
+      final walletId = result == 0 ? null : result;
+      ref.read(selectedWalletFilterProvider.notifier).setFilter(walletId);
+
+      ref.read(monitoringServiceProvider).logEvent(
+        name: 'filter_wallet_changed',
+        parameters: {
+          'is_all_wallets': walletId == null ? 1 : 0,
+          'wallet_id': walletId?.toString() ?? 'none',
+        },
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +107,20 @@ class _TransactionsArchiveScreenState
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
+      floatingActionButton:
+          _showFab
+              ? FloatingActionButton(
+                onPressed:
+                    () => QuickEntrySheet.show(
+                      context,
+                      initialWalletId: selectedWalletId,
+                    ),
+                tooltip: 'Add Transaction',
+                child: const Icon(Icons.add),
+              )
+              : null,
       body: CustomScrollView(
+        controller: _scrollController,
         slivers: [
           // Sticky App Bar with Search Field
           SliverAppBar(
@@ -56,66 +146,54 @@ class _TransactionsArchiveScreenState
                   ),
                   walletsAsync.when(
                     data: (wallets) {
-                      return SizedBox(
-                        height: 40,
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(right: 8),
-                              child: ChoiceChip(
-                                label: const Text('All Wallets'),
-                                selected: selectedWalletId == null,
-                                onSelected: (selected) {
-                                  if (selected) {
-                                    ref
-                                        .read(
-                                          selectedWalletFilterProvider.notifier,
-                                        )
-                                        .setFilter(null);
+                      Wallet? selectedWallet;
+                      if (selectedWalletId != null) {
+                        try {
+                          selectedWallet = wallets.firstWhere(
+                            (w) => w.id == selectedWalletId,
+                          );
+                        } catch (_) {
+                          selectedWallet = null;
+                        }
+                      }
 
-                                    ref
-                                        .read(monitoringServiceProvider)
-                                        .logEvent(
-                                          name: 'filter_wallet_changed',
-                                          parameters: {'is_all_wallets': true},
-                                        );
-                                  }
-                                },
-                              ),
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 4,
+                        ),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: ActionChip(
+                            avatar: Icon(
+                              selectedWallet == null
+                                  ? Icons.account_balance_wallet_outlined
+                                  : WalletIconMapper.getIcon(
+                                    selectedWallet.icon,
+                                  ),
+                              size: 18,
+                              color: OceanFlowColors.primary,
                             ),
-                            ...wallets.map((wallet) {
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 8),
-                                child: ChoiceChip(
-                                  label: Text(wallet.name),
-                                  selected: selectedWalletId == wallet.id,
-                                  onSelected: (selected) {
-                                    final walletId = selected
-                                        ? wallet.id
-                                        : null;
-                                    ref
-                                        .read(
-                                          selectedWalletFilterProvider.notifier,
-                                        )
-                                        .setFilter(walletId);
-
-                                    ref
-                                        .read(monitoringServiceProvider)
-                                        .logEvent(
-                                          name: 'filter_wallet_changed',
-                                          parameters: {
-                                            'is_all_wallets': !selected,
-                                            'wallet_id':
-                                                walletId?.toString() ?? 'none',
-                                          },
-                                        );
-                                  },
+                            label: Text(selectedWallet?.name ?? 'All Wallets'),
+                            onPressed:
+                                () => _showWalletFilterPicker(
+                                  context,
+                                  wallets,
+                                  selectedWalletId,
                                 ),
-                              );
-                            }),
-                          ],
+                            side: BorderSide.none,
+                            backgroundColor: OceanFlowColors.primary.withValues(
+                              alpha: 0.1,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            labelStyle: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: OceanFlowColors.primary,
+                            ),
+                          ),
                         ),
                       );
                     },

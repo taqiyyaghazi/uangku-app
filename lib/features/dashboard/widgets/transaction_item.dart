@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
-import 'package:uangku/shared/utils/category_icon_mapper.dart';
 import 'package:uangku/shared/utils/currency_formatter.dart';
 import 'package:uangku/shared/utils/relative_time_formatter.dart';
 
@@ -35,13 +34,15 @@ class TransactionItem extends StatelessWidget {
     final tx = transaction.transaction;
     final cat = transaction.category;
 
-    final String iconCode = cat?.iconCode ?? 'swap_horiz';
     final String catName = cat?.name ?? 'Transfer';
+    final String iconEmoji = cat?.iconCode ?? '🔄';
 
-    final categoryInfo = CategoryIconMapper.get(
-      iconCode.isNotEmpty ? iconCode : catName,
-    );
     final isIncome = tx.type == TransactionType.income;
+    final typeColor = switch (tx.type) {
+      TransactionType.income => OceanFlowColors.income,
+      TransactionType.expense => OceanFlowColors.expense,
+      TransactionType.transfer => OceanFlowColors.transfer,
+    };
 
     final amountColor = isIncome
         ? OceanFlowColors.primary
@@ -57,8 +58,8 @@ class TransactionItem extends StatelessWidget {
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
       leading: CircleAvatar(
-        backgroundColor: categoryInfo.color.withValues(alpha: 0.12),
-        child: Icon(categoryInfo.icon, color: categoryInfo.color, size: 20),
+        backgroundColor: typeColor.withValues(alpha: 0.12),
+        child: Text(iconEmoji, style: const TextStyle(fontSize: 20)),
       ),
       title: Text(
         catName,
