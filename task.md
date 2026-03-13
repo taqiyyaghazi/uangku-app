@@ -1,25 +1,25 @@
-# Story 8.3: Fix Google Sign-In and Infinite Sync Loop
+# Task: Dashboard Wallet Layout Refactor (Carousel View)
 
-## Completed Tasks
+## Phase 1: Research [x]
+- [x] Analyze current implementation of `DashboardScreen` and `WalletGrid`.
+- [x] Define `WalletCarousel` widget structure and styling.
+- [x] Document research findings in `docs/research_logs/9.1-dashboard-wallet-carousel.md`.
 
-### Phase 2: Implement
+## Phase 2: Implement [x]
+- [x] Create `WalletCarousel` widget.
+- [x] Create shared `AddWalletCard` widget.
+- [x] Refactor `WalletGrid` to use shared card.
+- [x] Integrate `WalletCarousel` into `DashboardScreen` with conditional logic.
+- [x] Implement "Indicator Dots" for > 3 wallets.
+- [x] Add widget tests for `WalletCarousel` and `DashboardScreen` layout logic.
 
-- [x] **Config Updates:** Add `serverClientId` to `AppConfig` from environment variables
-- [x] **Auth Fixed:** Implement `GoogleSignIn.initialize()` in `AuthRepositoryImpl`
-- [x] **Loop Prevention:** Add `hasAttemptedRestoration` flag to `SyncStatusNotifier`
-- [x] **UI Handlers:** Reset sync status on logout/login to support multi-user scenarios
+## Phase 3: Integrate [x]
+- [x] Verify integration with `CustomScrollView`.
+- [x] Ensure "Recent Transactions" visibility by reducing wallet section height.
 
-### Phase 3: Integrate
+## Phase 4: Verify [x]
+- [x] Run all tests (255 tests passed).
+- [x] All linters pass.
 
-- [x] Fix unit tests for `AuthRepositoryImpl` to include missing mock properties
-- [x] Verify that local and cloud DB empty states do not cause infinite loops
-
-### Phase 4: Verify
-
-- [x] All lints pass
-- [x] All tests pass (238 tests)
-- [x] Full codebase audit complete
-
-### Phase 5: Ship
-
-- [x] Git commit with conventional format
+## Phase 5: Ship [x]
+- [x] Git commit with conventional format.
