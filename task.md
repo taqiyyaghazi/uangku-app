@@ -1,22 +1,19 @@
-# Task: Refactor Category Icon Usage
+# Task: Refactor Wallet Filter to SearchablePickerSheet
 
 ## Phase 1: Impact Analysis [x]
-- [x] Identify affected files: `TransactionItem`, `QuickEntrySheet`, `TransactionDetailSheet`.
-- [x] Check `Categories` table definition: `iconCode` stores emoji.
-- [x] Check `SearchablePickerSheet` and `PickerItem`: Needs update to support emojis.
-- [x] Map the blast radius: `CategoryIconMapper` might become obsolete.
+- [x] Identify affected files: `TransactionsArchiveScreen`.
+- [x] Review current implementation: Horizontal `ListView` of `ChoiceChip`s.
+- [x] Verify `SearchablePickerSheet` capability: Generic enough for wallets.
 
 ## Phase 2: Incremental Change [x]
-- [x] Update `PickerItem` and `SearchablePickerSheet` to support `iconCode` (emoji).
-- [x] Refactor `TransactionItem` to use `category.iconCode`.
-- [x] Refactor `QuickEntrySheet` to use `category.iconCode`.
-- [x] Refactor `TransactionDetailSheet` to use `category.iconCode`.
-- [x] Verify each step with existing tests.
+- [x] Update `TransactionsArchiveScreen` imports.
+- [x] Implement `_showWalletFilterPicker` helper method.
+- [x] Replace `ListView` of chips with a picker trigger (e.g., an `ActionChip`).
+- [x] Verify functionality: filter should update correctly.
 
 ## Phase 3: Parity Verification [x]
-- [x] Run full test suite.
-- [x] Verify UI looks correct with emojis.
+- [x] Run full test suite (253 tests passed).
+- [x] Verify UI behavior manually.
 
 ## Phase 4: Ship [x]
-- [x] Remove `CategoryIconMapper` if unused.
-- [x] Commit with `refactor(category): use emoji iconCode from database instead of mapper`
+- [x] Commit with `refactor(transaction): use SearchablePickerSheet for wallet filter in archive`
