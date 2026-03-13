@@ -5,14 +5,16 @@ import 'package:uangku/core/theme/app_theme.dart';
 class PickerItem<T> {
   final T id;
   final String name;
-  final IconData icon;
+  final IconData? icon;
+  final String? iconCode;
   final Color color;
   final String? subtitle;
 
   const PickerItem({
     required this.id,
     required this.name,
-    required this.icon,
+    this.icon,
+    this.iconCode,
     required this.color,
     this.subtitle,
   });
@@ -255,7 +257,10 @@ class _SearchablePickerSheetState<T> extends State<SearchablePickerSheet<T>> {
           color: item.color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Icon(item.icon, color: item.color, size: 20),
+        child:
+            item.iconCode != null
+                ? Text(item.iconCode!, style: const TextStyle(fontSize: 20))
+                : Icon(item.icon, color: item.color, size: 20),
       ),
       title: _HighlightedText(
         text: item.name,

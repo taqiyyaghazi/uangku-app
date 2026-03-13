@@ -10,7 +10,6 @@ import 'package:uangku/data/database.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/features/transaction/widgets/numpad.dart';
-import 'package:uangku/shared/utils/category_icon_mapper.dart';
 import 'package:uangku/shared/utils/currency_formatter.dart';
 import 'package:uangku/shared/utils/wallet_icon_mapper.dart';
 import 'package:uangku/shared/widgets/searchable_picker_sheet.dart';
@@ -495,8 +494,6 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
           orElse: () => categories.first,
         );
 
-        final categoryInfo = CategoryIconMapper.get(selectedCategory.name);
-
         return InkWell(
           onTap: () => _showCategoryPicker(context, categories, recentTxAsync.value),
           borderRadius: BorderRadius.circular(12),
@@ -508,10 +505,9 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
             ),
             child: Row(
               children: [
-                Icon(
-                  categoryInfo.icon,
-                  size: 20,
-                  color: categoryInfo.color,
+                Text(
+                  selectedCategory.iconCode,
+                  style: const TextStyle(fontSize: 20),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -545,15 +541,21 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
     List<Category> categories,
     List<TransactionWithCategory>? recentTransactions,
   ) async {
-    final items = categories.map((c) {
-      final info = CategoryIconMapper.get(c.name);
-      return PickerItem<int>(
-        id: c.id,
-        name: c.name,
-        icon: info.icon,
-        color: info.color,
-      );
-    }).toList();
+    final typeColor = switch (_type) {
+      TransactionType.income => OceanFlowColors.income,
+      TransactionType.expense => OceanFlowColors.expense,
+      TransactionType.transfer => OceanFlowColors.transfer,
+    };
+
+    final items =
+        categories.map((c) {
+          return PickerItem<int>(
+            id: c.id,
+            name: c.name,
+            iconCode: c.iconCode,
+            color: typeColor,
+          );
+        }).toList();
 
     // Determine recent categories (up to 3 unique from recent transactions of the same type)
     List<PickerItem<int>>? recentItems;
