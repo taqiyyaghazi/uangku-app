@@ -49,6 +49,7 @@ You **MUST** use the Flutter/Dart binaries managed by FVM. Never use global comm
   ```bash
   .fvm/flutter_sdk/bin/flutter analyze
   ```
+  
 
 ---
 

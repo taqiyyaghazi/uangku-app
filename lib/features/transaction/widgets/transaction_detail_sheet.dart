@@ -13,6 +13,7 @@ import 'package:uangku/features/transaction/widgets/numpad.dart';
 import 'package:uangku/shared/utils/category_icon_mapper.dart';
 import 'package:uangku/shared/utils/currency_formatter.dart';
 import 'package:uangku/shared/utils/relative_time_formatter.dart';
+import 'package:uangku/shared/widgets/searchable_picker_sheet.dart';
 import 'dart:developer' as developer;
 
 /// Bottom sheet for viewing, editing, and deleting a transaction.
@@ -350,50 +351,81 @@ class _TransactionDetailSheetState
           final categoriesAsync = ref
               .watch(categoryRepositoryProvider)
               .watchCategoriesByType(_type);
-          return SizedBox(
-            height: 36,
-            child: StreamBuilder<List<Category>>(
-              stream: categoriesAsync,
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) return const SizedBox.shrink();
-                final categories = snapshot.data!;
+          final recentTxAsync = ref.watch(recentTransactionsProvider);
 
-                if (!categories.any((c) => c.id == _selectedCategoryId)) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (mounted) {
-                      setState(() => _selectedCategoryId = categories.first.id);
-                    }
-                  });
-                }
+          return StreamBuilder<List<Category>>(
+            stream: categoriesAsync,
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return const SizedBox.shrink();
+              final categories = snapshot.data!;
 
-                return ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: categories.length,
-                  separatorBuilder: (_, _) => const SizedBox(width: 6),
-                  itemBuilder: (context, index) {
-                    final category = categories[index];
-                    final isSelected = category.id == _selectedCategoryId;
-                    return ChoiceChip(
-                      label: Text(category.name),
-                      selected: isSelected,
-                      onSelected: (_) =>
-                          setState(() => _selectedCategoryId = category.id),
-                      selectedColor: _colorForType.withValues(alpha: 0.15),
-                      labelStyle: TextStyle(
-                        fontSize: 12,
-                        color: isSelected
-                            ? _colorForType
-                            : theme.colorScheme.onSurface,
-                        fontWeight: isSelected
-                            ? FontWeight.w600
-                            : FontWeight.normal,
-                      ),
-                      visualDensity: VisualDensity.compact,
-                    );
-                  },
+              if (categories.isEmpty) {
+                return Text(
+                  'No categories available',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.error,
+                  ),
                 );
-              },
-            ),
+              }
+
+              if (!categories.any((c) => c.id == _selectedCategoryId)) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    setState(() => _selectedCategoryId = categories.first.id);
+                  }
+                });
+              }
+
+              final selectedCategory = categories.firstWhere(
+                (c) => c.id == _selectedCategoryId,
+                orElse: () => categories.first,
+              );
+              final categoryInfo = CategoryIconMapper.get(selectedCategory.name);
+
+              return InkWell(
+                onTap: () => _showCategoryPicker(
+                  context,
+                  categories,
+                  recentTxAsync.value,
+                ),
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest.withValues(
+                      alpha: 0.4,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        categoryInfo.icon,
+                        size: 20,
+                        color: categoryInfo.color,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          selectedCategory.name,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      Icon(
+                        Icons.expand_more,
+                        size: 20,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           );
         },
       ),
@@ -586,6 +618,57 @@ class _TransactionDetailSheetState
   }
 
   // ── Actions ────────────────────────────────────────────────────────
+
+  Future<void> _showCategoryPicker(
+    BuildContext context,
+    List<Category> categories,
+    List<TransactionWithCategory>? recentTransactions,
+  ) async {
+    final items =
+        categories.map((c) {
+          final info = CategoryIconMapper.get(c.name);
+          return PickerItem<int>(
+            id: c.id,
+            name: c.name,
+            icon: info.icon,
+            color: info.color,
+          );
+        }).toList();
+
+    // Determine recent categories (up to 3 unique from recent transactions of the same type)
+    List<PickerItem<int>>? recentItems;
+    if (recentTransactions != null) {
+      final recentIds =
+          recentTransactions
+              .where((tx) => tx.transaction.type == _type && tx.category != null)
+              .map((tx) => tx.category!.id)
+              .toSet()
+              .take(3);
+
+      recentItems = items.where((item) => recentIds.contains(item.id)).toList();
+    }
+
+    final result = await SearchablePickerSheet.show<int>(
+      context,
+      title: 'Select Category',
+      items: items,
+      recentItems: recentItems,
+      selectedId: _selectedCategoryId,
+      addNewLabel: 'Add New Category',
+      onAddNew: (query) => _onAddNewCategory(query),
+      searchPlaceholder: 'Search category name...',
+    );
+
+    if (result != null) {
+      setState(() => _selectedCategoryId = result);
+    }
+  }
+
+  void _onAddNewCategory(String name) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Add Category "$name" coming soon!')),
+    );
+  }
 
   Future<void> _onDelete() async {
     final confirmed = await showDialog<bool>(
