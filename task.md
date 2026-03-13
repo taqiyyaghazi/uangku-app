@@ -1,25 +1,24 @@
-# Story 8.3: Fix Google Sign-In and Infinite Sync Loop
+# Task: Quick Entry from History Screen
 
-## Completed Tasks
+## Phase 1: Research [x]
+- [x] Analyze `TransactionsArchiveScreen` and `QuickEntrySheet` for FAB and context passing.
+- [x] Define scope and proposed solution.
+- [x] Document findings in `docs/research_logs/9.3-quick-entry-from-history.md`.
 
-### Phase 2: Implement
+## Phase 2: Implement [x]
+- [x] Update `QuickEntrySheet` to accept `initialWalletId`.
+- [x] Add FAB to `TransactionsArchiveScreen`.
+- [x] Pass filter context (`selectedWalletId`) to `QuickEntrySheet`.
+- [x] Implement "Hide on Scroll" for FAB in History screen.
+- [x] Add/Update widget tests.
 
-- [x] **Config Updates:** Add `serverClientId` to `AppConfig` from environment variables
-- [x] **Auth Fixed:** Implement `GoogleSignIn.initialize()` in `AuthRepositoryImpl`
-- [x] **Loop Prevention:** Add `hasAttemptedRestoration` flag to `SyncStatusNotifier`
-- [x] **UI Handlers:** Reset sync status on logout/login to support multi-user scenarios
+## Phase 3: Integrate [x]
+- [x] Verify seamless return and list refresh.
+- [x] Ensure visual consistency with Dashboard.
 
-### Phase 3: Integrate
+## Phase 4: Verify [x]
+- [x] Run full test suite (253 tests passed).
+- [x] All linters pass.
 
-- [x] Fix unit tests for `AuthRepositoryImpl` to include missing mock properties
-- [x] Verify that local and cloud DB empty states do not cause infinite loops
-
-### Phase 4: Verify
-
-- [x] All lints pass
-- [x] All tests pass (238 tests)
-- [x] Full codebase audit complete
-
-### Phase 5: Ship
-
-- [x] Git commit with conventional format
+## Phase 5: Ship [x]
+- [x] Commit with conventional format.

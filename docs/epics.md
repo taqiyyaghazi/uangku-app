@@ -120,6 +120,19 @@ This document decomposes the requirements for **Uangku** into logical phases of 
 
 ---
 
+## Epic 9: Power User Experience (UX Refactor)
+
+**Goal:** Refactor existing features for enhanced usability and speed for power users.
+**Success Criteria:** User can view wallets compactly, easily search and pick categories/wallets, and quickly add entries from context-heavy screens.
+
+### Stories in Epic 9:
+
+- **Story 9.1: Dashboard Wallet Layout Refactor (Carousel View)** (3 pts)
+- **Story 9.2: Searchable Picker for Categories & Wallets** (5 pts)
+- **Story 9.3: Quick Entry from History Screen** (2 pts)
+
+---
+
 ## Implementation Sequence
 
 1.  **Epic 1** (Foundation & UI Shell)
@@ -130,7 +143,8 @@ This document decomposes the requirements for **Uangku** into logical phases of 
 6.  **Epic 6** (Identity & Polish)
 7.  **Epic 7** (Data Integrity & Portability)
 8.  **Epic 8** (Cloud Synchronization)
+9.  **Epic 9** (Power User Experience)
 
-**Total Story Points:** 84 Points
-**Total Stories:** 28 Stories
+**Total Story Points:** 94 Points
+**Total Stories:** 31 Stories
 **Estimated Timeline:** 6-8 Sprints (approx. 2-2.5 months)

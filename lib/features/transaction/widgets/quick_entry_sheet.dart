@@ -7,19 +7,24 @@ import 'package:intl/intl.dart';
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/data/database.dart';
+import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/features/transaction/widgets/numpad.dart';
 import 'package:uangku/shared/utils/currency_formatter.dart';
+import 'package:uangku/shared/utils/wallet_icon_mapper.dart';
+import 'package:uangku/shared/widgets/searchable_picker_sheet.dart';
 
 /// Bottom sheet for quick transaction entry.
 ///
 /// Provides a unified flow for Income, Expense, and Transfer with a
 /// custom numpad for speed (< 3 seconds per entry).
 class QuickEntrySheet extends ConsumerStatefulWidget {
-  const QuickEntrySheet({super.key});
+  const QuickEntrySheet({super.key, this.initialWalletId});
+
+  final int? initialWalletId;
 
   /// Shows the entry sheet as a modal bottom sheet.
-  static Future<void> show(BuildContext context) {
+  static Future<void> show(BuildContext context, {int? initialWalletId}) {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -27,7 +32,7 @@ class QuickEntrySheet extends ConsumerStatefulWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => const QuickEntrySheet(),
+      builder: (_) => QuickEntrySheet(initialWalletId: initialWalletId),
     );
   }
 
@@ -44,6 +49,12 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
   bool _isSaving = false;
   final _noteController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedWalletId = widget.initialWalletId;
+  }
 
   @override
   void dispose() {
@@ -379,45 +390,91 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
         ? _selectedWalletId
         : _selectedToWalletId;
 
-    return SizedBox(
-      height: 48,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: wallets.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 8),
-        itemBuilder: (context, index) {
-          final wallet = wallets[index];
-          final isSelected = wallet.id == currentSelectedId;
+    final selectedWallet = wallets.firstWhere(
+      (w) => w.id == currentSelectedId,
+      orElse: () => wallets.first,
+    );
 
-          return ChoiceChip(
-            label: Text(wallet.name),
-            selected: isSelected,
-            onSelected: (_) {
-              setState(() {
-                if (isSource) {
-                  _selectedWalletId = wallet.id;
-                } else {
-                  _selectedToWalletId = wallet.id;
-                }
-              });
-            },
-            selectedColor: OceanFlowColors.primary.withValues(alpha: 0.15),
-            labelStyle: TextStyle(
-              color: isSelected
-                  ? OceanFlowColors.primary
-                  : theme.colorScheme.onSurface,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+    return InkWell(
+      onTap: () => _showWalletPicker(context, wallets, isSource),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              WalletIconMapper.getIcon(selectedWallet.icon),
+              size: 20,
+              color: OceanFlowColors.primary,
             ),
-          );
-        },
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                selectedWallet.name,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            Text(
+              CurrencyFormatter.format(selectedWallet.balance),
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              Icons.expand_more,
+              size: 20,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  Future<void> _showWalletPicker(
+    BuildContext context,
+    List<Wallet> wallets,
+    bool isSource,
+  ) async {
+    final items = wallets.map((w) => PickerItem<int>(
+      id: w.id,
+      name: w.name,
+      icon: WalletIconMapper.getIcon(w.icon),
+      color: OceanFlowColors.primary,
+      subtitle: CurrencyFormatter.format(w.balance),
+    )).toList();
+
+    final result = await SearchablePickerSheet.show<int>(
+      context,
+      title: isSource ? 'Select Source Wallet' : 'Select Destination Wallet',
+      items: items,
+      selectedId: isSource ? _selectedWalletId : _selectedToWalletId,
+      searchPlaceholder: 'Search wallet name...',
+    );
+
+    if (result != null) {
+      setState(() {
+        if (isSource) {
+          _selectedWalletId = result;
+        } else {
+          _selectedToWalletId = result;
+        }
+      });
+    }
   }
 
   // ── Category selector ─────────────────────────────────────────────
 
   Widget _buildCategorySelector(ThemeData theme) {
     final categoriesAsync = ref.watch(categoriesByTypeProvider(_type));
+    final recentTxAsync = ref.watch(recentTransactionsProvider);
 
     return categoriesAsync.when(
       data: (categories) {
@@ -440,41 +497,105 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
           });
         }
 
-        return SizedBox(
-          height: 36,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: categories.length,
-            separatorBuilder: (_, _) => const SizedBox(width: 6),
-            itemBuilder: (context, index) {
-              final category = categories[index];
-              final isSelected = category.id == _selectedCategoryId;
+        final selectedCategory = categories.firstWhere(
+          (c) => c.id == _selectedCategoryId,
+          orElse: () => categories.first,
+        );
 
-              return ChoiceChip(
-                label: Text(category.name),
-                selected: isSelected,
-                onSelected: (_) {
-                  setState(() => _selectedCategoryId = category.id);
-                },
-                selectedColor: _colorForType.withValues(alpha: 0.15),
-                labelStyle: TextStyle(
-                  fontSize: 12,
-                  color: isSelected
-                      ? _colorForType
-                      : theme.colorScheme.onSurface,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+        return InkWell(
+          onTap: () => _showCategoryPicker(context, categories, recentTxAsync.value),
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Text(
+                  selectedCategory.iconCode,
+                  style: const TextStyle(fontSize: 20),
                 ),
-                visualDensity: VisualDensity.compact,
-              );
-            },
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    selectedCategory.name,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.expand_more,
+                  size: 20,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ],
+            ),
           ),
         );
       },
       loading: () => const SizedBox(
-        height: 36,
+        height: 48,
         child: Center(child: CircularProgressIndicator()),
       ),
       error: (_, _) => const Text('Failed to load categories'),
+    );
+  }
+
+  Future<void> _showCategoryPicker(
+    BuildContext context,
+    List<Category> categories,
+    List<TransactionWithCategory>? recentTransactions,
+  ) async {
+    final typeColor = switch (_type) {
+      TransactionType.income => OceanFlowColors.income,
+      TransactionType.expense => OceanFlowColors.expense,
+      TransactionType.transfer => OceanFlowColors.transfer,
+    };
+
+    final items =
+        categories.map((c) {
+          return PickerItem<int>(
+            id: c.id,
+            name: c.name,
+            iconCode: c.iconCode,
+            color: typeColor,
+          );
+        }).toList();
+
+    // Determine recent categories (up to 3 unique from recent transactions of the same type)
+    List<PickerItem<int>>? recentItems;
+    if (recentTransactions != null) {
+      final recentIds = recentTransactions
+          .where((tx) => tx.transaction.type == _type && tx.category != null)
+          .map((tx) => tx.category!.id)
+          .toSet()
+          .take(3);
+      
+      recentItems = items.where((item) => recentIds.contains(item.id)).toList();
+    }
+
+    final result = await SearchablePickerSheet.show<int>(
+      context,
+      title: 'Select Category',
+      items: items,
+      recentItems: recentItems,
+      selectedId: _selectedCategoryId,
+      addNewLabel: 'Add New Category',
+      onAddNew: (query) => _onAddNewCategory(query),
+      searchPlaceholder: 'Search category name...',
+    );
+
+    if (result != null) {
+      setState(() => _selectedCategoryId = result);
+    }
+  }
+
+  void _onAddNewCategory(String name) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Add Category "$name" coming soon!')),
     );
   }
 

@@ -11,6 +11,9 @@ import 'package:uangku/features/dashboard/widgets/dashboard_header.dart';
 import 'package:uangku/features/dashboard/widgets/recent_activity_section.dart';
 import 'package:uangku/features/dashboard/widgets/wallet_form_sheet.dart';
 import 'package:uangku/features/dashboard/widgets/wallet_grid.dart';
+import 'package:uangku/features/dashboard/widgets/wallet_carousel.dart';
+import 'package:uangku/features/dashboard/widgets/wallet_card.dart';
+import 'package:uangku/features/dashboard/widgets/add_wallet_card.dart';
 import 'package:uangku/features/sync/state/sync_status_provider.dart';
 import 'package:uangku/features/transaction/widgets/quick_entry_sheet.dart';
 
@@ -171,7 +174,7 @@ class DashboardScreen extends ConsumerWidget {
         // ── Section title ──────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
             child: Text(
               'My Wallets',
               style: Theme.of(
@@ -181,12 +184,41 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ),
 
-        // ── Wallet Grid ────────────────────────────────────────────
-        WalletGrid(
-          wallets: wallets,
-          onWalletTap: (wallet) => _onEditWallet(context, ref, wallet),
-          onAddWallet: () => _onAddWallet(context, ref),
-        ),
+        // ── Wallet Layout Logic ────────────────────────────────────
+        if (wallets.length > 2)
+          SliverToBoxAdapter(
+            child: WalletCarousel(
+              wallets: wallets,
+              onWalletTap: (wallet) => _onEditWallet(context, ref, wallet),
+              onAddWallet: () => _onAddWallet(context, ref),
+            ),
+          )
+        else if (wallets.length == 1)
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                SizedBox(
+                  height: 120,
+                  child: WalletCard(
+                    wallet: wallets.first,
+                    onTap: () => _onEditWallet(context, ref, wallets.first),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                AddWalletCard(
+                  onTap: () => _onAddWallet(context, ref),
+                  height: 100,
+                ),
+              ]),
+            ),
+          )
+        else
+          WalletGrid(
+            wallets: wallets,
+            onWalletTap: (wallet) => _onEditWallet(context, ref, wallet),
+            onAddWallet: () => _onAddWallet(context, ref),
+          ),
 
         // ── Recent Activity ────────────────────────────────────────
         const RecentActivitySection(),
