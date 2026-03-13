@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/core/services/monitoring_service.dart';
@@ -8,6 +9,7 @@ import 'package:uangku/data/database.dart';
 import 'package:uangku/features/transaction/logic/transaction_grouping_logic.dart';
 import 'package:uangku/features/dashboard/widgets/transaction_item.dart';
 import 'package:uangku/features/transaction/screens/multi_sliver_widget.dart';
+import 'package:uangku/features/transaction/widgets/quick_entry_sheet.dart';
 import 'package:uangku/features/transaction/widgets/transaction_detail_sheet.dart';
 import 'package:uangku/shared/utils/currency_formatter.dart';
 import 'package:uangku/shared/utils/wallet_icon_mapper.dart';
@@ -25,6 +27,31 @@ class TransactionsArchiveScreen extends ConsumerStatefulWidget {
 class _TransactionsArchiveScreenState
     extends ConsumerState<TransactionsArchiveScreen> {
   String _searchQuery = '';
+  final ScrollController _scrollController = ScrollController();
+  bool _showFab = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.userScrollDirection ==
+        ScrollDirection.reverse) {
+      if (_showFab) setState(() => _showFab = false);
+    } else if (_scrollController.position.userScrollDirection ==
+        ScrollDirection.forward) {
+      if (!_showFab) setState(() => _showFab = true);
+    }
+  }
 
   Future<void> _showWalletFilterPicker(
     BuildContext context,
@@ -80,7 +107,20 @@ class _TransactionsArchiveScreenState
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
+      floatingActionButton:
+          _showFab
+              ? FloatingActionButton(
+                onPressed:
+                    () => QuickEntrySheet.show(
+                      context,
+                      initialWalletId: selectedWalletId,
+                    ),
+                tooltip: 'Add Transaction',
+                child: const Icon(Icons.add),
+              )
+              : null,
       body: CustomScrollView(
+        controller: _scrollController,
         slivers: [
           // Sticky App Bar with Search Field
           SliverAppBar(

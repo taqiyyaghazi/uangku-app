@@ -19,10 +19,12 @@ import 'package:uangku/shared/widgets/searchable_picker_sheet.dart';
 /// Provides a unified flow for Income, Expense, and Transfer with a
 /// custom numpad for speed (< 3 seconds per entry).
 class QuickEntrySheet extends ConsumerStatefulWidget {
-  const QuickEntrySheet({super.key});
+  const QuickEntrySheet({super.key, this.initialWalletId});
+
+  final int? initialWalletId;
 
   /// Shows the entry sheet as a modal bottom sheet.
-  static Future<void> show(BuildContext context) {
+  static Future<void> show(BuildContext context, {int? initialWalletId}) {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -30,7 +32,7 @@ class QuickEntrySheet extends ConsumerStatefulWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => const QuickEntrySheet(),
+      builder: (_) => QuickEntrySheet(initialWalletId: initialWalletId),
     );
   }
 
@@ -47,6 +49,12 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
   bool _isSaving = false;
   final _noteController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedWalletId = widget.initialWalletId;
+  }
 
   @override
   void dispose() {

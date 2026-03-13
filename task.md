@@ -1,15 +1,24 @@
-# Task: Fix Firebase Analytics AssertionError in Wallet Filter
+# Task: Quick Entry from History Screen
 
-## Phase 1: Diagnose [x]
-- [x] Identify the bug: `AssertionError` because `bool` is passed to `is_all_wallets` in Firebase Analytics.
-- [x] Locate affected code: `lib/features/transaction/screens/transactions_archive_screen.dart`.
-- [x] Define fix: Convert `bool` to `int` (1/0) or `String` in `logEvent` parameters.
+## Phase 1: Research [x]
+- [x] Analyze `TransactionsArchiveScreen` and `QuickEntrySheet` for FAB and context passing.
+- [x] Define scope and proposed solution.
+- [x] Document findings in `docs/research_logs/9.3-quick-entry-from-history.md`.
 
-## Phase 2: Fix + Test (TDD) [x]
-- [x] Write a failing test that reproduces the bug (verifies parameter types).
-- [x] Apply the minimal fix to make the test pass.
-- [x] Verify existing tests still pass.
+## Phase 2: Implement [x]
+- [x] Update `QuickEntrySheet` to accept `initialWalletId`.
+- [x] Add FAB to `TransactionsArchiveScreen`.
+- [x] Pass filter context (`selectedWalletId`) to `QuickEntrySheet`.
+- [x] Implement "Hide on Scroll" for FAB in History screen.
+- [x] Add/Update widget tests.
 
-## Phase 3: Verify + Ship [x]
-- [x] Run full validation suite (254 tests passed).
-- [x] Commit with `fix(transaction): convert bool to string/int for analytics parameter`
+## Phase 3: Integrate [x]
+- [x] Verify seamless return and list refresh.
+- [x] Ensure visual consistency with Dashboard.
+
+## Phase 4: Verify [x]
+- [x] Run full test suite (253 tests passed).
+- [x] All linters pass.
+
+## Phase 5: Ship [x]
+- [x] Commit with conventional format.
