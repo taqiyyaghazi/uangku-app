@@ -64,7 +64,7 @@ class _TransactionsArchiveScreenState
       ref.read(monitoringServiceProvider).logEvent(
         name: 'filter_wallet_changed',
         parameters: {
-          'is_all_wallets': walletId == null,
+          'is_all_wallets': walletId == null ? 1 : 0,
           'wallet_id': walletId?.toString() ?? 'none',
         },
       );

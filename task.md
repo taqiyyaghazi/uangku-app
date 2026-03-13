@@ -1,19 +1,15 @@
-# Task: Refactor Wallet Filter to SearchablePickerSheet
+# Task: Fix Firebase Analytics AssertionError in Wallet Filter
 
-## Phase 1: Impact Analysis [x]
-- [x] Identify affected files: `TransactionsArchiveScreen`.
-- [x] Review current implementation: Horizontal `ListView` of `ChoiceChip`s.
-- [x] Verify `SearchablePickerSheet` capability: Generic enough for wallets.
+## Phase 1: Diagnose [x]
+- [x] Identify the bug: `AssertionError` because `bool` is passed to `is_all_wallets` in Firebase Analytics.
+- [x] Locate affected code: `lib/features/transaction/screens/transactions_archive_screen.dart`.
+- [x] Define fix: Convert `bool` to `int` (1/0) or `String` in `logEvent` parameters.
 
-## Phase 2: Incremental Change [x]
-- [x] Update `TransactionsArchiveScreen` imports.
-- [x] Implement `_showWalletFilterPicker` helper method.
-- [x] Replace `ListView` of chips with a picker trigger (e.g., an `ActionChip`).
-- [x] Verify functionality: filter should update correctly.
+## Phase 2: Fix + Test (TDD) [x]
+- [x] Write a failing test that reproduces the bug (verifies parameter types).
+- [x] Apply the minimal fix to make the test pass.
+- [x] Verify existing tests still pass.
 
-## Phase 3: Parity Verification [x]
-- [x] Run full test suite (253 tests passed).
-- [x] Verify UI behavior manually.
-
-## Phase 4: Ship [x]
-- [x] Commit with `refactor(transaction): use SearchablePickerSheet for wallet filter in archive`
+## Phase 3: Verify + Ship [x]
+- [x] Run full validation suite (254 tests passed).
+- [x] Commit with `fix(transaction): convert bool to string/int for analytics parameter`
