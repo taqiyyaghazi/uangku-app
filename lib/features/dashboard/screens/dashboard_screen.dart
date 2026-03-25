@@ -6,6 +6,7 @@ import 'package:uangku/core/constants/app_constants.dart';
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/features/auth/state/auth_provider.dart';
 import 'package:uangku/data/database.dart';
+import 'package:uangku/features/dashboard/screens/wallet_list_screen.dart';
 import 'package:uangku/features/dashboard/widgets/daily_breath_bar.dart';
 import 'package:uangku/features/dashboard/widgets/dashboard_header.dart';
 import 'package:uangku/features/dashboard/widgets/recent_activity_section.dart';
@@ -174,12 +175,32 @@ class DashboardScreen extends ConsumerWidget {
         // ── Section title ──────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-            child: Text(
-              'My Wallets',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            padding: const EdgeInsets.fromLTRB(20, 16, 12, 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'My Wallets',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                TextButton.icon(
+                  key: const Key('see_all_wallets_button'),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const WalletListScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.arrow_forward, size: 16),
+                  iconAlignment: IconAlignment.end,
+                  label: const Text('See All'),
+                ),
+              ],
             ),
           ),
         ),

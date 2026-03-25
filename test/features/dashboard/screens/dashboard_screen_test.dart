@@ -99,5 +99,15 @@ void main() {
       
       expect(find.byType(WalletGrid), findsOneWidget);
     });
+
+    testWidgets('shows "See All" button next to "My Wallets" title', (tester) async {
+      final wallets = [makeWallet(1)];
+
+      await tester.pumpWidget(buildTestWidget(wallets: wallets));
+      await tester.pump();
+
+      expect(find.text('See All'), findsOneWidget);
+      expect(find.byKey(const Key('see_all_wallets_button')), findsOneWidget);
+    });
   });
 }
