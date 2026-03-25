@@ -181,13 +181,11 @@ class DashboardScreen extends ConsumerWidget {
               children: [
                 Text(
                   'My Wallets',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleMedium?.copyWith(
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                TextButton.icon(
+                TextButton(
                   key: const Key('see_all_wallets_button'),
                   onPressed: () {
                     Navigator.of(context).push(
@@ -196,9 +194,7 @@ class DashboardScreen extends ConsumerWidget {
                       ),
                     );
                   },
-                  icon: const Icon(Icons.arrow_forward, size: 16),
-                  iconAlignment: IconAlignment.end,
-                  label: const Text('See All'),
+                  child: const Text('See All'),
                 ),
               ],
             ),
@@ -211,7 +207,6 @@ class DashboardScreen extends ConsumerWidget {
             child: WalletCarousel(
               wallets: wallets,
               onWalletTap: (wallet) => _onEditWallet(context, ref, wallet),
-              onAddWallet: () => _onAddWallet(context, ref),
             ),
           )
         else if (wallets.length == 1)
