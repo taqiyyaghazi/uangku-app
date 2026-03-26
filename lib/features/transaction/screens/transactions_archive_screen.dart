@@ -13,6 +13,7 @@ import 'package:uangku/features/transaction/widgets/quick_entry_sheet.dart';
 import 'package:uangku/features/transaction/widgets/transaction_detail_sheet.dart';
 import 'package:uangku/shared/utils/currency_formatter.dart';
 import 'package:uangku/shared/utils/wallet_icon_mapper.dart';
+import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/shared/widgets/searchable_picker_sheet.dart';
 
 /// Screen showcasing the full transaction history, grouped by month/year.
@@ -51,6 +52,37 @@ class _TransactionsArchiveScreenState
         ScrollDirection.forward) {
       if (!_showFab) setState(() => _showFab = true);
     }
+  }
+
+  Widget _buildTypeChip({
+    required BuildContext context,
+    required String label,
+    required TransactionType? value,
+    required TransactionType? selectedValue,
+    required Color color,
+  }) {
+    final isSelected = value == selectedValue;
+    return ChoiceChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (selected) {
+        final newValue = selected ? value : null;
+        ref.read(selectedTypeFilterProvider.notifier).setFilter(newValue);
+      },
+      selectedColor: color.withValues(alpha: 0.2),
+      backgroundColor: Colors.transparent,
+      side: BorderSide(
+        color: isSelected ? color : Theme.of(context).dividerColor,
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      labelStyle: TextStyle(
+        fontSize: 13,
+        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+        color: isSelected
+            ? color
+            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+      ),
+    );
   }
 
   Future<void> _showWalletFilterPicker(
@@ -104,6 +136,7 @@ class _TransactionsArchiveScreenState
     final transactionsAsync = ref.watch(allTransactionsProvider);
     final walletsAsync = ref.watch(walletsProvider);
     final selectedWalletId = ref.watch(selectedWalletFilterProvider);
+    final selectedType = ref.watch(selectedTypeFilterProvider);
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -157,44 +190,88 @@ class _TransactionsArchiveScreenState
                         }
                       }
 
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 4,
-                        ),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: ActionChip(
-                            avatar: Icon(
-                              selectedWallet == null
-                                  ? Icons.account_balance_wallet_outlined
-                                  : WalletIconMapper.getIcon(
-                                    selectedWallet.icon,
-                                  ),
-                              size: 18,
-                              color: OceanFlowColors.primary,
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 4,
                             ),
-                            label: Text(selectedWallet?.name ?? 'All Wallets'),
-                            onPressed:
-                                () => _showWalletFilterPicker(
-                                  context,
-                                  wallets,
-                                  selectedWalletId,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: ActionChip(
+                                avatar: Icon(
+                                  selectedWallet == null
+                                      ? Icons.account_balance_wallet_outlined
+                                      : WalletIconMapper.getIcon(
+                                        selectedWallet.icon,
+                                      ),
+                                  size: 18,
+                                  color: OceanFlowColors.primary,
                                 ),
-                            side: BorderSide.none,
-                            backgroundColor: OceanFlowColors.primary.withValues(
-                              alpha: 0.1,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            labelStyle: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: OceanFlowColors.primary,
+                                label: Text(selectedWallet?.name ?? 'All Wallets'),
+                                onPressed:
+                                    () => _showWalletFilterPicker(
+                                      context,
+                                      wallets,
+                                      selectedWalletId,
+                                    ),
+                                side: BorderSide.none,
+                                backgroundColor: OceanFlowColors.primary.withValues(
+                                  alpha: 0.1,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                labelStyle: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: OceanFlowColors.primary,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Row(
+                              children: [
+                                _buildTypeChip(
+                                  context: context,
+                                  label: 'All',
+                                  value: null,
+                                  selectedValue: selectedType,
+                                  color: OceanFlowColors.primary,
+                                ),
+                                const SizedBox(width: 8),
+                                _buildTypeChip(
+                                  context: context,
+                                  label: 'Expense',
+                                  value: TransactionType.expense,
+                                  selectedValue: selectedType,
+                                  color: Colors.red,
+                                ),
+                                const SizedBox(width: 8),
+                                _buildTypeChip(
+                                  context: context,
+                                  label: 'Income',
+                                  value: TransactionType.income,
+                                  selectedValue: selectedType,
+                                  color: Colors.green,
+                                ),
+                                const SizedBox(width: 8),
+                                _buildTypeChip(
+                                  context: context,
+                                  label: 'Transfer',
+                                  value: TransactionType.transfer,
+                                  selectedValue: selectedType,
+                                  color: Colors.blue,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       );
                     },
                     loading: () => const SizedBox(height: 40),

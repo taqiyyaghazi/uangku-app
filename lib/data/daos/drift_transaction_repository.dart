@@ -499,10 +499,10 @@ class DriftTransactionRepository implements TransactionRepository {
   }
 
   @override
-  Stream<List<TransactionWithCategory>> watchAllTransactions({int? walletId}) {
+  Stream<List<TransactionWithCategory>> watchAllTransactions({int? walletId, TransactionType? type}) {
     const operation = 'watchAllTransactions';
     final startTime = DateTime.now();
-    _monitoring.logInfo('START: $operation', {'walletId': walletId ?? 'all'});
+    _monitoring.logInfo('START: $operation', {'walletId': walletId ?? 'all', 'type': type?.name ?? 'all'});
 
     final query = _db.select(_db.transactions).join([
       leftOuterJoin(
@@ -516,6 +516,9 @@ class DriftTransactionRepository implements TransactionRepository {
         _db.transactions.walletId.equals(walletId) |
             _db.transactions.toWalletId.equals(walletId),
       );
+    }
+    if (type != null) {
+      query.where(_db.transactions.type.equals(type.name));
     }
 
     return query

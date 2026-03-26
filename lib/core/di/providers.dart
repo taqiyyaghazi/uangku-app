@@ -182,13 +182,30 @@ final selectedWalletFilterProvider =
       () => SelectedWalletFilterNotifier(),
     );
 
+/// State provider to hold the currently selected transaction type for filtering.
+/// null means "All Types".
+class SelectedTypeFilterNotifier extends Notifier<TransactionType?> {
+  @override
+  TransactionType? build() => null;
+
+  void setFilter(TransactionType? type) {
+    state = type;
+  }
+}
+
+final selectedTypeFilterProvider =
+    NotifierProvider<SelectedTypeFilterNotifier, TransactionType?>(
+      () => SelectedTypeFilterNotifier(),
+    );
+
 /// Provides a reactive stream of all transactions
 /// across all wallets, ordered by date descending.
-/// Respects the [selectedWalletFilterProvider] if set.
+/// Respects the [selectedWalletFilterProvider] and [selectedTypeFilterProvider] if set.
 final allTransactionsProvider = StreamProvider<List<TransactionWithCategory>>((
   ref,
 ) {
   final repo = ref.watch(transactionRepositoryProvider);
   final selectedWalletId = ref.watch(selectedWalletFilterProvider);
-  return repo.watchAllTransactions(walletId: selectedWalletId);
+  final selectedType = ref.watch(selectedTypeFilterProvider);
+  return repo.watchAllTransactions(walletId: selectedWalletId, type: selectedType);
 });

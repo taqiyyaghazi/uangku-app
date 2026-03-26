@@ -373,6 +373,71 @@ void main() {
       expect(wallet3Tx.length, 1);
       expect(wallet3Tx.first.transaction.amount, 500.0);
     });
+
+    test('filters transactions by type', () async {
+      // 1. Setup Wallet & Category
+      final wallet1 = await db.into(db.wallets).insert(
+        WalletsCompanion.insert(
+          name: 'Wallet 1',
+          balance: const Value(1000.0),
+          type: WalletType.cash,
+        ),
+      );
+
+      final catId = await db.into(db.categories).insert(
+        CategoriesCompanion.insert(
+          name: 'Food',
+          iconCode: '🍔',
+          type: TransactionType.expense,
+        ),
+      );
+
+      // 2. Insert Transactions
+      await db.into(db.transactions).insert(
+        TransactionsCompanion.insert(
+          walletId: wallet1,
+          amount: 50.0,
+          type: TransactionType.expense,
+          categoryId: Value(catId),
+          date: DateTime(2025, 3, 5),
+        ),
+      );
+
+      await db.into(db.transactions).insert(
+        TransactionsCompanion.insert(
+          walletId: wallet1,
+          amount: 500.0,
+          type: TransactionType.income,
+          categoryId: Value(catId),
+          date: DateTime(2025, 3, 6),
+        ),
+      );
+
+      await db.into(db.transactions).insert(
+        TransactionsCompanion.insert(
+          walletId: wallet1,
+          toWalletId: Value(wallet1),
+          amount: 100.0,
+          type: TransactionType.transfer,
+          date: DateTime(2025, 3, 7),
+        ),
+      );
+
+      // 3. Verify Expense Filter
+      final expenseTx = await repository.watchAllTransactions(type: TransactionType.expense).first;
+      expect(expenseTx.length, 1);
+      expect(expenseTx.first.transaction.type, TransactionType.expense);
+
+      // 4. Verify Income Filter
+      final incomeTx = await repository.watchAllTransactions(type: TransactionType.income).first;
+      expect(incomeTx.length, 1);
+      expect(incomeTx.first.transaction.type, TransactionType.income);
+
+      // 5. Verify Transfer Filter
+      final transferTx = await repository.watchAllTransactions(type: TransactionType.transfer).first;
+      expect(transferTx.length, 1);
+      expect(transferTx.first.transaction.type, TransactionType.transfer);
+    });
   });
 
   group('DriftTransactionRepository.getAllTransactionsWithDetails', () {
