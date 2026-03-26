@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/models/category_spending.dart';
@@ -29,7 +30,7 @@ class FakeTransactionRepository implements TransactionRepository {
       Stream.value(MonthlySummary.empty());
 
   @override
-  Stream<List<TransactionWithCategory>> watchAllTransactions({int? walletId}) {
+  Stream<List<TransactionWithCategory>> watchAllTransactions({int? walletId, TransactionType? type}) {
     return Stream.value([]);
   }
 

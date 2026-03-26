@@ -13,8 +13,9 @@ import 'package:uangku/data/models/category_spending.dart' as _i7;
 import 'package:uangku/data/models/daily_spending.dart' as _i8;
 import 'package:uangku/data/models/monthly_summary.dart' as _i9;
 import 'package:uangku/data/models/transaction_with_category.dart' as _i6;
-import 'package:uangku/data/models/transaction_with_details.dart' as _i11;
+import 'package:uangku/data/models/transaction_with_details.dart' as _i12;
 import 'package:uangku/data/repositories/transaction_repository.dart' as _i5;
+import 'package:uangku/data/tables/transactions_table.dart' as _i11;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -242,9 +243,13 @@ class MockTransactionRepository extends _i1.Mock
   @override
   _i4.Stream<List<_i6.TransactionWithCategory>> watchAllTransactions({
     int? walletId,
+    _i11.TransactionType? type,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(#watchAllTransactions, [], {#walletId: walletId}),
+            Invocation.method(#watchAllTransactions, [], {
+              #walletId: walletId,
+              #type: type,
+            }),
             returnValue: _i4.Stream<List<_i6.TransactionWithCategory>>.empty(),
           )
           as _i4.Stream<List<_i6.TransactionWithCategory>>);
@@ -298,13 +303,13 @@ class MockTransactionRepository extends _i1.Mock
           as _i4.Future<int>);
 
   @override
-  _i4.Future<List<_i11.TransactionWithDetails>>
+  _i4.Future<List<_i12.TransactionWithDetails>>
   getAllTransactionsWithDetails() =>
       (super.noSuchMethod(
             Invocation.method(#getAllTransactionsWithDetails, []),
-            returnValue: _i4.Future<List<_i11.TransactionWithDetails>>.value(
-              <_i11.TransactionWithDetails>[],
+            returnValue: _i4.Future<List<_i12.TransactionWithDetails>>.value(
+              <_i12.TransactionWithDetails>[],
             ),
           )
-          as _i4.Future<List<_i11.TransactionWithDetails>>);
+          as _i4.Future<List<_i12.TransactionWithDetails>>);
 }

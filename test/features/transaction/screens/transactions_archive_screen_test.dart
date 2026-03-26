@@ -178,6 +178,29 @@ void main() {
       final sheetFinder = find.byType(QuickEntrySheet);
       expect(find.descendant(of: sheetFinder, matching: find.text('Wallet 2')), findsOneWidget);
     });
+
+    testWidgets('filters transactions by type', (tester) async {
+      await tester.pumpWidget(buildTestApp([t1, t2]));
+      await tester.pumpAndSettle();
+
+      // Both t1 and t2 are expenses
+      expect(find.text('Food'), findsOneWidget);
+      expect(find.text('Transport'), findsOneWidget);
+
+      // Tap Income chip
+      await tester.tap(find.widgetWithText(ChoiceChip, 'Income'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Riwayat kosong. Mulai mencatat hari ini!'), findsOneWidget);
+      expect(find.text('Food'), findsNothing);
+
+      // Tap Expense chip
+      await tester.tap(find.widgetWithText(ChoiceChip, 'Expense'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Food'), findsOneWidget);
+      expect(find.text('Transport'), findsOneWidget);
+    });
   });
 }
 
@@ -204,7 +227,15 @@ class FakeWalletRepository implements WalletRepository {
 class FakeTransactionRepository implements TransactionRepository {
   final List<TransactionWithCategory> transactions;
   FakeTransactionRepository({required this.transactions});
-  @override Stream<List<TransactionWithCategory>> watchAllTransactions({int? walletId}) => Stream.value(transactions);
+  
+  @override 
+  Stream<List<TransactionWithCategory>> watchAllTransactions({int? walletId, TransactionType? type}) {
+    return Stream.value(transactions.where((t) {
+      if (walletId != null && t.transaction.walletId != walletId) return false;
+      if (type != null && t.transaction.type != type) return false;
+      return true;
+    }).toList());
+  }
   @override Stream<List<TransactionWithCategory>> watchRecentTransactions(int limit) => Stream.value(transactions.take(limit).toList());
   @override Stream<List<TransactionWithCategory>> watchTransactionsByDateRange(DateTime start, DateTime end) => Stream.value(transactions);
   @override Stream<List<CategorySpending>> watchCategorySpending(DateTime month) => Stream.value([]);

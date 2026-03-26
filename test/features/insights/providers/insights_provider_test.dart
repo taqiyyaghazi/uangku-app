@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uangku/data/models/monthly_summary.dart';
 import 'package:uangku/data/repositories/transaction_repository.dart';
@@ -25,7 +26,7 @@ class MockTransactionRepository implements TransactionRepository {
   Stream<List<DailySpending>> watchDailySpending(DateTime month) =>
       Stream.value([]);
   @override
-  Stream<List<TransactionWithCategory>> watchAllTransactions({int? walletId}) {
+  Stream<List<TransactionWithCategory>> watchAllTransactions({int? walletId, TransactionType? type}) {
     return Stream.value([]);
   }
 

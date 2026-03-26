@@ -94,7 +94,7 @@ class FakeTransactionRepository implements TransactionRepository {
       Stream.value([]);
 
   @override
-  Stream<List<TransactionWithCategory>> watchAllTransactions({int? walletId}) {
+  Stream<List<TransactionWithCategory>> watchAllTransactions({int? walletId, TransactionType? type}) {
     return Stream.value([]);
   }
 

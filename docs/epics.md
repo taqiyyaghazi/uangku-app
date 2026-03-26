@@ -129,7 +129,19 @@ This document decomposes the requirements for **Uangku** into logical phases of 
 
 - **Story 9.1: Dashboard Wallet Layout Refactor (Carousel View)** (3 pts)
 - **Story 9.2: Searchable Picker for Categories & Wallets** (5 pts)
-- **Story 9.3: Quick Entry from History Screen** (2 pts)
+- Story 9.3: Quick Entry from History Screen (2 pts)
+
+---
+
+## Epic 10: Advanced Discovery & Deep Filtering
+
+**Goal:** Refine how users find and filter their data for better financial control.
+**Success Criteria:** Users can manage all wallets from a central hub and filter their transaction history by specific types like "Investment".
+
+### Stories in Epic 10:
+
+- **Story 10.1: Wallet Management Hub & Quick Search** (3 pts)
+- **Story 10.2: Core Transaction Type Filter** (2 pts)
 
 ---
 
@@ -144,7 +156,8 @@ This document decomposes the requirements for **Uangku** into logical phases of 
 7.  **Epic 7** (Data Integrity & Portability)
 8.  **Epic 8** (Cloud Synchronization)
 9.  **Epic 9** (Power User Experience)
+10. **Epic 10** (Advanced Discovery & Filtering)
 
-**Total Story Points:** 94 Points
-**Total Stories:** 31 Stories
+**Total Story Points:** 99 Points
+**Total Stories:** 33 Stories
 **Estimated Timeline:** 6-8 Sprints (approx. 2-2.5 months)
