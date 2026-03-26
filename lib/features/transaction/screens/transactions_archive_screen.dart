@@ -120,13 +120,15 @@ class _TransactionsArchiveScreenState
       final walletId = result == 0 ? null : result;
       ref.read(selectedWalletFilterProvider.notifier).setFilter(walletId);
 
-      ref.read(monitoringServiceProvider).logEvent(
-        name: 'filter_wallet_changed',
-        parameters: {
-          'is_all_wallets': walletId == null ? 1 : 0,
-          'wallet_id': walletId?.toString() ?? 'none',
-        },
-      );
+      ref
+          .read(monitoringServiceProvider)
+          .logEvent(
+            name: 'filter_wallet_changed',
+            parameters: {
+              'is_all_wallets': walletId == null ? 1 : 0,
+              'wallet_id': walletId?.toString() ?? 'none',
+            },
+          );
     }
   }
 
@@ -140,18 +142,16 @@ class _TransactionsArchiveScreenState
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      floatingActionButton:
-          _showFab
-              ? FloatingActionButton(
-                onPressed:
-                    () => QuickEntrySheet.show(
-                      context,
-                      initialWalletId: selectedWalletId,
-                    ),
-                tooltip: 'Add Transaction',
-                child: const Icon(Icons.add),
-              )
-              : null,
+      floatingActionButton: _showFab
+          ? FloatingActionButton(
+              onPressed: () => QuickEntrySheet.show(
+                context,
+                initialWalletId: selectedWalletId,
+              ),
+              tooltip: 'Add Transaction',
+              child: const Icon(Icons.add),
+            )
+          : null,
       body: CustomScrollView(
         controller: _scrollController,
         slivers: [
@@ -160,7 +160,7 @@ class _TransactionsArchiveScreenState
             pinned: true,
             title: const Text('All Transactions'),
             bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(110),
+              preferredSize: const Size.fromHeight(145),
               child: Column(
                 children: [
                   Padding(
@@ -205,22 +205,22 @@ class _TransactionsArchiveScreenState
                                   selectedWallet == null
                                       ? Icons.account_balance_wallet_outlined
                                       : WalletIconMapper.getIcon(
-                                        selectedWallet.icon,
-                                      ),
+                                          selectedWallet.icon,
+                                        ),
                                   size: 18,
                                   color: OceanFlowColors.primary,
                                 ),
-                                label: Text(selectedWallet?.name ?? 'All Wallets'),
-                                onPressed:
-                                    () => _showWalletFilterPicker(
-                                      context,
-                                      wallets,
-                                      selectedWalletId,
-                                    ),
-                                side: BorderSide.none,
-                                backgroundColor: OceanFlowColors.primary.withValues(
-                                  alpha: 0.1,
+                                label: Text(
+                                  selectedWallet?.name ?? 'All Wallets',
                                 ),
+                                onPressed: () => _showWalletFilterPicker(
+                                  context,
+                                  wallets,
+                                  selectedWalletId,
+                                ),
+                                side: BorderSide.none,
+                                backgroundColor: OceanFlowColors.primary
+                                    .withValues(alpha: 0.1),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20),
                                 ),
