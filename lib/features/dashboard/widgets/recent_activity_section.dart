@@ -39,7 +39,7 @@ class RecentActivitySection extends ConsumerWidget {
               children: [
                 // ── Section Header ──────────────────────────────────
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
+                  padding: const EdgeInsets.fromLTRB(20, 16, 12, 12),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

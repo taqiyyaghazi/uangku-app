@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/tables/wallets_table.dart';
 import 'package:uangku/features/dashboard/widgets/wallet_carousel.dart';
-import 'package:uangku/features/dashboard/widgets/add_wallet_card.dart';
 
 void main() {
   Wallet makeWallet({
@@ -35,14 +34,13 @@ void main() {
         body: WalletCarousel(
           wallets: wallets,
           onWalletTap: onWalletTap,
-          onAddWallet: onAddWallet,
         ),
       ),
     );
   }
 
   group('WalletCarousel', () {
-    testWidgets('renders all wallets and AddWalletCard', (tester) async {
+    testWidgets('renders all wallets', (tester) async {
       final wallets = [
         makeWallet(id: 1, name: 'Wallet 1'),
         makeWallet(id: 2, name: 'Wallet 2'),
@@ -52,7 +50,6 @@ void main() {
 
       expect(find.text('Wallet 1'), findsOneWidget);
       expect(find.text('Wallet 2'), findsOneWidget);
-      expect(find.byType(AddWalletCard), findsOneWidget);
     });
 
     testWidgets('shows indicator dots when > 3 wallets', (tester) async {
@@ -61,9 +58,8 @@ void main() {
       await tester.pumpWidget(buildTestWidget(wallets: wallets));
 
       // Indicator dots are descendants of the Row with key 'wallet_carousel_indicators'.
-      // total items = 4 wallets + 1 add card = 5 dots.
       final indicators = find.byKey(const Key('wallet_carousel_indicators'));
-      expect(find.descendant(of: indicators, matching: find.byType(AnimatedContainer)), findsNWidgets(5));
+      expect(find.descendant(of: indicators, matching: find.byType(AnimatedContainer)), findsNWidgets(4));
     });
 
     testWidgets('does not show indicator dots when <= 3 wallets', (tester) async {
@@ -90,17 +86,6 @@ void main() {
 
       await tester.tap(find.text('Target'));
       expect(tappedWallet?.id, 1);
-    });
-
-    testWidgets('calls onAddWallet when add card is tapped', (tester) async {
-      var addTapped = false;
-      await tester.pumpWidget(buildTestWidget(
-        wallets: [],
-        onAddWallet: () => addTapped = true,
-      ));
-
-      await tester.tap(find.byType(AddWalletCard));
-      expect(addTapped, isTrue);
     });
   });
 }

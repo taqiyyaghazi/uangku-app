@@ -4,6 +4,7 @@ import 'package:uangku/data/models/category_spending.dart';
 import 'package:uangku/data/models/daily_spending.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/models/transaction_with_details.dart';
+import 'package:uangku/data/tables/transactions_table.dart';
 
 /// Repository interface (contract) for Transaction data access.
 ///
@@ -57,7 +58,8 @@ abstract class TransactionRepository {
   /// Returns a reactive stream of all transactions across all wallets,
   /// ordered by date descending. If [walletId] is provided, filters
   /// transactions involving that wallet (as source or destination).
-  Stream<List<TransactionWithCategory>> watchAllTransactions({int? walletId});
+  /// If [type] is provided, filters by the specific [TransactionType].
+  Stream<List<TransactionWithCategory>> watchAllTransactions({int? walletId, TransactionType? type});
 
   /// Atomically deletes a [transaction] and reverses its balance effect
   /// on the associated wallet.
