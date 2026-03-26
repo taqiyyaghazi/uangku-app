@@ -141,7 +141,7 @@ This document decomposes the requirements for **Uangku** into logical phases of 
 ### Stories in Epic 10:
 
 - **Story 10.1: Wallet Management Hub & Quick Search** (3 pts)
-- **Story 10.2: Multi-Type Transaction Filter** (3 pts)
+- **Story 10.2: Core Transaction Type Filter** (2 pts)
 
 ---
 
@@ -158,6 +158,6 @@ This document decomposes the requirements for **Uangku** into logical phases of 
 9.  **Epic 9** (Power User Experience)
 10. **Epic 10** (Advanced Discovery & Filtering)
 
-**Total Story Points:** 100 Points
+**Total Story Points:** 99 Points
 **Total Stories:** 33 Stories
 **Estimated Timeline:** 6-8 Sprints (approx. 2-2.5 months)

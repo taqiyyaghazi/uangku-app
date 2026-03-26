@@ -1,7 +1,7 @@
 # Uangku - Implementation Progress Report
 
 **As of:** 2026-03-26
-**Overall Completion:** 94% (31/33 Stories Implemented)
+**Overall Completion:** 97% (32/33 Stories Implemented)
 
 ---
 
@@ -119,12 +119,12 @@
 
 ## 🔍 Epic 10: Advanced Discovery & Deep Filtering
 
-**Status:** 🔄 Ready for Implementation
+**Status:** 🔄 In Progress
 
 | ID   | Story Name                          | Status      |
 | ---- | ----------------------------------- | ----------- |
-| 10.1 | Wallet Management Hub & Quick Search | ⏳ Ready   |
-| 10.2 | Multi-Type Transaction Filter        | ⏳ Ready   |
+| 10.1 | Wallet Management Hub & Quick Search | ✅ Completed |
+| 10.2 | Core Transaction Type Filter        | ⏳ Ready   |
 
 ---
 
