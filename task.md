@@ -1,24 +1,15 @@
-# Task: Quick Entry from History Screen
+# Task: Update Roadmap for Epic 11
 
 ## Phase 1: Research [x]
-- [x] Analyze `TransactionsArchiveScreen` and `QuickEntrySheet` for FAB and context passing.
-- [x] Define scope and proposed solution.
-- [x] Document findings in `docs/research_logs/9.3-quick-entry-from-history.md`.
+- [x] Read new user stories 11.1 and 11.2.
+- [x] Analyze existing epics and progress reports.
 
 ## Phase 2: Implement [x]
-- [x] Update `QuickEntrySheet` to accept `initialWalletId`.
-- [x] Add FAB to `TransactionsArchiveScreen`.
-- [x] Pass filter context (`selectedWalletId`) to `QuickEntrySheet`.
-- [x] Implement "Hide on Scroll" for FAB in History screen.
-- [x] Add/Update widget tests.
+- [x] Add Epic 11 to `docs/epics.md`.
+- [x] Update implementation sequence and totals in `docs/epics.md`.
+- [x] Add Epic 11 to `docs/implementation-progress.md`.
+- [x] Update project status and completion percentage in `docs/implementation-progress.md`.
 
-## Phase 3: Integrate [x]
-- [x] Verify seamless return and list refresh.
-- [x] Ensure visual consistency with Dashboard.
-
-## Phase 4: Verify [x]
-- [x] Run full test suite (253 tests passed).
-- [x] All linters pass.
-
-## Phase 5: Ship [x]
-- [x] Commit with conventional format.
+## Phase 3: Ship [x]
+- [x] Create branch `docs/add-epic-11-privacy`.
+- [x] Commit changes with conventional format.
