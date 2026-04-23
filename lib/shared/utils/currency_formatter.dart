@@ -21,7 +21,10 @@ class CurrencyFormatter {
   /// Formats [amount] as Indonesian Rupiah (e.g. "Rp 1.250.000").
   ///
   /// Shows decimals only when [amount] has a fractional part.
-  static String format(double amount) {
+  /// If [isHidden] is true, returns a masked string.
+  static String format(double amount, {bool isHidden = false}) {
+    if (isHidden) return "Rp ••••••";
+    
     if (amount == amount.truncateToDouble()) {
       return _formatter.format(amount);
     }
@@ -31,10 +34,10 @@ class CurrencyFormatter {
   /// Formats [amount] showing a sign prefix for positive values.
   ///
   /// Useful for displaying income (+) or expense (−) amounts.
-  /// Formats [amount] showing a sign prefix for positive values.
-  ///
-  /// Useful for displaying income (+) or expense (−) amounts.
-  static String formatSigned(double amount) {
+  /// If [isHidden] is true, returns a masked string without signs.
+  static String formatSigned(double amount, {bool isHidden = false}) {
+    if (isHidden) return "Rp ••••••";
+    
     final formatted = format(amount.abs());
     if (amount > 0) return '+$formatted';
     if (amount < 0) return '-$formatted';
@@ -44,7 +47,10 @@ class CurrencyFormatter {
   /// Formats [amount] as an abbreviated Indonesian Rupiah (e.g. "Rp 1,2M", "Rp 500k").
   ///
   /// Useful for chart labels where space is limited.
-  static String formatCompact(double amount) {
+  /// If [isHidden] is true, returns a masked string.
+  static String formatCompact(double amount, {bool isHidden = false}) {
+    if (isHidden) return "Rp •••";
+    
     if (amount.abs() >= 1000000) {
       final value = amount / 1000000;
       final s = value.toStringAsFixed(1);

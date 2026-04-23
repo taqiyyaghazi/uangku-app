@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uangku/core/di/privacy_provider.dart';
 import 'package:uangku/core/constants/app_constants.dart';
 import 'package:uangku/core/services/monitoring_service.dart';
 import 'package:uangku/data/database.dart';
@@ -21,6 +23,12 @@ import 'package:uangku/features/dashboard/logic/settings_providers.dart';
 import 'package:uangku/features/dashboard/models/budget_state.dart';
 import 'package:uangku/features/sync/repository/sync_repository.dart';
 import 'package:uangku/features/sync/services/sync_service.dart';
+
+/// Provides the synchronous [SharedPreferences] instance.
+/// Must be overridden in `main.dart` before use.
+final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
+  throw UnimplementedError('sharedPreferencesProvider must be overridden in main.dart');
+});
 
 /// Provides the singleton [AppDatabase] instance across the app.
 ///
@@ -136,6 +144,7 @@ final investmentSnapshotsProvider =
 final dailyBreathProvider = StreamProvider<BudgetState>((ref) {
   final repo = ref.watch(transactionRepositoryProvider);
   final monthlyBudgetAsync = ref.watch(monthlyBudgetProvider);
+  final isHidden = ref.watch(privacyProvider);
 
   // Default to 5.0M if the user hasn't configured a monthly budget yet.
   final configuredBudget = monthlyBudgetAsync.value ?? 0.0;
@@ -152,6 +161,7 @@ final dailyBreathProvider = StreamProvider<BudgetState>((ref) {
     return BudgetService.calculate(
       monthlyLimit: effectiveBudget,
       transactions: txns.map((t) => t.transaction).toList(),
+      isHidden: isHidden,
     );
   });
 });

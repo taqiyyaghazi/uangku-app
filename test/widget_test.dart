@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/data/database.dart';
@@ -40,10 +41,17 @@ const _emptyBudgetState = BudgetState(
 );
 
 void main() {
+  setUpAll(() {
+    SharedPreferences.setMockInitialValues({'is_hidden': false});
+  });
+
   testWidgets('Dashboard renders with empty wallet state', (tester) async {
+    final prefs = await SharedPreferences.getInstance();
+    
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
           walletsProvider.overrideWith((_) => Stream.value(<Wallet>[])),
           walletRepositoryProvider.overrideWithValue(FakeWalletRepository()),
           // Override to avoid real Drift streams, which schedule timers on

@@ -18,10 +18,12 @@ class BudgetService {
   /// [monthlyLimit] — the user's monthly spending cap.
   /// [transactions] — all transactions in the current calendar month.
   /// [now] — injectable for testability (defaults to DateTime.now).
+  /// [isHidden] — whether to mask currency values.
   static BudgetState calculate({
     required double monthlyLimit,
     required List<Transaction> transactions,
     DateTime? now,
+    bool isHidden = false,
   }) {
     final today = now ?? DateTime.now();
 
@@ -56,8 +58,8 @@ class BudgetService {
       final adjustedTomorrow = max(0.0, tomorrowAllowance);
 
       correctionMessage =
-          'Overspent ${CurrencyFormatter.format(overspend)} today. '
-          "Tomorrow's budget: ${CurrencyFormatter.format(adjustedTomorrow)}.";
+          'Overspent ${CurrencyFormatter.format(overspend, isHidden: isHidden)} today. '
+          "Tomorrow's budget: ${CurrencyFormatter.format(adjustedTomorrow, isHidden: isHidden)}.";
     }
 
     return BudgetState(

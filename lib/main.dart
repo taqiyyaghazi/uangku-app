@@ -5,9 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:uangku/core/config/app_config.dart';
 import 'package:uangku/core/constants/app_constants.dart';
 import 'package:uangku/core/di/app_provider_observer.dart';
+import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/core/services/monitoring_service.dart';
 import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/features/auth/widgets/auth_wrapper.dart';
@@ -28,8 +31,17 @@ void mainRunner(Environment env, FirebaseOptions? firebaseOptions) async {
     return true;
   };
 
+  // Initialize SharedPreferences
+  final sharedPreferences = await SharedPreferences.getInstance();
+
   runApp(
-    ProviderScope(observers: [AppProviderObserver()], child: const UangkuApp()),
+    ProviderScope(
+      observers: [AppProviderObserver()],
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(sharedPreferences),
+      ],
+      child: const UangkuApp(),
+    ),
   );
 }
 

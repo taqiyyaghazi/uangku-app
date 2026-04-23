@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:uangku/core/di/privacy_provider.dart';
 import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
@@ -10,8 +13,8 @@ import 'package:uangku/shared/utils/relative_time_formatter.dart';
 /// Shows category icon, category name, wallet name + timestamp,
 /// and the formatted amount color-coded by transaction type.
 ///
-/// This is a pure presentation widget — no I/O or state management.
-class TransactionItem extends StatelessWidget {
+/// This is a presentation widget that watches privacy state.
+class TransactionItem extends ConsumerWidget {
   const TransactionItem({
     super.key,
     required this.transaction,
@@ -29,8 +32,9 @@ class TransactionItem extends StatelessWidget {
   final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final isHidden = ref.watch(privacyProvider);
     final tx = transaction.transaction;
     final cat = transaction.category;
 
@@ -50,7 +54,7 @@ class TransactionItem extends StatelessWidget {
 
     final amountPrefix = isIncome ? '+' : '-';
     final formattedAmount =
-        '$amountPrefix${CurrencyFormatter.format(tx.amount)}';
+        '$amountPrefix${CurrencyFormatter.format(tx.amount, isHidden: isHidden)}';
 
     final timeLabel = RelativeTimeFormatter.format(tx.date);
 
