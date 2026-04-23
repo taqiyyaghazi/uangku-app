@@ -205,7 +205,7 @@ class DashboardScreen extends ConsumerWidget {
         if (wallets.length > 2)
           SliverToBoxAdapter(
             child: WalletCarousel(
-              wallets: wallets,
+              wallets: wallets.take(5).toList(),
               onWalletTap: (wallet) => _onEditWallet(context, ref, wallet),
             ),
           )

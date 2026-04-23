@@ -7,11 +7,7 @@ import 'package:uangku/features/dashboard/widgets/wallet_card.dart';
 /// Used when there are multiple wallets to save vertical space.
 /// Includes indicator dots if there are more than 3 wallets.
 class WalletCarousel extends StatefulWidget {
-  const WalletCarousel({
-    super.key,
-    required this.wallets,
-    this.onWalletTap,
-  });
+  const WalletCarousel({super.key, required this.wallets, this.onWalletTap});
 
   final List<Wallet> wallets;
   final void Function(Wallet wallet)? onWalletTap;
@@ -89,7 +85,7 @@ class _WalletCarouselState extends State<WalletCarousel> {
           Row(
             key: const Key('wallet_carousel_indicators'),
             mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(totalItems, (index) {
+            children: List.generate(totalItems + 1, (index) {
               final isActive = _currentIndex == index;
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
