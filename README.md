@@ -2,19 +2,22 @@
 
 **Uangku** adalah aplikasi manajemen keuangan pribadi yang cerdas dan minimalis. Berbeda dengan aplikasi pencatat keuangan biasa, Uangku menggunakan mesin **"Daily Breath"** untuk menghitung jatah harian Anda secara dinamis berdasarkan sisa budget dan sisa hari dalam sebulan.
 
+**Status:** ✅ **Feature Complete** (35/35 User Stories)
+
 ---
 
 ## ✨ Fitur Utama
 
 - **🌬️ Mesin "Daily Breath":** Kalkulasi otomatis jatah harian (`Sisa Budget / Sisa Hari`). Jika Anda boros hari ini, jatah esok hari akan menyesuaikan secara lembut tanpa merusak rencana bulanan Anda.
 - **☁️ Cloud Sync & Recovery:** Sinkronisasi otomatis ke cloud (Firebase). Data Anda aman dan dapat dipulihkan secara instan saat berganti perangkat.
-- **🔐 Google Login:** Akses aman dan mudah tanpa perlu mengingat password tambahan.
-- **👛 Multi-Wallet Core:** Kelola berbagai dompet (Cash, Bank, E-Wallet, atau Investasi) dalam satu tampilan grid yang elegan.
+- **🔐 Privacy First:** **Global Privacy Mode** memungkinkan Anda menyembunyikan saldo seluruh dompet dengan satu ketukan untuk keamanan di ruang publik.
+- **👛 Smart Wallet Carousel:** Tampilan dashboard yang dioptimalkan dengan carousel dompet (maks. 5 item teratas) untuk navigasi yang lebih bersih dan cepat.
 - **⚡ Quick-Entry System:** Catat transaksi dalam hitungan detik dengan numpad yang responsif.
 - **📊 Advanced Insights:** Analisis pengeluaran melalui diagram pie kategori, tren harian, dan perbandingan performa antar bulan.
 - **🔄 Internal Transfer:** Pindahkan dana antar dompet tanpa memengaruhi budget pengeluaran Anda.
 - **📈 Portfolio Tracking:** Pantau pertumbuhan aset dan alokasi dana melalui grafik interaktif.
-- **📁 Riwayat & Filter:** Telusuri transaksi dengan filter wallet, tanggal, dan kategori yang fleksibel.
+- **📁 Riwayat & Deep Filter:** Telusuri transaksi dengan filter wallet, tanggal, kategori, dan tipe transaksi yang fleksibel.
+- **🛡️ Robust Monitoring:** Terintegrasi dengan Firebase Crashlytics dan Analytics untuk menjamin stabilitas aplikasi.
 
 ---
 

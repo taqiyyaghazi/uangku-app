@@ -16,7 +16,9 @@ If a user overspends today, the engine automatically adjusts the allowance for f
 - **State Management:** **Riverpod** (Functional providers).
 - **Local Database:** **Drift** (SQLite) for reactive, type-safe persistence.
 - **Backend/Cloud:** **Firebase** (Authentication, Firestore Sync, Analytics, Crashlytics).
+- **Observability:** **MonitoringService** for unified logging, analytics, and crash reporting.
 - **Architecture:** **Feature-based vertical slices** (located in `lib/features/`).
+- **Status:** **Feature Complete** (35/35 User Stories implemented).
 
 ---
 
@@ -76,13 +78,14 @@ lib/
 ├── data/                # Drift DB definitions, table schemas, DAOs
 ├── features/            # Vertical slices (The core business logic)
 │   ├── auth/            # Firebase Google Login
-│   ├── dashboard/       # Daily Breath logic, Wallet Grid
-│   ├── transaction/     # Quick-entry and history
+│   ├── dashboard/       # Daily Breath logic, Wallet Carousel (5 items limit)
+│   ├── transaction/     # Quick-entry, History, Deep Filters
 │   ├── category/        # Custom category management
 │   ├── portfolio/       # Asset allocation and trends (Charts)
 │   ├── insights/        # Spending analysis (Pie/Line charts)
 │   ├── export/          # CSV export logic
-│   └── sync/            # Cloud Firestore synchronization
+│   ├── sync/            # Cloud Firestore synchronization
+│   └── auth/            # Google Auth & Data Cleansing on Logout
 ├── shared/              # Reusable UI widgets and stateless utilities
 └── main_dev.dart/prod   # Entry points for different environments
 ```
@@ -96,3 +99,5 @@ lib/
 - **Theme:** Adhere to the **Ocean Flow** theme (Teal-based colors). Use `Theme.of(context)` to access colors and typography.
 - **Immutability:** Prefer immutable data models (using `final` fields) and pure functions for business logic (see `BudgetService`).
 - **Cloud Sync:** Ensure all local mutations are compatible with the Firestore sync logic defined in `features/sync/`.
+- **Privacy Mode:** Adhere to the **Global Privacy Mode** (managed via `shared_preferences`) when displaying financial figures.
+- **Error Tracking:** Always use `MonitoringService` to log significant events or errors to ensure observability.
