@@ -1,9 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:mockito/mockito.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uangku/core/di/providers.dart';
+import 'package:uangku/data/repositories/wallet_repository.dart';
 import 'package:uangku/features/dashboard/widgets/wallet_form_sheet.dart';
 
+class MockWalletRepository extends Mock implements WalletRepository {}
+
 void main() {
+  late SharedPreferences prefs;
+
+  setUpAll(() {
+    SharedPreferences.setMockInitialValues({'is_hidden': false});
+  });
+
+  setUp(() async {
+    prefs = await SharedPreferences.getInstance();
+  });
   // Use InkSplash instead of InkSparkle to avoid the shader asset error
   // in tests. InkSparkle requires 'shaders/ink_sparkle.frag' which is not
   // available in the unit test environment.
@@ -13,16 +28,22 @@ void main() {
   );
 
   Widget buildTestApp() {
-    return MaterialApp(
-      theme: testTheme,
-      home: Scaffold(
-        body: Builder(
-          builder: (context) {
-            return ElevatedButton(
-              onPressed: () => WalletFormSheet.show(context),
-              child: const Text('Open Form'),
-            );
-          },
+    return ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(prefs),
+        walletRepositoryProvider.overrideWithValue(MockWalletRepository()),
+      ],
+      child: MaterialApp(
+        theme: testTheme,
+        home: Scaffold(
+          body: Builder(
+            builder: (context) {
+              return ElevatedButton(
+                onPressed: () => WalletFormSheet.show(context),
+                child: const Text('Open Form'),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -87,22 +108,28 @@ void main() {
 
     testWidgets('shows "New Wallet" title when wallet is null', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          theme: testTheme,
-          home: Scaffold(
-            body: Builder(
-              builder: (context) {
-                return ElevatedButton(
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      builder: (_) => const WalletFormSheet(),
-                    );
-                  },
-                  child: const Text('Open Edit'),
-                );
-              },
+        ProviderScope(
+          overrides: [
+            sharedPreferencesProvider.overrideWithValue(prefs),
+            walletRepositoryProvider.overrideWithValue(MockWalletRepository()),
+          ],
+          child: MaterialApp(
+            theme: testTheme,
+            home: Scaffold(
+              body: Builder(
+                builder: (context) {
+                  return ElevatedButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (_) => const WalletFormSheet(),
+                      );
+                    },
+                    child: const Text('Open Edit'),
+                  );
+                },
+              ),
             ),
           ),
         ),

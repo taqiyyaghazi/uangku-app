@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/data/database.dart';
@@ -11,6 +12,15 @@ import 'package:uangku/features/dashboard/widgets/recent_activity_section.dart';
 
 void main() {
   final now = DateTime(2026, 3, 3, 14, 30);
+  late SharedPreferences prefs;
+
+  setUpAll(() {
+    SharedPreferences.setMockInitialValues({'is_hidden': false});
+  });
+
+  setUp(() async {
+    prefs = await SharedPreferences.getInstance();
+  });
 
   final fakeWallets = [
     Wallet(
@@ -76,6 +86,7 @@ void main() {
   }) {
     return ProviderScope(
       overrides: [
+        sharedPreferencesProvider.overrideWithValue(prefs),
         recentTransactionsProvider.overrideWith(
           (_) => Stream.value(transactions),
         ),

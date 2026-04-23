@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uangku/core/di/providers.dart';
 
 import 'package:uangku/features/dashboard/models/budget_state.dart';
 import 'package:uangku/features/dashboard/widgets/daily_breath_bar.dart';
@@ -10,10 +13,25 @@ void main() {
     splashFactory: InkSplash.splashFactory,
   );
 
+  late SharedPreferences prefs;
+
+  setUpAll(() {
+    SharedPreferences.setMockInitialValues({'is_hidden': false});
+  });
+
+  setUp(() async {
+    prefs = await SharedPreferences.getInstance();
+  });
+
   Widget buildTestWidget(BudgetState state) {
-    return MaterialApp(
-      theme: testTheme,
-      home: Scaffold(body: DailyBreathBar(budgetState: state)),
+    return ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(prefs),
+      ],
+      child: MaterialApp(
+        theme: testTheme,
+        home: Scaffold(body: DailyBreathBar(budgetState: state)),
+      ),
     );
   }
 
