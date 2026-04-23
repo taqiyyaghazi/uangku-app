@@ -773,6 +773,15 @@ class MockAppDatabase extends _i1.Mock implements _i4.AppDatabase {
           as _i3.DatabaseConnectionUser);
 
   @override
+  _i6.Future<void> deleteAllLocalData() =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteAllLocalData, []),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
   _i3.Migrator createMigrator() =>
       (super.noSuchMethod(
             Invocation.method(#createMigrator, []),

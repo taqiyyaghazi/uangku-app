@@ -140,11 +140,57 @@ class _ProfileSheet extends StatelessWidget {
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: () async {
-                  Navigator.of(context).pop(); // Close the sheet first.
-                  final repo = ref.read(authRepositoryProvider);
-                  await repo.signOut();
-                  // Reset sync status to allow restoration for the next user.
-                  ref.read(syncStatusProvider.notifier).fullReset();
+                  final navigator = Navigator.of(context);
+                  
+                  // Hide the profile sheet first
+                  navigator.pop();
+                  
+                  final confirmed = await showDialog<bool>(
+                    context: navigator.context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Sign Out'),
+                      content: const Text(
+                        'Are you sure? This will clear all local data from this device. Your data remains safe in the cloud.',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          style: TextButton.styleFrom(
+                            foregroundColor: theme.colorScheme.error,
+                          ),
+                          child: const Text('Sign Out'),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirmed != true) return;
+
+                  if (!navigator.mounted) return;
+
+                  // Show non-dismissible loading overlay
+                  showDialog(
+                    context: navigator.context,
+                    barrierDismissible: false,
+                    builder: (context) => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+
+                  try {
+                    final authService = ref.read(authServiceProvider);
+                    await authService.performSecureLogout();
+                    
+                    // Invalidate sync status to allow restoration for the next user.
+                    ref.invalidate(syncStatusProvider);
+                  } finally {
+                    // Close the loading overlay
+                    navigator.pop();
+                  }
                 },
                 icon: const Icon(Icons.logout),
                 label: const Text('Sign Out'),

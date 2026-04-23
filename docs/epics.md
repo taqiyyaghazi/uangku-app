@@ -145,6 +145,18 @@ This document decomposes the requirements for **Uangku** into logical phases of 
 
 ---
 
+## Epic 11: Data Privacy & Session Security
+
+**Goal:** Strengthen user privacy and ensure secure session management by protecting sensitive data and clearing local traces on logout.
+**Success Criteria:** User can hide balances for privacy in public spaces and ensure no data remains locally after signing out.
+
+### Stories in Epic 11:
+
+- **Story 11.1: Secure Logout & Local Data Cleansing** (3 pts)
+- **Story 11.2: Global Privacy Mode (Hide Balances)** (3 pts)
+
+---
+
 ## Implementation Sequence
 
 1.  **Epic 1** (Foundation & UI Shell)
@@ -157,7 +169,8 @@ This document decomposes the requirements for **Uangku** into logical phases of 
 8.  **Epic 8** (Cloud Synchronization)
 9.  **Epic 9** (Power User Experience)
 10. **Epic 10** (Advanced Discovery & Filtering)
+11. **Epic 11** (Privacy & Session Security)
 
-**Total Story Points:** 99 Points
-**Total Stories:** 33 Stories
+**Total Story Points:** 105 Points
+**Total Stories:** 35 Stories
 **Estimated Timeline:** 6-8 Sprints (approx. 2-2.5 months)
