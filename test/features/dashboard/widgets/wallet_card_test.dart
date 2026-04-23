@@ -1,11 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uangku/core/di/providers.dart';
 
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/tables/wallets_table.dart';
 import 'package:uangku/features/dashboard/widgets/wallet_card.dart';
 
 void main() {
+  late SharedPreferences prefs;
+
+  setUpAll(() {
+    SharedPreferences.setMockInitialValues({'is_hidden': false});
+  });
+
+  setUp(() async {
+    prefs = await SharedPreferences.getInstance();
+  });
+
   // Helper to create a test Wallet instance.
   Wallet makeWallet({
     int id = 1,
@@ -29,12 +42,17 @@ void main() {
   }
 
   Widget buildTestWidget(Wallet wallet, {VoidCallback? onTap}) {
-    return MaterialApp(
-      home: Scaffold(
-        body: SizedBox(
-          width: 200,
-          height: 160,
-          child: WalletCard(wallet: wallet, onTap: onTap),
+    return ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(prefs),
+      ],
+      child: MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 200,
+            height: 160,
+            child: WalletCard(wallet: wallet, onTap: onTap),
+          ),
         ),
       ),
     );

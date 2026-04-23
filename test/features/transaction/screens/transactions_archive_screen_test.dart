@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/core/services/monitoring_service.dart';
@@ -28,11 +29,17 @@ void main() {
   late MockFirebaseAnalytics mockAnalytics;
   late MockFirebaseCrashlytics mockCrashlytics;
   late MonitoringService monitoringService;
+  late SharedPreferences prefs;
 
-  setUp(() {
+  setUpAll(() {
+    SharedPreferences.setMockInitialValues({'is_hidden': false});
+  });
+
+  setUp(() async {
     mockAnalytics = MockFirebaseAnalytics();
     mockCrashlytics = MockFirebaseCrashlytics();
     monitoringService = MonitoringService(mockAnalytics, mockCrashlytics);
+    prefs = await SharedPreferences.getInstance();
   });
 
   /// Fake Wallet Repo
@@ -42,6 +49,7 @@ void main() {
     return ProviderScope(
       overrides: [
         monitoringServiceProvider.overrideWithValue(monitoringService),
+        sharedPreferencesProvider.overrideWithValue(prefs),
         walletRepositoryProvider.overrideWithValue(fakeWalletRepo),
         transactionRepositoryProvider.overrideWithValue(
           FakeTransactionRepository(transactions: transactions),
@@ -153,6 +161,7 @@ void main() {
         ProviderScope(
           overrides: [
             monitoringServiceProvider.overrideWithValue(monitoringService),
+            sharedPreferencesProvider.overrideWithValue(prefs),
             walletRepositoryProvider.overrideWithValue(fakeWalletRepo),
             transactionRepositoryProvider.overrideWithValue(FakeTransactionRepository(transactions: [])),
             walletsProvider.overrideWith((ref) => Stream.value(wallets)),

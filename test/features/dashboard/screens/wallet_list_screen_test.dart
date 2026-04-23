@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:uangku/core/di/providers.dart';
 import 'package:uangku/core/services/monitoring_service.dart';
@@ -22,6 +23,16 @@ class FakeMonitoringService extends Mock implements MonitoringService {
 }
 
 void main() {
+  late SharedPreferences prefs;
+
+  setUpAll(() {
+    SharedPreferences.setMockInitialValues({'is_hidden': false});
+  });
+
+  setUp(() async {
+    prefs = await SharedPreferences.getInstance();
+  });
+
   Wallet makeWallet({
     int id = 1,
     String name = 'Bank BCA',
@@ -44,6 +55,7 @@ void main() {
   Widget buildTestWidget({required List<Wallet> wallets}) {
     return ProviderScope(
       overrides: [
+        sharedPreferencesProvider.overrideWithValue(prefs),
         walletsProvider.overrideWith((ref) => Stream.value(wallets)),
         walletRepositoryProvider.overrideWithValue(MockWalletRepository()),
         monitoringServiceProvider.overrideWithValue(FakeMonitoringService()),

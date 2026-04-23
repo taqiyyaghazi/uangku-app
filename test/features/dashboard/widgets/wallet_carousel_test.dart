@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uangku/core/di/providers.dart';
 
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/tables/wallets_table.dart';
 import 'package:uangku/features/dashboard/widgets/wallet_carousel.dart';
 
 void main() {
+  setUpAll(() {
+    SharedPreferences.setMockInitialValues({'is_hidden': false});
+  });
+
   Wallet makeWallet({
     int id = 1,
     String name = 'Wallet',
@@ -28,12 +35,18 @@ void main() {
     required List<Wallet> wallets,
     void Function(Wallet)? onWalletTap,
     VoidCallback? onAddWallet,
+    required SharedPreferences prefs,
   }) {
-    return MaterialApp(
-      home: Scaffold(
-        body: WalletCarousel(
-          wallets: wallets,
-          onWalletTap: onWalletTap,
+    return ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(prefs),
+      ],
+      child: MaterialApp(
+        home: Scaffold(
+          body: WalletCarousel(
+            wallets: wallets,
+            onWalletTap: onWalletTap,
+          ),
         ),
       ),
     );
@@ -41,31 +54,34 @@ void main() {
 
   group('WalletCarousel', () {
     testWidgets('renders all wallets', (tester) async {
+      final prefs = await SharedPreferences.getInstance();
       final wallets = [
         makeWallet(id: 1, name: 'Wallet 1'),
         makeWallet(id: 2, name: 'Wallet 2'),
       ];
 
-      await tester.pumpWidget(buildTestWidget(wallets: wallets));
+      await tester.pumpWidget(buildTestWidget(wallets: wallets, prefs: prefs));
 
       expect(find.text('Wallet 1'), findsOneWidget);
       expect(find.text('Wallet 2'), findsOneWidget);
     });
 
     testWidgets('shows indicator dots when > 3 wallets', (tester) async {
+      final prefs = await SharedPreferences.getInstance();
       final wallets = List.generate(4, (i) => makeWallet(id: i, name: 'W$i'));
 
-      await tester.pumpWidget(buildTestWidget(wallets: wallets));
+      await tester.pumpWidget(buildTestWidget(wallets: wallets, prefs: prefs));
 
       // Indicator dots are descendants of the Row with key 'wallet_carousel_indicators'.
       final indicators = find.byKey(const Key('wallet_carousel_indicators'));
-      expect(find.descendant(of: indicators, matching: find.byType(AnimatedContainer)), findsNWidgets(4));
+      expect(find.descendant(of: indicators, matching: find.byType(AnimatedContainer)), findsNWidgets(5));
     });
 
     testWidgets('does not show indicator dots when <= 3 wallets', (tester) async {
+      final prefs = await SharedPreferences.getInstance();
       final wallets = List.generate(3, (i) => makeWallet(id: i, name: 'W$i'));
 
-      await tester.pumpWidget(buildTestWidget(wallets: wallets));
+      await tester.pumpWidget(buildTestWidget(wallets: wallets, prefs: prefs));
 
       // There are AnimatedContainers in WalletCard, so we check if there's any Row 
       // at the bottom (mainAxisAlignment.center).
@@ -76,12 +92,14 @@ void main() {
     });
 
     testWidgets('calls onWalletTap when a wallet is tapped', (tester) async {
+      final prefs = await SharedPreferences.getInstance();
       Wallet? tappedWallet;
       final wallets = [makeWallet(id: 1, name: 'Target')];
 
       await tester.pumpWidget(buildTestWidget(
         wallets: wallets,
         onWalletTap: (w) => tappedWallet = w,
+        prefs: prefs,
       ));
 
       await tester.tap(find.text('Target'));

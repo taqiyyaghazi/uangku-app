@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uangku/core/di/providers.dart';
 
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
@@ -10,6 +13,15 @@ import 'package:intl/intl.dart';
 
 void main() {
   final now = DateTime.now();
+  late SharedPreferences prefs;
+
+  setUpAll(() {
+    SharedPreferences.setMockInitialValues({'is_hidden': false});
+  });
+
+  setUp(() async {
+    prefs = await SharedPreferences.getInstance();
+  });
 
   TransactionWithCategory makeTransaction({
     int id = 1,
@@ -47,9 +59,14 @@ void main() {
     TransactionWithCategory tx, {
     String walletName = 'Bank BCA',
   }) {
-    return MaterialApp(
-      home: Scaffold(
-        body: TransactionItem(transaction: tx, walletName: walletName),
+    return ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(prefs),
+      ],
+      child: MaterialApp(
+        home: Scaffold(
+          body: TransactionItem(transaction: tx, walletName: walletName),
+        ),
       ),
     );
   }
@@ -104,12 +121,17 @@ void main() {
     testWidgets('calls onTap when tapped', (tester) async {
       var tapped = false;
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: TransactionItem(
-              transaction: makeTransaction(),
-              walletName: 'Bank',
-              onTap: () => tapped = true,
+        ProviderScope(
+          overrides: [
+            sharedPreferencesProvider.overrideWithValue(prefs),
+          ],
+          child: MaterialApp(
+            home: Scaffold(
+              body: TransactionItem(
+                transaction: makeTransaction(),
+                walletName: 'Bank',
+                onTap: () => tapped = true,
+              ),
             ),
           ),
         ),
