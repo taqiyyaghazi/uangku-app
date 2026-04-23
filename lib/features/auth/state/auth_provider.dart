@@ -4,6 +4,8 @@ import 'package:uangku/core/services/monitoring_service.dart';
 import 'package:uangku/features/auth/models/user_profile.dart';
 import 'package:uangku/features/auth/repository/auth_repository.dart';
 import 'package:uangku/features/auth/repository/auth_repository_impl.dart';
+import 'package:uangku/core/di/providers.dart';
+import 'package:uangku/features/auth/services/auth_service.dart';
 
 /// Provides the [AuthRepository] backed by Firebase Authentication.
 ///
@@ -13,6 +15,15 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return FirebaseAuthRepositoryImpl(
     monitoring: monitoring,
     googleSignIn: GoogleSignIn.instance,
+  );
+});
+
+/// Provides the [AuthService] for orchestrating auth flows and data clearing.
+final authServiceProvider = Provider<AuthService>((ref) {
+  return AuthService(
+    authRepository: ref.watch(authRepositoryProvider),
+    appDatabase: ref.watch(databaseProvider),
+    monitoring: ref.watch(monitoringServiceProvider),
   );
 });
 

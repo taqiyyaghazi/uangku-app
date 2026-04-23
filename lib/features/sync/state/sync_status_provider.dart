@@ -52,6 +52,14 @@ class SyncStatusNotifier extends Notifier<SyncStatusState> {
 
   @override
   SyncStatusState build() {
+    // Listen to auth state changes so if the provider is created before the
+    // user stream emits the new user, we still trigger the restore when it does.
+    ref.listen(authStateProvider, (previous, next) {
+      if (next.value != null && (previous == null || previous.value == null)) {
+        Future.microtask(() => restoreDataIfNeeded());
+      }
+    });
+
     // Proactively check if restoration is needed when this provider is first watched.
     // This makes the sync trigger more declarative.
     Future.microtask(() => restoreDataIfNeeded());
