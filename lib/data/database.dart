@@ -45,6 +45,19 @@ class AppDatabase extends _$AppDatabase {
     return AppDatabase._(executor);
   }
 
+  /// Wipes all local data from the database.
+  /// Used during secure logout to ensure no data leaks between accounts.
+  Future<void> deleteAllLocalData() {
+    return transaction(() async {
+      await delete(transactions).go();
+      await delete(budgets).go();
+      await delete(investmentSnapshots).go();
+      await delete(wallets).go();
+      await delete(categories).go();
+      await delete(appSettings).go();
+    });
+  }
+
   @override
   int get schemaVersion => 8;
 
