@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/features/auth/state/auth_provider.dart';
-import 'package:uangku/features/sync/state/sync_status_provider.dart';
 
 /// Login screen displaying the Google Sign-In button.
 ///
@@ -32,9 +31,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       // user == null means the user cancelled the sign-in flow.
       if (user == null && mounted) {
         setState(() => _isLoading = false);
-      } else if (user != null) {
-        // Reset sync status to allow restoration for the new user.
-        ref.read(syncStatusProvider.notifier).fullReset();
       }
     } catch (e) {
       if (mounted) {
