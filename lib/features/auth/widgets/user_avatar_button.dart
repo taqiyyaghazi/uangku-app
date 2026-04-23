@@ -185,8 +185,8 @@ class _ProfileSheet extends StatelessWidget {
                     final authService = ref.read(authServiceProvider);
                     await authService.performSecureLogout();
                     
-                    // Reset sync status to allow restoration for the next user.
-                    ref.read(syncStatusProvider.notifier).fullReset();
+                    // Invalidate sync status to allow restoration for the next user.
+                    ref.invalidate(syncStatusProvider);
                   } finally {
                     // Close the loading overlay
                     navigator.pop();
