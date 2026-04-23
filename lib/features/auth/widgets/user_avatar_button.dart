@@ -140,10 +140,13 @@ class _ProfileSheet extends StatelessWidget {
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: () async {
-                  Navigator.of(context).pop(); // Close the sheet first.
+                  final navigator = Navigator.of(context);
+                  
+                  // Hide the profile sheet first
+                  navigator.pop();
                   
                   final confirmed = await showDialog<bool>(
-                    context: context,
+                    context: navigator.context,
                     builder: (context) => AlertDialog(
                       title: const Text('Sign Out'),
                       content: const Text(
@@ -167,11 +170,11 @@ class _ProfileSheet extends StatelessWidget {
 
                   if (confirmed != true) return;
 
-                  if (!context.mounted) return;
+                  if (!navigator.mounted) return;
 
                   // Show non-dismissible loading overlay
                   showDialog(
-                    context: context,
+                    context: navigator.context,
                     barrierDismissible: false,
                     builder: (context) => const Center(
                       child: CircularProgressIndicator(),
@@ -186,9 +189,7 @@ class _ProfileSheet extends StatelessWidget {
                     ref.read(syncStatusProvider.notifier).fullReset();
                   } finally {
                     // Close the loading overlay
-                    if (context.mounted) {
-                      Navigator.of(context).pop();
-                    }
+                    navigator.pop();
                   }
                 },
                 icon: const Icon(Icons.logout),
