@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:uangku/core/di/privacy_provider.dart';
 import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/features/auth/widgets/user_avatar_button.dart';
 import 'package:uangku/features/category/screens/category_list_screen.dart';
@@ -10,15 +12,16 @@ import 'package:uangku/shared/utils/currency_formatter.dart';
 ///
 /// Shows a prominent total with a subtle label above it.
 /// Uses the Ocean Flow teal gradient for visual emphasis.
-class DashboardHeader extends StatelessWidget {
+class DashboardHeader extends ConsumerWidget {
   const DashboardHeader({super.key, required this.totalBalance});
 
   final double totalBalance;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final isHidden = ref.watch(privacyProvider);
 
     return Container(
       width: double.infinity,
@@ -51,6 +54,16 @@ class DashboardHeader extends StatelessWidget {
                   children: [
                     IconButton(
                       onPressed: () {
+                        ref.read(privacyProvider.notifier).togglePrivacy();
+                      },
+                      icon: Icon(
+                        isHidden ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.white,
+                      ),
+                      tooltip: isHidden ? 'Show Balances' : 'Hide Balances',
+                    ),
+                    IconButton(
+                      onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (_) => const CategoryListScreen(),
@@ -70,7 +83,7 @@ class DashboardHeader extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              CurrencyFormatter.format(totalBalance),
+              CurrencyFormatter.format(totalBalance, isHidden: isHidden),
               style: theme.textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.w700,
                 color: Colors.white,

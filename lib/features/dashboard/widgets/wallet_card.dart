@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:uangku/core/di/privacy_provider.dart';
 import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/data/database.dart';
 import 'package:uangku/shared/utils/currency_formatter.dart';
@@ -11,16 +13,17 @@ import 'package:uangku/shared/utils/wallet_icon_mapper.dart';
 /// Uses the Ocean Flow teal accent for visual identity.
 ///
 /// Calls [onTap] when the user taps the card (opens edit sheet).
-class WalletCard extends StatelessWidget {
+class WalletCard extends ConsumerWidget {
   const WalletCard({super.key, required this.wallet, this.onTap});
 
   final Wallet wallet;
   final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final isHidden = ref.watch(privacyProvider);
 
     // Parse user-selected color or fall back to teal.
     final walletColor = _parseColor(wallet.colorHex);
@@ -95,7 +98,7 @@ class WalletCard extends StatelessWidget {
 
             // ── Balance ──────────────────────────────────────────────
             Text(
-              CurrencyFormatter.format(wallet.balance),
+              CurrencyFormatter.format(wallet.balance, isHidden: isHidden),
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w700,
                 color: theme.colorScheme.onSurface,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:uangku/core/di/privacy_provider.dart';
 import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/features/dashboard/models/budget_state.dart';
 import 'package:uangku/features/dashboard/widgets/budget_setting_modal.dart';
@@ -12,15 +14,16 @@ import 'package:uangku/shared/utils/currency_formatter.dart';
 /// - **Amber** when overspent (ratio > 1.0) — "Gentle Adjustment" tone.
 ///
 /// Uses [TweenAnimationBuilder] for smooth "breathing" transitions.
-class DailyBreathBar extends StatelessWidget {
+class DailyBreathBar extends ConsumerWidget {
   const DailyBreathBar({super.key, required this.budgetState});
 
   final BudgetState budgetState;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final isHidden = ref.watch(privacyProvider);
 
     final barColor = budgetState.isOverspent
         ? OceanFlowColors.accent
@@ -115,7 +118,7 @@ class DailyBreathBar extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Spent: ${CurrencyFormatter.format(budgetState.spentToday)}',
+                        'Spent: ${CurrencyFormatter.format(budgetState.spentToday, isHidden: isHidden)}',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurface.withValues(
                             alpha: 0.6,
@@ -123,7 +126,7 @@ class DailyBreathBar extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'Limit: ${CurrencyFormatter.format(budgetState.dailyAllowance)}',
+                        'Limit: ${CurrencyFormatter.format(budgetState.dailyAllowance, isHidden: isHidden)}',
                         style: theme.textTheme.bodySmall?.copyWith(
                           fontWeight: FontWeight.w600,
                           color: barColor,
