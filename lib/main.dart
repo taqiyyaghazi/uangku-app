@@ -15,8 +15,11 @@ import 'package:uangku/core/services/monitoring_service.dart';
 import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/features/auth/widgets/auth_wrapper.dart';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 void mainRunner(Environment env, FirebaseOptions? firebaseOptions) async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   AppConfig.environment = env;
 
   // Initialize Firebase with flavor-specific options.

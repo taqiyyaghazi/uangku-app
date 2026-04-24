@@ -13,6 +13,9 @@ import 'package:uangku/features/transaction/widgets/numpad.dart';
 import 'package:uangku/shared/utils/currency_formatter.dart';
 import 'package:uangku/shared/utils/wallet_icon_mapper.dart';
 import 'package:uangku/shared/widgets/searchable_picker_sheet.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:uangku/features/transaction/services/gemini_scanner_service.dart';
+import 'package:uangku/features/transaction/widgets/receipt_scanner_overlay.dart';
 
 /// Bottom sheet for quick transaction entry.
 ///
@@ -286,15 +289,29 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            CurrencyFormatter.format(_amount),
-            style: theme.textTheme.headlineLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: _colorForType,
-              letterSpacing: -0.5,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                CurrencyFormatter.format(_amount),
+                style: theme.textTheme.headlineLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: _colorForType,
+                  letterSpacing: -0.5,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (_type == TransactionType.expense) ...[
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.document_scanner),
+                  color: OceanFlowColors.primary,
+                  onPressed: _scanReceipt,
+                  tooltip: 'Scan Receipt',
+                ),
+              ],
+            ],
           ),
           const SizedBox(height: 8),
           ActionChip(
@@ -358,6 +375,62 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
           now.second,
         );
       });
+    }
+  }
+
+  Future<void> _scanReceipt() async {
+    final picker = ImagePicker();
+    final image = await picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 50,
+    );
+
+    if (image == null) return;
+    
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const ReceiptScannerOverlay(),
+    );
+
+    try {
+      final bytes = await image.readAsBytes();
+      
+      final scanner = ref.read(geminiScannerServiceProvider);
+      final categoriesAsync = ref.read(categoriesByTypeProvider(_type));
+      final categories = categoriesAsync.value ?? [];
+
+      final data = await scanner.analyzeReceipt(bytes, categories);
+      
+      if (!mounted) return;
+      Navigator.of(context).pop(); 
+
+      if (data != null) {
+        setState(() {
+          _amountText = data.amount > 0 ? data.amount.toStringAsFixed(0) : '0';
+          _noteController.text = data.notes;
+          _selectedDate = data.date;
+          _selectedCategoryId = data.category.id;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Aduh, tulisannya agak buram. Bob bantu buka form manual ya!'),
+            backgroundColor: OceanFlowColors.error,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Aduh, tulisannya agak buram. Bob bantu buka form manual ya!'),
+          backgroundColor: OceanFlowColors.error,
+        ),
+      );
     }
   }
 

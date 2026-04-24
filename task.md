@@ -1,16 +1,21 @@
-# Task: Implement Story 11.1 (Secure Logout & Local Data Cleansing)
+# Task: Implement Story 12.1 (Smart Receipt Scanner)
 
-## Phase 2: Implement [x]
-
-- [x] Add `deleteAllLocalData()` to `AppDatabase` in `lib/data/database.dart`.
-- [x] Create `AuthService` in `lib/features/auth/services/auth_service.dart`.
-  - [x] Implement `performSecureLogout()` logic (wipe DB, wipe Prefs, signOut repo).
-- [x] Create `AuthService` unit tests in `test/features/auth/services/auth_service_test.dart`.
-- [x] Update `auth_provider.dart` to expose `authServiceProvider`.
-- [x] Update UI in `UserAvatarButton` (`lib/features/auth/widgets/user_avatar_button.dart`).
-  - [x] Implement confirmation dialog.
-  - [x] Implement non-dismissible loading overlay during logout.
-  - [x] Call `authService.performSecureLogout()`.
+## Phase 2: Implement [/]
+- [x] Add `image_picker`, `google_generative_ai`, and `flutter_image_compress` dependencies.
+- [x] Set up environment variable handling for Gemini API key (e.g. `flutter_dotenv`).
+- [x] Create `GeminiScannerService` in `lib/features/transaction/services/`.
+  - [x] Implement `analyzeReceipt` method using `google_generative_ai` and `gemini-1.5-flash`.
+- [x] Add loading animation overlay widget (laser effect + "Bob is reading your receipt...").
+- [x] Update "Add Transaction" UI (`lib/features/transaction/screens/` or `widgets/`).
+  - [x] Add "Scan Receipt" camera icon next to "Amount" field.
+  - [x] Implement `image_picker` to capture receipt.
+  - [x] Connect image capture to `GeminiScannerService`.
+- [x] Implement data mapping (JSON parsing) to populate the transaction form automatically.
+  - [x] Amount
+  - [x] Notes (Store)
+  - [x] Date
+  - [x] Category (Fuzzy match)
+- [x] Handle fallback mechanism (errors/poor connection).
 
 ## Phase 3: Integrate / Verify [x]
 - [x] Run `flutter test` to ensure new tests and existing tests pass.
