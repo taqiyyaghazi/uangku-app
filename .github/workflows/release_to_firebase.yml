@@ -57,10 +57,17 @@ jobs:
           --split-debug-info=build/app/outputs/symbols \
           --dart-define=GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}"
 
-      # Langkah 4: Get Last Commit Message
-      - name: Get Last Commit Message
+      # Langkah 4: Get Release Notes from File
+      - name: Get Release Notes from File
         run: |
-          git log -1 --pretty=format:"%s" > release-notes.txt
+          VERSION=$(grep '^version: ' pubspec.yaml | sed 's/version: //; s/+[0-9]*//')
+          FILE="docs/release_notes/release-$VERSION.md"
+          if [ -f "$FILE" ]; then
+            cat "$FILE" > release-notes.txt
+          else
+            echo "Release notes for version $VERSION not found. Using last commit message instead."
+            git log -1 --pretty=format:"%s" > release-notes.txt
+          fi
 
       # Langkah 5: Kirim ke Firebase App Distribution
       - name: Upload to Firebase
