@@ -422,6 +422,15 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
           ),
         );
       }
+    } on RateLimitException catch (e) {
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message),
+          backgroundColor: OceanFlowColors.error,
+        ),
+      );
     } catch (e) {
       if (!mounted) return;
       Navigator.of(context).pop();

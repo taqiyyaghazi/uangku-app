@@ -11,6 +11,13 @@ final geminiScannerServiceProvider = Provider<GeminiScannerService>((ref) {
   return GeminiScannerService(ref.read(monitoringServiceProvider));
 });
 
+class RateLimitException implements Exception {
+  final String message;
+  RateLimitException(this.message);
+  @override
+  String toString() => 'RateLimitException: $message';
+}
+
 class GeminiScannerService {
   final MonitoringService _monitoring;
   late final GenerativeModel _model;
@@ -80,6 +87,14 @@ Return ONLY a valid JSON object matching this structure:
       }
 
       return ReceiptData.fromJson(jsonResponse, selectedCategory);
+    } on GenerativeAIException catch (e) {
+      if (e.message.contains('quota') || 
+          e.message.contains('limit') || 
+          e.message.contains('429')) {
+        _monitoring.recordError(e, StackTrace.current, reason: 'Gemini Rate Limit reached');
+        throw RateLimitException('Bob sudah terlalu banyak membaca struk hari ini. Istirahat dulu ya!');
+      }
+      rethrow;
     } catch (e, stack) {
       _monitoring.recordError(e, stack, reason: 'Failed to analyze receipt');
       return null;
