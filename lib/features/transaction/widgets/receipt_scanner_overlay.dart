@@ -20,10 +20,11 @@ class _ReceiptScannerOverlayState extends State<ReceiptScannerOverlay>
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
-    
-    _animation = Tween<double>(begin: -1.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+
+    _animation = Tween<double>(
+      begin: -1.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -63,7 +64,9 @@ class _ReceiptScannerOverlayState extends State<ReceiptScannerOverlay>
                             color: OceanFlowColors.primary,
                             boxShadow: [
                               BoxShadow(
-                                color: OceanFlowColors.primary.withValues(alpha: 0.8),
+                                color: OceanFlowColors.primary.withValues(
+                                  alpha: 0.8,
+                                ),
                                 blurRadius: 8,
                                 spreadRadius: 2,
                               ),
@@ -78,11 +81,11 @@ class _ReceiptScannerOverlayState extends State<ReceiptScannerOverlay>
             ),
             const SizedBox(height: 16),
             Text(
-              'Bob is reading your receipt...',
+              'Reading your receipt...',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
