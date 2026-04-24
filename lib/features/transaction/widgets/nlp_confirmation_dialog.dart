@@ -24,11 +24,11 @@ class NlpConfirmationDialog extends StatelessWidget {
     
     String summary;
     if (typeName == 'transfer' && result.toWallet != null) {
-      summary = 'Transfer $amountFormatted dari $walletName ke ${result.toWallet!.name}';
+      summary = 'Transfer $amountFormatted from $walletName to ${result.toWallet!.name}';
     } else if (typeName == 'expense') {
-      summary = 'Pengeluaran $amountFormatted untuk ${result.note.isNotEmpty ? result.note : result.category?.name ?? "sesuatu"} menggunakan $walletName';
+      summary = 'Expense $amountFormatted for ${result.note.isNotEmpty ? result.note : result.category?.name ?? "something"} using $walletName';
     } else {
-      summary = 'Pemasukan $amountFormatted untuk ${result.note.isNotEmpty ? result.note : result.category?.name ?? "sesuatu"} ke $walletName';
+      summary = 'Income $amountFormatted for ${result.note.isNotEmpty ? result.note : result.category?.name ?? "something"} to $walletName';
     }
 
     final dateStr = DateFormat('EEE, d MMM yyyy').format(result.date);
@@ -38,7 +38,7 @@ class NlpConfirmationDialog extends StatelessWidget {
         children: [
           const Icon(Icons.auto_awesome, color: OceanFlowColors.primary),
           const SizedBox(width: 8),
-          const Text('Bob Mencatat', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text('Confirm Transaction', style: TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
       content: Column(
@@ -47,11 +47,11 @@ class NlpConfirmationDialog extends StatelessWidget {
         children: [
           Text(summary, style: const TextStyle(fontSize: 16)),
           const SizedBox(height: 12),
-          Text('Tanggal: $dateStr', style: const TextStyle(fontSize: 13, color: Colors.grey)),
+          Text('Date: $dateStr', style: const TextStyle(fontSize: 13, color: Colors.grey)),
           if (result.category != null && typeName != 'transfer') 
-            Text('Kategori: ${result.category!.name}', style: const TextStyle(fontSize: 13, color: Colors.grey)),
+            Text('Category: ${result.category!.name}', style: const TextStyle(fontSize: 13, color: Colors.grey)),
           const SizedBox(height: 16),
-          const Text('Benar?', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text('Is this correct?', style: TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
       actions: [
@@ -61,7 +61,7 @@ class NlpConfirmationDialog extends StatelessWidget {
         ),
         FilledButton(
           onPressed: () => Navigator.of(context).pop(true),
-          child: const Text('Simpan'),
+          child: const Text('Save'),
         ),
       ],
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

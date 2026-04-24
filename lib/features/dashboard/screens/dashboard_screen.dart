@@ -341,7 +341,7 @@ class DashboardScreen extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Tercatat! Bob sudah menyimpan transaksi kamu.'),
+            content: Text('Saved! Your transaction has been recorded.'),
           ),
         );
       }

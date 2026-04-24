@@ -92,7 +92,7 @@ Return ONLY a valid JSON object matching this structure:
           e.message.contains('limit') || 
           e.message.contains('429')) {
         _monitoring.recordError(e, StackTrace.current, reason: 'Gemini Rate Limit reached');
-        throw RateLimitException('Bob sudah terlalu banyak membaca struk hari ini. Istirahat dulu ya!');
+        throw RateLimitException('Rate limit reached. Please try scanning again later.');
       }
       rethrow;
     } catch (e, stack) {

@@ -138,7 +138,7 @@ class _NlpExpandableFabState extends ConsumerState<NlpExpandableFab> with Single
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Bob bingung, tolong masukkan secara manual atau coba lagi.'),
+            content: Text('I couldn\'t understand that. Please try again or enter manually.'),
             backgroundColor: OceanFlowColors.error,
           ),
         );
@@ -227,7 +227,7 @@ class _NlpExpandableFabState extends ConsumerState<NlpExpandableFab> with Single
             focusNode: _focusNode,
             autofocus: true,
             decoration: InputDecoration(
-              hintText: _isProcessing ? 'Bob sedang berpikir...' : (_isListening ? 'Mendengarkan...' : 'Ketik transaksi...'),
+              hintText: _isProcessing ? 'Processing...' : (_isListening ? 'Listening...' : 'Type transaction...'),
               border: InputBorder.none,
               hintStyle: const TextStyle(fontSize: 14),
               contentPadding: const EdgeInsets.symmetric(horizontal: 4),
