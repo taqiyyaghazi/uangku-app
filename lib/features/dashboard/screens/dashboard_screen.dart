@@ -151,15 +151,10 @@ class DashboardScreen extends ConsumerWidget {
         ],
       ),
     ),
-    NlpInputBar(
-      onResultParsed: (result) => _onNlpResult(context, ref, result),
-    ),
   ],
 ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => QuickEntrySheet.show(context),
-        tooltip: 'Add Transaction',
-        child: const Icon(Icons.add),
+      floatingActionButton: NlpExpandableFab(
+        onResultParsed: (result) => _onNlpResult(context, ref, result),
       ),
     );
   }

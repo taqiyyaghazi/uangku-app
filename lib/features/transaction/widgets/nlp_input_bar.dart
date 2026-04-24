@@ -7,33 +7,68 @@ import 'package:uangku/data/database.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/features/transaction/models/nlp_transaction_result.dart';
 import 'package:uangku/features/transaction/services/gemini_nlp_service.dart';
+import 'package:uangku/features/transaction/widgets/quick_entry_sheet.dart';
 
-class NlpInputBar extends ConsumerStatefulWidget {
+class NlpExpandableFab extends ConsumerStatefulWidget {
   final Function(NlpTransactionResult) onResultParsed;
   
-  const NlpInputBar({super.key, required this.onResultParsed});
+  const NlpExpandableFab({super.key, required this.onResultParsed});
 
   @override
-  ConsumerState<NlpInputBar> createState() => _NlpInputBarState();
+  ConsumerState<NlpExpandableFab> createState() => _NlpExpandableFabState();
 }
 
-class _NlpInputBarState extends ConsumerState<NlpInputBar> {
+class _NlpExpandableFabState extends ConsumerState<NlpExpandableFab> with SingleTickerProviderStateMixin {
   final TextEditingController _textController = TextEditingController();
   final SpeechToText _speechToText = SpeechToText();
+  late AnimationController _expandController;
+  late Animation<double> _expandAnimation;
   
+  bool _isExpanded = false;
   bool _speechEnabled = false;
   bool _isListening = false;
   bool _isProcessing = false;
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
     _initSpeech();
+    _expandController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _expandAnimation = CurvedAnimation(
+      parent: _expandController,
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _expandController.dispose();
+    _textController.dispose();
+    _focusNode.dispose();
+    super.dispose();
   }
 
   void _initSpeech() async {
     _speechEnabled = await _speechToText.initialize();
-    setState(() {});
+    if (mounted) setState(() {});
+  }
+
+  void _toggleExpand() {
+    setState(() {
+      _isExpanded = !_isExpanded;
+      if (_isExpanded) {
+        _expandController.forward();
+        _focusNode.requestFocus();
+      } else {
+        _expandController.reverse();
+        _focusNode.unfocus();
+        _textController.clear();
+      }
+    });
   }
 
   void _startListening() async {
@@ -69,9 +104,7 @@ class _NlpInputBarState extends ConsumerState<NlpInputBar> {
     try {
       final nlpService = ref.read(geminiNlpServiceProvider);
       
-      // Get wallets and categories
       final List<Wallet> wallets = ref.read(walletsProvider).value ?? [];
-      // Combine all categories since we don't know the type yet
       final categoriesAsyncExpense = ref.read(categoriesByTypeProvider(TransactionType.expense));
       final categoriesAsyncIncome = ref.read(categoriesByTypeProvider(TransactionType.income));
       
@@ -100,6 +133,7 @@ class _NlpInputBarState extends ConsumerState<NlpInputBar> {
 
       if (result != null) {
         widget.onResultParsed(result);
+        _toggleExpand(); // Collapse after success
       } else {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -128,78 +162,108 @@ class _NlpInputBarState extends ConsumerState<NlpInputBar> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    return AnimatedBuilder(
+      animation: _expandAnimation,
+      builder: (context, child) {
+        return Container(
+          height: 56,
+          width: _isExpanded 
+              ? MediaQuery.of(context).size.width - 32 
+              : 56,
+          decoration: BoxDecoration(
+            color: _isExpanded ? colorScheme.surface : OceanFlowColors.primary,
+            borderRadius: BorderRadius.circular(28),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.15),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ],
+          child: _isExpanded ? _buildExpandedContent() : _buildCollapsedContent(),
+        );
+      },
+    );
+  }
+
+  Widget _buildCollapsedContent() {
+    return InkWell(
+      onTap: _toggleExpand,
+      borderRadius: BorderRadius.circular(28),
+      child: const Center(
+        child: Icon(
+          Icons.auto_awesome,
+          color: Colors.white,
+        ),
       ),
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 12,
-        bottom: MediaQuery.of(context).padding.bottom + 12,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _textController,
-                      decoration: InputDecoration(
-                        hintText: _isProcessing ? 'Bob sedang berpikir...' : (_isListening ? 'Mendengarkan...' : 'Ketik "bayar kopi 25rb"...'),
-                        border: InputBorder.none,
-                        enabled: !_isProcessing,
-                      ),
-                      onSubmitted: (_) => _processText(),
-                      textInputAction: TextInputAction.send,
-                    ),
-                  ),
-                  if (_speechEnabled && !_isProcessing)
-                    IconButton(
-                      icon: Icon(
-                        _isListening ? Icons.mic : Icons.mic_none,
-                        color: _isListening ? OceanFlowColors.error : OceanFlowColors.primary,
-                      ),
-                      onPressed: _isListening ? _stopListening : _startListening,
-                    ),
-                ],
-              ),
+    );
+  }
+
+  Widget _buildExpandedContent() {
+    return Row(
+      children: [
+        const SizedBox(width: 4),
+        IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: _toggleExpand,
+          visualDensity: VisualDensity.compact,
+        ),
+        IconButton(
+          icon: const Icon(Icons.add_circle_outline),
+          onPressed: () {
+            _toggleExpand();
+            QuickEntrySheet.show(context);
+          },
+          tooltip: 'Manual Entry',
+          color: OceanFlowColors.primary,
+          visualDensity: VisualDensity.compact,
+        ),
+        Expanded(
+          child: TextField(
+            controller: _textController,
+            focusNode: _focusNode,
+            autofocus: true,
+            decoration: InputDecoration(
+              hintText: _isProcessing ? 'Bob sedang berpikir...' : (_isListening ? 'Mendengarkan...' : 'Ketik transaksi...'),
+              border: InputBorder.none,
+              hintStyle: const TextStyle(fontSize: 14),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 4),
             ),
+            onSubmitted: (_) => _processText(),
+            textInputAction: TextInputAction.send,
+            enabled: !_isProcessing,
           ),
-          const SizedBox(width: 8),
-          _isProcessing
-              ? const Padding(
-                  padding: EdgeInsets.all(12.0),
-                  child: SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                )
-              : IconButton(
-                  style: IconButton.styleFrom(
-                    backgroundColor: OceanFlowColors.primary,
-                    foregroundColor: Colors.white,
-                  ),
-                  icon: const Icon(Icons.send),
-                  onPressed: _processText,
-                ),
-        ],
-      ),
+        ),
+        if (_speechEnabled && !_isProcessing)
+          IconButton(
+            icon: Icon(
+              _isListening ? Icons.mic : Icons.mic_none,
+              color: _isListening ? OceanFlowColors.error : OceanFlowColors.primary,
+            ),
+            onPressed: _isListening ? _stopListening : _startListening,
+            visualDensity: VisualDensity.compact,
+          ),
+        if (_isProcessing)
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12),
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          )
+        else
+          IconButton(
+            icon: const Icon(Icons.send),
+            color: OceanFlowColors.primary,
+            onPressed: _processText,
+            visualDensity: VisualDensity.compact,
+          ),
+        const SizedBox(width: 4),
+      ],
     );
   }
 }
