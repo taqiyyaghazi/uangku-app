@@ -20,6 +20,9 @@
 ## Phase 3: Integrate / Verify [x]
 - [x] Run `flutter test` to ensure new tests and existing tests pass.
 - [x] Run `flutter analyze` to ensure code quality.
+## Phase 3: Integrate / Verify [x]
+- [x] Run `flutter test` to ensure new tests and existing tests pass.
+- [x] Run `flutter analyze` to ensure code quality.
 
 ## Phase 4: Ship
 - [x] Create commit with conventional message.
