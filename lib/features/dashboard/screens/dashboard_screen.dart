@@ -1,27 +1,27 @@
+import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:uangku/core/config/app_config.dart';
 import 'package:uangku/core/constants/app_constants.dart';
 import 'package:uangku/core/di/providers.dart';
-import 'package:uangku/features/auth/state/auth_provider.dart';
+import 'package:uangku/core/services/monitoring_service.dart';
 import 'package:uangku/data/database.dart';
+import 'package:uangku/data/tables/transactions_table.dart';
+import 'package:uangku/features/auth/state/auth_provider.dart';
 import 'package:uangku/features/dashboard/screens/wallet_list_screen.dart';
+import 'package:uangku/features/dashboard/widgets/add_wallet_card.dart';
 import 'package:uangku/features/dashboard/widgets/daily_breath_bar.dart';
 import 'package:uangku/features/dashboard/widgets/dashboard_header.dart';
 import 'package:uangku/features/dashboard/widgets/recent_activity_section.dart';
+import 'package:uangku/features/dashboard/widgets/wallet_card.dart';
+import 'package:uangku/features/dashboard/widgets/wallet_carousel.dart';
 import 'package:uangku/features/dashboard/widgets/wallet_form_sheet.dart';
 import 'package:uangku/features/dashboard/widgets/wallet_grid.dart';
-import 'package:uangku/features/dashboard/widgets/wallet_carousel.dart';
-import 'package:uangku/features/dashboard/widgets/wallet_card.dart';
-import 'package:uangku/features/dashboard/widgets/add_wallet_card.dart';
 import 'package:uangku/features/sync/state/sync_status_provider.dart';
-import 'package:uangku/features/transaction/widgets/quick_entry_sheet.dart';
-import 'package:uangku/features/transaction/widgets/nlp_input_bar.dart';
 import 'package:uangku/features/transaction/models/nlp_transaction_result.dart';
 import 'package:uangku/features/transaction/widgets/nlp_confirmation_dialog.dart';
-import 'package:uangku/data/tables/transactions_table.dart';
-import 'package:drift/drift.dart' hide Column;
+import 'package:uangku/features/transaction/widgets/nlp_input_bar.dart';
+import 'package:uangku/features/transaction/widgets/quick_entry_sheet.dart';
 
 /// The main dashboard screen displaying the wallet grid and total balance.
 ///
@@ -330,7 +330,16 @@ class DashboardScreen extends ConsumerWidget {
               walletId: result.wallet!.id,
               balanceDelta: balanceDelta,
             );
-         } else {
+
+            // Log AI Accuracy (Direct save from confirmation dialog)
+            if (result.category != null) {
+              ref.read(monitoringServiceProvider).logAiAccuracy(
+                    method: AppConstants.methodNlpChat,
+                    aiCategory: result.category!.name,
+                    finalCategory: result.category!.name,
+                  );
+            }
+          } else {
             if (!context.mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Missing category or wallet info. Please edit.')));
             QuickEntrySheet.show(context, initialNlpResult: result);

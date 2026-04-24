@@ -3,33 +3,43 @@ import 'dart:developer' as developer;
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:uangku/core/constants/app_constants.dart';
 import 'package:uangku/core/di/providers.dart';
+import 'package:uangku/core/services/monitoring_service.dart';
 import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
 import 'package:uangku/features/transaction/models/nlp_transaction_result.dart';
+import 'package:uangku/features/transaction/services/gemini_scanner_service.dart';
 import 'package:uangku/features/transaction/widgets/numpad.dart';
+import 'package:uangku/features/transaction/widgets/receipt_scanner_overlay.dart';
 import 'package:uangku/shared/utils/currency_formatter.dart';
 import 'package:uangku/shared/utils/wallet_icon_mapper.dart';
 import 'package:uangku/shared/widgets/searchable_picker_sheet.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:uangku/features/transaction/services/gemini_scanner_service.dart';
-import 'package:uangku/features/transaction/widgets/receipt_scanner_overlay.dart';
 
 /// Bottom sheet for quick transaction entry.
 ///
 /// Provides a unified flow for Income, Expense, and Transfer with a
 /// custom numpad for speed (< 3 seconds per entry).
 class QuickEntrySheet extends ConsumerStatefulWidget {
-  const QuickEntrySheet({super.key, this.initialWalletId, this.initialNlpResult});
+  const QuickEntrySheet({
+    super.key,
+    this.initialWalletId,
+    this.initialNlpResult,
+  });
 
   final int? initialWalletId;
   final NlpTransactionResult? initialNlpResult;
 
   /// Shows the entry sheet as a modal bottom sheet.
-  static Future<void> show(BuildContext context, {int? initialWalletId, NlpTransactionResult? initialNlpResult}) {
+  static Future<void> show(
+    BuildContext context, {
+    int? initialWalletId,
+    NlpTransactionResult? initialNlpResult,
+  }) {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -37,7 +47,10 @@ class QuickEntrySheet extends ConsumerStatefulWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => QuickEntrySheet(initialWalletId: initialWalletId, initialNlpResult: initialNlpResult),
+      builder: (_) => QuickEntrySheet(
+        initialWalletId: initialWalletId,
+        initialNlpResult: initialNlpResult,
+      ),
     );
   }
 
@@ -55,19 +68,30 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
   final _noteController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
 
+  // AI Accuracy Tracking
+  String? _aiSuggestedCategoryName;
+  String? _aiMethod;
+
   @override
   void initState() {
     super.initState();
     _selectedWalletId = widget.initialWalletId;
-    
+
     if (widget.initialNlpResult != null) {
       _type = widget.initialNlpResult!.type;
-      _amountText = widget.initialNlpResult!.amount > 0 ? widget.initialNlpResult!.amount.toStringAsFixed(0) : '0';
-      _selectedWalletId = widget.initialNlpResult!.wallet?.id ?? _selectedWalletId;
+      _amountText = widget.initialNlpResult!.amount > 0
+          ? widget.initialNlpResult!.amount.toStringAsFixed(0)
+          : '0';
+      _selectedWalletId =
+          widget.initialNlpResult!.wallet?.id ?? _selectedWalletId;
       _selectedToWalletId = widget.initialNlpResult!.toWallet?.id;
       _selectedCategoryId = widget.initialNlpResult!.category?.id;
       _noteController.text = widget.initialNlpResult!.note;
       _selectedDate = widget.initialNlpResult!.date;
+
+      // Capture AI suggestion for tracking
+      _aiSuggestedCategoryName = widget.initialNlpResult!.category?.name;
+      _aiMethod = AppConstants.methodNlpChat;
     }
   }
 
@@ -398,7 +422,7 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
     );
 
     if (image == null) return;
-    
+
     if (!mounted) return;
 
     showDialog(
@@ -409,15 +433,15 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
 
     try {
       final bytes = await image.readAsBytes();
-      
+
       final scanner = ref.read(geminiScannerServiceProvider);
       final categoriesAsync = ref.read(categoriesByTypeProvider(_type));
       final categories = categoriesAsync.value ?? [];
 
       final data = await scanner.analyzeReceipt(bytes, categories);
-      
+
       if (!mounted) return;
-      Navigator.of(context).pop(); 
+      Navigator.of(context).pop();
 
       if (data != null) {
         setState(() {
@@ -425,11 +449,17 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
           _noteController.text = data.notes;
           _selectedDate = data.date;
           _selectedCategoryId = data.category.id;
+
+          // Capture AI suggestion for tracking
+          _aiSuggestedCategoryName = data.category.name;
+          _aiMethod = AppConstants.methodScanReceipt;
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('The receipt is a bit blurry. Please enter the details manually.'),
+            content: Text(
+              'The receipt is a bit blurry. Please enter the details manually.',
+            ),
             backgroundColor: OceanFlowColors.error,
           ),
         );
@@ -439,7 +469,9 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Scanner limit reached. Please try again later or enter details manually.'),
+          content: Text(
+            'Scanner limit reached. Please try again later or enter details manually.',
+          ),
           backgroundColor: OceanFlowColors.error,
         ),
       );
@@ -448,7 +480,9 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('The receipt is a bit blurry. Please enter the details manually.'),
+          content: Text(
+            'The receipt is a bit blurry. Please enter the details manually.',
+          ),
           backgroundColor: OceanFlowColors.error,
         ),
       );
@@ -495,7 +529,9 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+          color: theme.colorScheme.surfaceContainerHighest.withValues(
+            alpha: 0.4,
+          ),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -537,13 +573,17 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
     List<Wallet> wallets,
     bool isSource,
   ) async {
-    final items = wallets.map((w) => PickerItem<int>(
-      id: w.id,
-      name: w.name,
-      icon: WalletIconMapper.getIcon(w.icon),
-      color: OceanFlowColors.primary,
-      subtitle: CurrencyFormatter.format(w.balance),
-    )).toList();
+    final items = wallets
+        .map(
+          (w) => PickerItem<int>(
+            id: w.id,
+            name: w.name,
+            icon: WalletIconMapper.getIcon(w.icon),
+            color: OceanFlowColors.primary,
+            subtitle: CurrencyFormatter.format(w.balance),
+          ),
+        )
+        .toList();
 
     final result = await SearchablePickerSheet.show<int>(
       context,
@@ -597,12 +637,15 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
         );
 
         return InkWell(
-          onTap: () => _showCategoryPicker(context, categories, recentTxAsync.value),
+          onTap: () =>
+              _showCategoryPicker(context, categories, recentTxAsync.value),
           borderRadius: BorderRadius.circular(12),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+              color: theme.colorScheme.surfaceContainerHighest.withValues(
+                alpha: 0.4,
+              ),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -649,15 +692,14 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
       TransactionType.transfer => OceanFlowColors.transfer,
     };
 
-    final items =
-        categories.map((c) {
-          return PickerItem<int>(
-            id: c.id,
-            name: c.name,
-            iconCode: c.iconCode,
-            color: typeColor,
-          );
-        }).toList();
+    final items = categories.map((c) {
+      return PickerItem<int>(
+        id: c.id,
+        name: c.name,
+        iconCode: c.iconCode,
+        color: typeColor,
+      );
+    }).toList();
 
     // Determine recent categories (up to 3 unique from recent transactions of the same type)
     List<PickerItem<int>>? recentItems;
@@ -667,7 +709,7 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
           .map((tx) => tx.category!.id)
           .toSet()
           .take(3);
-      
+
       recentItems = items.where((item) => recentIds.contains(item.id)).toList();
     }
 
@@ -795,6 +837,24 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
           walletId: _selectedWalletId!,
           balanceDelta: balanceDelta,
         );
+
+        // Log AI Accuracy if this transaction originated from an AI suggestion
+        if (_aiMethod != null && _aiSuggestedCategoryName != null) {
+          final categories =
+              ref.read(categoriesByTypeProvider(_type)).value ?? [];
+          final finalCategory = categories.firstWhere(
+            (c) => c.id == _selectedCategoryId,
+            orElse: () => categories.first,
+          );
+
+          ref
+              .read(monitoringServiceProvider)
+              .logAiAccuracy(
+                method: _aiMethod!,
+                aiCategory: _aiSuggestedCategoryName!,
+                finalCategory: finalCategory.name,
+              );
+        }
       }
 
       if (mounted) {

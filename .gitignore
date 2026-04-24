@@ -49,3 +49,4 @@ android/app/src/prod/google-services.json
 
 # Environment variables
 .env*
+task.md

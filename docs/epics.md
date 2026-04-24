@@ -170,6 +170,17 @@ This document decomposes the requirements for **Uangku** into logical phases of 
 
 ---
 
+## Epic 13: Financial Health & AI Optimization
+
+**Goal:** Optimize AI performance through data-driven insights and tracking.
+**Success Criteria:** Every AI-generated transaction is logged with accuracy metadata to Firebase Analytics.
+
+### Stories in Epic 13:
+
+- **Story 13.1: AI Accuracy Tracking via Firebase Analytics** (2 pts)
+
+---
+
 ## Implementation Sequence
 
 1.  **Epic 1** (Foundation & UI Shell)
@@ -184,7 +195,9 @@ This document decomposes the requirements for **Uangku** into logical phases of 
 10. **Epic 10** (Advanced Discovery & Filtering)
 11. **Epic 11** (Privacy & Session Security)
 12. **Epic 12** (AI Financial Assistant)
+13. **Epic 13** (Financial Health & AI Optimization)
 
-**Total Story Points:** 115 Points
-**Total Stories:** 37 Stories
+**Total Story Points:** 117 Points
+**Total Stories:** 38 Stories
+
 **Estimated Timeline:** 8-10 Sprints (approx. 3 months)
