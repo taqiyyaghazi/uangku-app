@@ -2,7 +2,7 @@ name: uangku
 description: 'Uangku - Offline-first personal finance tracker with Daily Breath budgeting.'
 publish_to: 'none'
 
-version: 1.6.0+8
+version: 1.7.0+9
 
 environment:
   sdk: ^3.9.0
