@@ -23,7 +23,7 @@ class GeminiScannerService {
     }
     
     _model = GenerativeModel(
-      model: 'gemini-1.5-flash',
+      model: 'gemini-1.5-flash-latest',
       apiKey: apiKey ?? '',
       generationConfig: GenerationConfig(responseMimeType: 'application/json'),
     );

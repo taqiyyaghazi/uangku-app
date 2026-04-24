@@ -22,4 +22,4 @@
 - [x] Run `flutter analyze` to ensure code quality.
 
 ## Phase 4: Ship
-- [ ] Create commit with conventional message.
+- [x] Create commit with conventional message.

@@ -70,3 +70,4 @@ flutter:
 
   assets:
     - assets/icon/logo.png
+    - .env
