@@ -417,17 +417,17 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Aduh, tulisannya agak buram. Bob bantu buka form manual ya!'),
+            content: Text('The receipt is a bit blurry. Please enter the details manually.'),
             backgroundColor: OceanFlowColors.error,
           ),
         );
       }
-    } on RateLimitException catch (e) {
+    } on RateLimitException catch (_) {
       if (!mounted) return;
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.message),
+        const SnackBar(
+          content: Text('Scanner limit reached. Please try again later or enter details manually.'),
           backgroundColor: OceanFlowColors.error,
         ),
       );
@@ -436,7 +436,7 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Aduh, tulisannya agak buram. Bob bantu buka form manual ya!'),
+          content: Text('The receipt is a bit blurry. Please enter the details manually.'),
           backgroundColor: OceanFlowColors.error,
         ),
       );
