@@ -17,6 +17,11 @@ import 'package:uangku/features/dashboard/widgets/wallet_card.dart';
 import 'package:uangku/features/dashboard/widgets/add_wallet_card.dart';
 import 'package:uangku/features/sync/state/sync_status_provider.dart';
 import 'package:uangku/features/transaction/widgets/quick_entry_sheet.dart';
+import 'package:uangku/features/transaction/widgets/nlp_input_bar.dart';
+import 'package:uangku/features/transaction/models/nlp_transaction_result.dart';
+import 'package:uangku/features/transaction/widgets/nlp_confirmation_dialog.dart';
+import 'package:uangku/data/tables/transactions_table.dart';
+import 'package:drift/drift.dart' hide Column;
 
 /// The main dashboard screen displaying the wallet grid and total balance.
 ///
@@ -61,7 +66,10 @@ class DashboardScreen extends ConsumerWidget {
     });
 
     return Scaffold(
-      body: Stack(
+      body: Column(
+        children: [
+          Expanded(
+            child: Stack(
         children: [
           walletsAsync.when(
             data: (wallets) => _buildContent(context, ref, wallets),
@@ -142,6 +150,12 @@ class DashboardScreen extends ConsumerWidget {
             ),
         ],
       ),
+    ),
+    NlpInputBar(
+      onResultParsed: (result) => _onNlpResult(context, ref, result),
+    ),
+  ],
+),
       floatingActionButton: FloatingActionButton(
         onPressed: () => QuickEntrySheet.show(context),
         tooltip: 'Add Transaction',
@@ -277,5 +291,68 @@ class DashboardScreen extends ConsumerWidget {
 
     final repo = ref.read(walletRepositoryProvider);
     await repo.updateWallet(result);
+  }
+
+  Future<void> _onNlpResult(BuildContext context, WidgetRef ref, NlpTransactionResult result) async {
+    final confirmed = await NlpConfirmationDialog.show(context, result);
+    if (confirmed == null) return;
+    
+    if (confirmed) {
+      final repo = ref.read(transactionRepositoryProvider);
+      final balanceDelta = switch (result.type) {
+        TransactionType.income => result.amount,
+        TransactionType.expense => -result.amount,
+        TransactionType.transfer => 0.0,
+      };
+
+      if (result.type == TransactionType.transfer) {
+        if (result.wallet != null && result.toWallet != null) {
+          await repo.performInternalTransfer(
+            fromWalletId: result.wallet!.id,
+            toWalletId: result.toWallet!.id,
+            amount: result.amount,
+            date: result.date,
+            note: result.note,
+          );
+        } else {
+           if (!context.mounted) return;
+           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Missing wallet info for transfer. Please edit.')));
+           QuickEntrySheet.show(context, initialNlpResult: result);
+           return;
+        }
+      } else {
+         if (result.wallet != null && result.category != null) {
+            final companion = TransactionsCompanion(
+              walletId: Value(result.wallet!.id),
+              amount: Value(result.amount),
+              type: Value(result.type),
+              categoryId: Value(result.category!.id),
+              note: Value(result.note),
+              date: Value(result.date),
+            );
+            await repo.insertTransactionAndUpdateBalance(
+              transaction: companion,
+              walletId: result.wallet!.id,
+              balanceDelta: balanceDelta,
+            );
+         } else {
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Missing category or wallet info. Please edit.')));
+            QuickEntrySheet.show(context, initialNlpResult: result);
+            return;
+         }
+      }
+      
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Tercatat! Bob sudah menyimpan transaksi kamu.'),
+          ),
+        );
+      }
+    } else {
+      if (!context.mounted) return;
+      QuickEntrySheet.show(context, initialNlpResult: result);
+    }
   }
 }

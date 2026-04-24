@@ -4,6 +4,10 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>This app requires access to Speech Recognition to allow you to record transactions via voice.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app requires access to the microphone to allow you to record transactions via voice.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

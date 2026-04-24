@@ -9,6 +9,7 @@ import 'package:uangku/core/theme/app_theme.dart';
 import 'package:uangku/data/database.dart';
 import 'package:uangku/data/models/transaction_with_category.dart';
 import 'package:uangku/data/tables/transactions_table.dart';
+import 'package:uangku/features/transaction/models/nlp_transaction_result.dart';
 import 'package:uangku/features/transaction/widgets/numpad.dart';
 import 'package:uangku/shared/utils/currency_formatter.dart';
 import 'package:uangku/shared/utils/wallet_icon_mapper.dart';
@@ -22,12 +23,13 @@ import 'package:uangku/features/transaction/widgets/receipt_scanner_overlay.dart
 /// Provides a unified flow for Income, Expense, and Transfer with a
 /// custom numpad for speed (< 3 seconds per entry).
 class QuickEntrySheet extends ConsumerStatefulWidget {
-  const QuickEntrySheet({super.key, this.initialWalletId});
+  const QuickEntrySheet({super.key, this.initialWalletId, this.initialNlpResult});
 
   final int? initialWalletId;
+  final NlpTransactionResult? initialNlpResult;
 
   /// Shows the entry sheet as a modal bottom sheet.
-  static Future<void> show(BuildContext context, {int? initialWalletId}) {
+  static Future<void> show(BuildContext context, {int? initialWalletId, NlpTransactionResult? initialNlpResult}) {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -35,7 +37,7 @@ class QuickEntrySheet extends ConsumerStatefulWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => QuickEntrySheet(initialWalletId: initialWalletId),
+      builder: (_) => QuickEntrySheet(initialWalletId: initialWalletId, initialNlpResult: initialNlpResult),
     );
   }
 
@@ -57,6 +59,16 @@ class _QuickEntrySheetState extends ConsumerState<QuickEntrySheet> {
   void initState() {
     super.initState();
     _selectedWalletId = widget.initialWalletId;
+    
+    if (widget.initialNlpResult != null) {
+      _type = widget.initialNlpResult!.type;
+      _amountText = widget.initialNlpResult!.amount > 0 ? widget.initialNlpResult!.amount.toStringAsFixed(0) : '0';
+      _selectedWalletId = widget.initialNlpResult!.wallet?.id ?? _selectedWalletId;
+      _selectedToWalletId = widget.initialNlpResult!.toWallet?.id;
+      _selectedCategoryId = widget.initialNlpResult!.category?.id;
+      _noteController.text = widget.initialNlpResult!.note;
+      _selectedDate = widget.initialNlpResult!.date;
+    }
   }
 
   @override
