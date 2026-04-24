@@ -157,6 +157,18 @@ This document decomposes the requirements for **Uangku** into logical phases of 
 
 ---
 
+## Epic 12: AI Financial Assistant
+
+**Goal:** Leverage generative AI to minimize manual data entry and provide a futuristic recording experience.
+**Success Criteria:** User can scan a physical receipt to auto-fill a transaction and record transactions via natural language (text/voice).
+
+### Stories in Epic 12:
+
+- **Story 12.1: Smart Receipt Scanner (Gemini AI)** (5 pts)
+- **Story 12.2: NLP Transaction Entry (Chat-to-Record)** (5 pts)
+
+---
+
 ## Implementation Sequence
 
 1.  **Epic 1** (Foundation & UI Shell)
@@ -170,7 +182,8 @@ This document decomposes the requirements for **Uangku** into logical phases of 
 9.  **Epic 9** (Power User Experience)
 10. **Epic 10** (Advanced Discovery & Filtering)
 11. **Epic 11** (Privacy & Session Security)
+12. **Epic 12** (AI Financial Assistant)
 
-**Total Story Points:** 105 Points
-**Total Stories:** 35 Stories
-**Estimated Timeline:** 6-8 Sprints (approx. 2-2.5 months)
+**Total Story Points:** 115 Points
+**Total Stories:** 37 Stories
+**Estimated Timeline:** 8-10 Sprints (approx. 3 months)
