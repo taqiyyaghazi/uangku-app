@@ -446,6 +446,23 @@ class MockMonitoringService extends _i1.Mock implements _i11.MonitoringService {
           as _i6.Future<void>);
 
   @override
+  _i6.Future<void> logAiAccuracy({
+    required String? method,
+    required String? aiCategory,
+    required String? finalCategory,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#logAiAccuracy, [], {
+              #method: method,
+              #aiCategory: aiCategory,
+              #finalCategory: finalCategory,
+            }),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
   _i6.Future<void> setUserId(String? userId) =>
       (super.noSuchMethod(
             Invocation.method(#setUserId, [userId]),

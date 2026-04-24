@@ -2,6 +2,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uangku/core/constants/app_constants.dart';
 
 /// Service for monitoring application stability (Crashlytics) and usage (Analytics).
 ///
@@ -28,6 +29,39 @@ class MonitoringService {
       debugPrint('Analytics Event: $name | $parameters');
     }
     await _analytics.logEvent(name: name, parameters: parameters);
+  }
+
+  /// Logs AI accuracy performance data.
+  ///
+  /// This compares the [aiCategory] suggested by Gemini with the [finalCategory]
+  /// chosen by the user. Fails silently to ensure non-intrusive operation (AC #4).
+  Future<void> logAiAccuracy({
+    required String method,
+    required String aiCategory,
+    required String finalCategory,
+  }) async {
+    final isCorrect = aiCategory.toLowerCase() == finalCategory.toLowerCase();
+    
+    final parameters = {
+      AppConstants.paramAiMethod: method,
+      AppConstants.paramAiSuggestedCat: aiCategory,
+      AppConstants.paramUserFinalCat: finalCategory,
+      AppConstants.paramIsCorrect: isCorrect ? 1 : 0,
+    };
+
+    if (kDebugMode) {
+      debugPrint('AI Accuracy Log: $parameters');
+    }
+
+    try {
+      await _analytics.logEvent(
+        name: AppConstants.eventAiPerformance,
+        parameters: parameters,
+      );
+    } catch (e, stack) {
+      // AC #4: Silent error handling for analytics
+      logError('Failed to log AI accuracy', e, stack, parameters);
+    }
   }
 
   /// Sets the user ID for both Analytics and Crashlytics.
