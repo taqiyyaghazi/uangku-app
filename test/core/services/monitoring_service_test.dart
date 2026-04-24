@@ -54,5 +54,84 @@ void main() {
       await service.log('test message');
       verify(mockCrashlytics.log('test message')).called(1);
     });
+
+    group('logAiAccuracy', () {
+      test('logs correct=1 when categories match', () async {
+        await service.logAiAccuracy(
+          method: 'nlp_chat',
+          aiCategory: 'Food',
+          finalCategory: 'Food',
+        );
+
+        verify(
+          mockAnalytics.logEvent(
+            name: 'ai_performance_v1',
+            parameters: {
+              'method': 'nlp_chat',
+              'ai_cat': 'Food',
+              'final_cat': 'Food',
+              'is_correct': 1,
+            },
+          ),
+        ).called(1);
+      });
+
+      test('logs correct=0 when categories mismatch', () async {
+        await service.logAiAccuracy(
+          method: 'scan_receipt',
+          aiCategory: 'Food',
+          finalCategory: 'Shopping',
+        );
+
+        verify(
+          mockAnalytics.logEvent(
+            name: 'ai_performance_v1',
+            parameters: {
+              'method': 'scan_receipt',
+              'ai_cat': 'Food',
+              'final_cat': 'Shopping',
+              'is_correct': 0,
+            },
+          ),
+        ).called(1);
+      });
+
+      test('is case-insensitive for comparison', () async {
+        await service.logAiAccuracy(
+          method: 'nlp_chat',
+          aiCategory: 'food',
+          finalCategory: 'Food',
+        );
+
+        verify(
+          mockAnalytics.logEvent(
+            name: 'ai_performance_v1',
+            parameters: {
+              'method': 'nlp_chat',
+              'ai_cat': 'food',
+              'final_cat': 'Food',
+              'is_correct': 1,
+            },
+          ),
+        ).called(1);
+      });
+
+      test('fails silently on analytics error', () async {
+        when(mockAnalytics.logEvent(
+          name: anyNamed('name'),
+          parameters: anyNamed('parameters'),
+        )).thenThrow(Exception('Analytics failed'));
+
+        // Should not throw
+        await service.logAiAccuracy(
+          method: 'nlp_chat',
+          aiCategory: 'Food',
+          finalCategory: 'Food',
+        );
+
+        verify(mockCrashlytics.recordError(any, any, reason: anyNamed('reason')))
+            .called(1);
+      });
+    });
   });
 }
