@@ -42,6 +42,11 @@ jobs:
           mkdir -p android/app/src/prod
           echo "${{ secrets.GOOGLE_SERVICES_PROD_BASE64 }}" | base64 --decode > android/app/src/prod/google-services.json
 
+      # Langkah 2c: Buat file .env untuk API keys (Gemini, etc)
+      - name: Create .env file
+        run: |
+          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
+
       - name: Install Dependencies
         run: flutter pub get
 

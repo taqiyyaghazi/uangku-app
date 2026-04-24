@@ -48,4 +48,4 @@ android/app/src/dev/google-services.json
 android/app/src/prod/google-services.json
 
 # Environment variables
-.env
+.env*
